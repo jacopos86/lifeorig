@@ -1,0 +1,16 @@
+setup.py
+lifeorig/CGA.py
+lifeorig/QGA.py
+lifeorig/__init__.py
+lifeorig/__main__.py
+lifeorig/chromosomes_popul.py
+lifeorig/logging_module.py
+lifeorig/objective_func.py
+lifeorig/parser.py
+lifeorig/reaction_network.py
+lifeorig/read_input.py
+lifeorig/selection_methods.py
+lifeorig.egg-info/PKG-INFO
+lifeorig.egg-info/SOURCES.txt
+lifeorig.egg-info/dependency_links.txt
+lifeorig.egg-info/top_level.txt

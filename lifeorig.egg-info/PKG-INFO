@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: lifeorig
+Version: 1.0.0
+Summary: The lifeorig package is a program for the simulation of protocell evolution
+Home-page: 
+Author: Jacopo Simoni
+Author-email: jsimoni@lbl.gov
+License: gpl-3.0
+Keywords: protocells,evolution,RAF,genetic material
