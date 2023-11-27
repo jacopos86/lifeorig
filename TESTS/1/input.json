@@ -1,5 +1,5 @@
 {
-    "working_dir" : "/home/jacopo/Documents/courses/COMPUTER SCIENCE/CIS-THESIS-PROJECT/lifeorig-code-base/TESTS/1",
+    "working_dir" : "/home/jacopo/PROJECTS/lifeorig-code-base/TESTS/1",
     "GA_type" : "classical",
     "num_pop" : 100,
     "n_bits" : 100,
