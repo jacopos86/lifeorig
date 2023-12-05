@@ -16,9 +16,9 @@ def display_world(world, L):
             else:
                 str += ' 0 '
         print(str)
-L = 15
+L = 20
 world = np.zeros((L,L), dtype=int)
-nc = 10
+nc = 12
 x = np.random.randint(1,L-1,nc)
 y = np.random.randint(1,L-1,nc)
 for i in range(len(x)):
@@ -28,3 +28,24 @@ world[:,0] = -1
 world[L-1,:]= -1
 world[:,L-1]= -1
 display_world(world, L)
+#
+# define possible actions
+# policy given the actual state
+#
+# s = (L,S,E,W,N) -> a
+# a : move south/pick can/move north/move east/move west/stall
+states = []
+for L in [-1, 0, 1]:
+    for S in [-1,0,1]:
+        for E in [-1, 0 ,1]:
+            for W in [-1, 0, 1]:
+                for N in [-1, 0, 1]:
+                    states.append([L,S,E,W,N])
+n = len(states)
+actions = np.random.randint(6, size=n)
+# 0 -> MS
+# 1 -> PC
+# 2 -> MN
+# 3 -> ME
+# 4 -> MW
+# 5 -> S
