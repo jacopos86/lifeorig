@@ -145,6 +145,6 @@ def update_world_location(ist, x):
 #
 # compute strategy fitness
 x0 = [randint(1,L-2), randint(1,L-2)]
-fitness = strategy_fitness(x0, 50)
+fitness = strategy_fitness(x0, 100)
 print(fitness)
 display_world(world, L)
