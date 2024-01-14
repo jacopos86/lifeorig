@@ -6,8 +6,10 @@ lifeorig/__init__.py
 lifeorig/__main__.py
 lifeorig/chromosomes_popul.py
 lifeorig/logging_module.py
+lifeorig/mutation_rate.py
 lifeorig/objective_func.py
 lifeorig/parser.py
+lifeorig/quasi_species_solver.py
 lifeorig/reaction_network.py
 lifeorig/read_input.py
 lifeorig/selection_methods.py
