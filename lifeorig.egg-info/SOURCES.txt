@@ -13,6 +13,7 @@ lifeorig/quasi_species_solver.py
 lifeorig/reaction_network.py
 lifeorig/read_input.py
 lifeorig/selection_methods.py
+lifeorig/set_rndm_matrix.py
 lifeorig.egg-info/PKG-INFO
 lifeorig.egg-info/SOURCES.txt
 lifeorig.egg-info/dependency_links.txt
