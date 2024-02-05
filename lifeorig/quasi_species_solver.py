@@ -28,13 +28,22 @@ class QuasiSpeciesSolver():
         xt = self.ODE_solver(x0, self.Q, self.f, self.dt)
         # visualize solution
     # compute kernel QSP eq.
-    def compute_kernel(self, Q, f, y):
-        pass
+    def compute_kernel(self, Q, f, x):
+        F = np.zeros(self.n)
+        phi_x = 0.
+        for i in range(self.n):
+            phi_x += f[i] * x[i]
+        # compute F
+        for i in range(self.n):
+            for j in range(self.n):
+                F[i] += Q[i,j] * f[j] * x[j]
+            F[i] = F[i] - phi_x * x[i]
+        return F
     # solver for the 
     # quasi species diff. eq.
     def ODE_solver(self, y0, Q, f, dt):
 	    # this routine solves
-	    # dyi/dt = Qji(t) fj yj - phi(y)yi -> y real n dimensional vector
+	    # dyi/dt = Qij(t) fj yj - phi(y)yi -> y real n dimensional vector
         # dy/dt = F(y) y
 	    # Q(t) is n x n matrix
         # using RK4 algorithm
@@ -47,19 +56,19 @@ class QuasiSpeciesSolver():
             y[:] = yt[:,i]
             # K1
             F = self.compute_kernel(Q[:,:,2*i], f[:,2*i], y)
-            K1 = dt * np.matmul(F, y)
+            K1 = dt * F
             y1 = y + K1 / 2.
             # K2
             F = self.compute_kernel(Q[:,:,2*i+1], f[:,2*i+1], y1)
-            K2 = dt * np.matmul(F, y1)
+            K2 = dt * F
             y2 = y + K2 / 2.
             # K3
             F = self.compute_kernel(Q[:,:,2*i+1], f[:,2*i+1], y2)
-            K3 = dt * np.matmul(F, y2)
+            K3 = dt * F
             y3 = y + K3
             # K4
             F = self.compute_kernel(Q[:,:,2*i+2], f[:,2*i+2], y3)
-            K4 = dt * np.matmul(F, y3)
+            K4 = dt * F
             #
             yt[:,i+1] = y[:] + (K1[:] + 2.*K2[:] + 2.*K3[:] + K4[:]) / 6.
         return yt
