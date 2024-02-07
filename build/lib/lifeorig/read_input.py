@@ -29,6 +29,9 @@ class parameters_class:
         # network size
         if "network_size" in data:
             self.network_size = data["network_size"]
+        # number nodes
+        if "number_nodes" in data:
+            self.n_nodes = data["number_nodes"]
         # max fitness
         if "max_fitness" in data:
             self.max_fitness = data["max_fitness"]

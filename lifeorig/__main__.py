@@ -7,6 +7,7 @@ from lifeorig.read_input import p
 from lifeorig.set_rndm_matrix import random_matrix
 from lifeorig.fitness_distr import fitness_distr
 from lifeorig.quasi_species_solver import QuasiSpeciesSolver
+from lifeorig.reaction_network import reaction_net_class
 from lifeorig.logging_module import log
 
 args = parser.parse_args()
@@ -63,3 +64,8 @@ log.info("\t " + p.sep)
 
 solver = QuasiSpeciesSolver(size, p.dt, p.T)
 solver.solve(p.x0, fitness_func, mutation_obj)
+
+# set random networks -> one for each species
+
+chem_network = reaction_net_class(p.n_nodes, size)
+chem_network.build_rand_network()
