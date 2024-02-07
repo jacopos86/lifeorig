@@ -18,21 +18,21 @@ class log_class:
         stack = inspect.stack()
         # stack[1] gives previous function ('info' in our case)
         # stack[2] gives before previous function and so on
-        fn = stack[2][1]
+        #fn = stack[2][1]
         ln = stack[2][2]
         func = stack[2][3]
-        return fn, func, ln
+        return func, ln
     def info(self, message, *args):
-        message = "{} - {} at line {}: {}".format(*self.__get_call(), message)
+        message = "{} at line {}: {}".format(*self.__get_call(), message)
         self.logger.info(message, *args)
     def debug(self, message, *args):
-        message = "{} - {} at line {}: {}".format(*self.__get_call(), message)
+        message = "{} at line {}: {}".format(*self.__get_call(), message)
         self.logger.debug(message, *args)
     def warning(self, message, *args):
-        message = "{} - {} at line {}: {}".format(*self.__get_call(), message)
+        message = "{} at line {}: {}".format(*self.__get_call(), message)
         self.logger.warning(message, *args)
     def error(self, message, *args):
-        message = "{} - {} at line {}: {}".format(*self.__get_call(), message)
+        message = "{} at line {}: {}".format(*self.__get_call(), message)
         self.logger.error(message, *args)
         sys.exit(1)
 
@@ -55,27 +55,56 @@ class colored_log_class:
         self.log.setLevel(LOG_LEVEL)
         self.log.addHandler(stream)
         self.level = self.log.getEffectiveLevel()
+        self.msg_len_min = 58
     @staticmethod
     def __get_call():
         stack = inspect.stack()
         # stack[1] gives previous function ('info' in our case)
         # stack[2] gives before previous function and so on
-        fn = stack[2][1]
+        #fn = stack[2][1]
         ln = stack[2][2]
         func = stack[2][3]
-        return fn, func, ln
+        return func, ln
     def info(self, message, *args):
-        message = "{} - {} at line {}: {}".format(*self.__get_call(), message)
-        self.log.info(message, *args)
+        #msg = "{} at line {}: {}".format(*self.__get_call(), message)
+        msg = "{} at line {}: {}"
+        msg = msg.format(*self.__get_call(), f"{message : <30}").split(':')
+        msg2 = msg[0] + ":"
+        if len(msg[0]) < self.msg_len_min:
+            for i in range(self.msg_len_min - len(msg[0])):
+                msg2 += " "
+        msg2 += message
+        self.log.info(msg2, *args)
     def debug(self, message, *args):
-        message = "{} - {} at line {}: {}".format(*self.__get_call(), message)
-        self.log.debug(message, *args)
+        #message = "{} at line {}: {}".format(*self.__get_call(), message)
+        msg = "{} at line {}: {}"
+        msg = msg.format(*self.__get_call(), f"{message : <30}").split(':')
+        msg2 = msg[0] + ":"
+        if len(msg[0]) < self.msg_len_min:
+            for i in range(self.msg_len_min - len(msg[0])):
+                msg2 += " "
+        msg2 += message
+        self.log.debug(msg2, *args)
     def warning(self, message, *args):
-        message = "{} - {} at line {}: {}".format(*self.__get_call(), message)
-        self.log.warning(message, *args)
+        #message = "{} at line {}: {}".format(*self.__get_call(), message)
+        msg = "{} at line {}: {}"
+        msg = msg.format(*self.__get_call(), f"{message : <30}").split(':')
+        msg2 = msg[0] + ":"
+        if len(msg[0]) < self.msg_len_min:
+            for i in range(self.msg_len_min - len(msg[0])):
+                msg2 += " "
+        msg2 += message
+        self.log.warning(msg2, *args)
     def error(self, message, *args):
-        message = "{} - {} at line {}: {}".format(*self.__get_call(), message)
-        self.log.error(message, *args)
+        #message = "{} at line {}: {}".format(*self.__get_call(), message)
+        msg = "{} at line {}: {}"
+        msg = msg.format(*self.__get_call(), f"{message : <30}").split(':')
+        msg2 = msg[0] + ":"
+        if len(msg[0]) < self.msg_len_min:
+            for i in range(self.msg_len_min - len(msg[0])):
+                msg2 += " "
+        msg2 += message
+        self.log.error(msg2, *args)
         sys.exit(1)
 #
 # set up logger

@@ -4,11 +4,7 @@ import numpy as np
 # 1) a list of fitness values
 # 2) a random matrix Q describing the mutations
 class QuasiSpeciesSolver():
-    def __init__(self, Q, f, n, dt, T):
-        # random matrix (n,n,2*nt)
-        self.Q = Q
-        # fitness (n,2*nt)
-        self.f = f
+    def __init__(self, n, dt, T):
         # n. of chemistries
         self.n = n
         # time
@@ -23,10 +19,21 @@ class QuasiSpeciesSolver():
         nt = int(T / (dt/2.))
         self.time_rk4 = np.linspace(0., T, nt)
     # solve quasi species eq
-    def solve(self, x0):
+    def solve(self, x0, fitness_func, mutation_obj):
+        nt = len(self.time_rk4)
+        # set time evolving fitness
+        # fitness (n,2*nt)
+        fitness_func.set_constant_fitness_over_time(nt)
+        self.f = fitness_func.fitness_oft
+        # set mutation matrix
+        # Q (n,n,2*nt)
+        mutation_obj.set_constant_mutation_over_time(nt)
+        self.Q = mutation_obj.Q_oft
         # call RK4 method
         xt = self.ODE_solver(x0, self.Q, self.f, self.dt)
         # visualize solution
+        print(xt[:,-1])
+        print(sum(xt[:,-1]))
     # compute kernel QSP eq.
     def compute_kernel(self, Q, f, x):
         F = np.zeros(self.n)
