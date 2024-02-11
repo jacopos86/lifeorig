@@ -1,11 +1,16 @@
 import math
+import random
+import numpy as np
 from lifeorig.logging_module import log
 #  class describing the
 #  reaction network -> we use a binary polymer model
 class reaction_net_class:
-    def __init__(self, size_F, size_X):
+    def __init__(self, size_F, size_C, size_X):
         # food set size
         self.size_F = size_F
+        # catalysts size
+        self.size_C = size_C
+        self.catalyst_set = []
         # size of molecules set
         self.size_X = size_X
         # reactions set
@@ -20,10 +25,13 @@ class reaction_net_class:
         # build the catalysts set (C)
         self.build_catalysts_set()
         # build set of reactions
-        self.build_reactions_set()
+        #self.build_reactions_set()
     # catalysts set
     def build_catalysts_set(self):
-        pass
+        while len(self.catalyst_set) <= self.size_C:
+            i = random.choice(np.arange(0, self.size_X, 1))
+            if i not in self.catalyst_set:
+                self.catalyst_set.append(i)
     # reaction set building
     # method
     def build_reactions_set(self):
@@ -37,8 +45,7 @@ class reaction_net_class:
             x1 = bin(r1)
             for r2 in range(r1, self.size_X):
                 x2 = bin(r2)
-                x3 = x1 | x2
-                print(x1, x2, bin(x3))
+                print(x1, x2)
         # for cleavage
         # 1) 'r'  : reactant
         # 2) 'c'  : catalyst

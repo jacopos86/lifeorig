@@ -41,6 +41,9 @@ class parameters_class:
         # food set size
         if "food_set_size" in data:
             self.size_F = data["food_set_size"]
+        # catalysts set size
+        if "catalyst_set_size" in data:
+            self.size_C = data["catalyst_set_size"]
         # molecule set size
         if "molecules_set_size" in data:
             self.size_X = data["molecules_set_size"]
