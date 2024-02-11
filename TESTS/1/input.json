@@ -1,7 +1,8 @@
 {
-    "working_dir" : "/home/jacopo/PROJECTS/lifeorig-code-base/TESTS/1",
-    "network_size" : 10,
-    "number_nodes" : 5,
+    "working_dir" : "/home/jacopo/Documents/courses/COMPUTER SCIENCE/CIS-THESIS-PROJECT/lifeorig-code-base/TESTS/1",
+    "molecules_set_size" : 16,
+    "food_set_size" : 4,
+    "genome_size" : 10,
     "max_iter" : 10000,
     "r_mut" : 0.005,
     "r_cross" : 0.1,
