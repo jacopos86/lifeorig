@@ -45,8 +45,8 @@ class parameters_class:
         if "catalyst_set_size" in data:
             self.size_C = data["catalyst_set_size"]
         # molecule set size
-        if "molecules_set_size" in data:
-            self.size_X = data["molecules_set_size"]
+        if "bpol_strng_size" in data:
+            self.bpol_strng_size = data["bpol_strng_size"]
         # time variables
         if "T" in data:
             self.T = data["T"]

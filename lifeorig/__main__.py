@@ -67,5 +67,5 @@ solver.solve(p.x0, fitness_func, mutation_obj)
 
 # set random networks -> one for each species
 
-chem_network = reaction_net_class(p.size_F, p.size_C, p.size_X)
+chem_network = reaction_net_class(p.bpol_strng_size, p.size_F, p.size_C)
 chem_network.set_binary_polymer_model()
