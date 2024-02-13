@@ -47,6 +47,16 @@ class reaction_net_class:
             r += int(c) * 2 ** n
             n = n-1
         return int(r)
+    # split string into
+    # all possible substrings
+    def split_strng_to_substrng(self, strng):
+        substrngs = {strng[a:a+k] for k in range(1,1+len(strng)) 
+            for a in range(1+len(strng)-k)}
+        substr_list = []
+        for sstr in substrngs:
+            if len(sstr) != len(strng):
+                substr_list.append(sstr)
+        return substr_list
     # reaction set building
     # method
     def build_reactions_set(self):
@@ -74,11 +84,7 @@ class reaction_net_class:
                     react['r2'] = x2.rjust(self.strng_size, '.')
                     react['p']  = y.rjust(self.strng_size, '.')
                     # select catalyst (randomly)
-                    # assume that the catalyst can be one of
-                    # the two reactants but not the product
                     c = random.choice(self.catalyst_set)
-                    while c == pr:
-                        c = random.choice(self.catalyst_set)
                     cx= bin(c)
                     cx= cx[2:]
                     react['c'] = cx.rjust(self.strng_size, '.')
@@ -96,11 +102,7 @@ class reaction_net_class:
                             react['r2'] = x1.rjust(self.strng_size, '.')
                             react['p']  = y2.rjust(self.strng_size, '.')
                             # select catalyst (randomly)
-                            # assume that the catalyst can be one of
-                            # the two reactants but not the product
                             c2 = random.choice(self.catalyst_set)
-                            while c2 == pr2:
-                                c2 = random.choice(self.catalyst_set)
                             cx= bin(c2)
                             cx= cx[2:]
                             react['c'] = cx.rjust(self.strng_size, '.')
@@ -115,3 +117,62 @@ class reaction_net_class:
         # 2) 'c'  : catalyst
         # 3) 'p1' : product 1
         # 4) 'p2' : product 2
+        tmp_list = []
+        for r in range(1, self.size_X+1):
+            x = bin(r)
+            x = x[2:]
+            n = len(x)
+            if n > 1:
+                for i in range(1, n):
+                    x1 = x[:i]
+                    p1 = self.convert_binstr_to_dec(x1)
+                    x2 = x[i:]
+                    p2 = self.convert_binstr_to_dec(x2)
+                    if p1 > 0 and p2 > 0:
+                        k=0
+                        while x1[k] == '0':
+                            k+=1
+                        x1 = x1[k:]
+                        k=0
+                        while x2[k] == '0':
+                            k+=1
+                        x2 = x2[k:]
+                        tmp_list.append([x, x1, x2])
+        # screen list of eqv. reactions
+        to_remove = []
+        i = 0
+        while i < len(tmp_list):
+            [x, x1, x2] = tmp_list[i]
+            for j in range(i+1, len(tmp_list)):
+                [y, y1, y2] = tmp_list[j]
+                if x == y and x1 == y2 and x2 == y1:
+                    to_remove.append(j)
+                    i = j+1
+                    break
+            if j == len(tmp_list)-1:
+                i += 1
+        react_lst = []
+        for i in range(len(tmp_list)):
+            if i in to_remove:
+                pass
+            else:
+                react_lst.append(tmp_list[i])
+        # build dict.
+        for r in range(len(react_lst)):
+            [x, x1, x2] = react_lst[r]
+            # set new dictionary
+            react = {}
+            react['r'] = x.rjust(self.strng_size, '.')
+            react['p1']= x1.rjust(self.strng_size, '.')
+            react['p2']= x2.rjust(self.strng_size, '.')
+            # select catalyst (randomly)
+            c = random.choice(self.catalyst_set)
+            cx= bin(c)
+            cx= cx[2:]
+            react['c'] = cx.rjust(self.strng_size, '.')
+            self.cleavage_reactions.append(react)
+        if log.level <= logging.DEBUG:
+            log.info("\n")
+            for r in self.cleavage_reactions:
+                log.debug("\t r : " + r['r'] + " |\t c : " + r['c'] + " |\t p1 : " + r['p1'] + " |\t p2 : " + r['p2'])
+            log.info("\t " + p.sep)
