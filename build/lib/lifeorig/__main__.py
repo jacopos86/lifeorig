@@ -69,3 +69,5 @@ solver.solve(p.x0, fitness_func, mutation_obj)
 
 chem_network = reaction_net_class(p.bpol_strng_size, p.size_F, p.size_C)
 chem_network.set_binary_polymer_model()
+chem_network.show_network()
+chem_network.set_network_genome()
