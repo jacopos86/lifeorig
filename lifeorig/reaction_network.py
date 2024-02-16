@@ -316,3 +316,18 @@ class reaction_net_class:
         graph = graph_obj()
         graph.set_metadata(14, 'green', 10, 'blue')
         # first add the food set nodes
+        for i in self.food_set:
+            label = 'f'+str(i)
+            graph.add_node(str(i), label, 'blue', 10, 'circle', 'black', 20, 'black', 3)
+        # add remaining chemicals
+        for i in range(1, self.size_X+1):
+            if i not in self.food_set:
+                label = 'p'+str(i)
+                graph.add_node(str(i), label, 'black', 10, 'circle', 'black', 20, 'black', 3)
+        print(graph.graph_gjgf)
+        fig = gv.three(graph.graph_gjgf, graph_height=200,
+            node_label_data_source='label',
+            show_edge_label=True, edge_label_data_source='label')
+        isExist = os.path.isfile(p.working_dir+'/acs.html')
+        if not isExist:
+            fig.export_html(p.working_dir+'/acs.html')
