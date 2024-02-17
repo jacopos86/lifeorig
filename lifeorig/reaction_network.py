@@ -94,8 +94,11 @@ class reaction_net_class:
                     # set dictionary
                     react = {}
                     react['r1'] = x1.rjust(self.strng_size, '.')
+                    react['r1_int'] = self.convert_binstr_to_dec(x1)
                     react['r2'] = x2.rjust(self.strng_size, '.')
+                    react['r2_int'] = self.convert_binstr_to_dec(x2)
                     react['p']  = y.rjust(self.strng_size, '.')
+                    react['p_int'] = self.convert_binstr_to_dec(y)
                     # select catalyst (randomly)
                     c = random.choice(self.catalyst_set)
                     react['c_int'] = c
@@ -113,8 +116,11 @@ class reaction_net_class:
                             # set new dictionary
                             react = {}
                             react['r1'] = x2.rjust(self.strng_size, '.')
+                            react['r1_int'] = self.convert_binstr_to_dec(x2)
                             react['r2'] = x1.rjust(self.strng_size, '.')
+                            react['r2_int'] = self.convert_binstr_to_dec(x1)
                             react['p']  = y2.rjust(self.strng_size, '.')
+                            react['p_int'] = self.convert_binstr_to_dec(y2)
                             # select catalyst (randomly)
                             c2 = random.choice(self.catalyst_set)
                             react['c_int'] = c2
@@ -178,8 +184,11 @@ class reaction_net_class:
             # set new dictionary
             react = {}
             react['r'] = x.rjust(self.strng_size, '.')
+            react['r_int'] = self.convert_binstr_to_dec(x)
             react['p1']= x1.rjust(self.strng_size, '.')
+            react['p1_int']= self.convert_binstr_to_dec(x1)
             react['p2']= x2.rjust(self.strng_size, '.')
+            react['p2_int']= self.convert_binstr_to_dec(x2)
             # select catalyst (randomly)
             c = random.choice(self.catalyst_set)
             react['c_int'] = c
@@ -318,16 +327,38 @@ class reaction_net_class:
         # first add the food set nodes
         for i in self.food_set:
             label = 'f'+str(i)
-            graph.add_node(str(i), label, 'blue', 10, 'circle', 'black', 20, 'black', 3)
+            graph.add_node(i-1, label, 'blue', 10, 'circle', 'black', 20, 'black', 3)
         # add remaining chemicals
         for i in range(1, self.size_X+1):
             if i not in self.food_set:
                 label = 'p'+str(i)
-                graph.add_node(str(i), label, 'black', 10, 'circle', 'black', 20, 'black', 3)
-        print(graph.graph_gjgf)
-        fig = gv.three(graph.graph_gjgf, graph_height=200,
+                graph.add_node(i-1, label, 'black', 10, 'circle', 'black', 20, 'black', 3)
+        # add edges
+        react_index = self.size_X+1
+        for r in self.ligand_reactions:
+            label = 'r'+str(react_index-self.size_X)
+            graph.add_node(react_index-1, label, 'white', 10, 'rectangle', 'black', 20, 'black', 3)
+            graph.add_edge(r['r1_int']-1, react_index-1, 'black')
+            if r['r2_int'] != r['r1_int']:
+                graph.add_edge(r['r2_int']-1, react_index-1, 'black')
+            graph.add_edge(react_index-1, r['p_int']-1, 'black')
+            graph.add_edge(int(r['c_int'])-1, react_index-1, 'red')
+            react_index += 1
+        # add cleavage reactions
+        for r in self.cleavage_reactions:
+            label = 'r'+str(react_index-self.size_X)
+            graph.add_node(react_index-1, label, 'white', 10, 'rectangle', 'black', 20, 'black', 3)
+            graph.add_edge(r['r_int']-1, react_index-1, 'black')
+            graph.add_edge(react_index-1, r['p1_int']-1, 'black')
+            if r['p2_int'] != r['p1_int']:
+                graph.add_edge(react_index-1, r['p2_int']-1, 'black')
+            graph.add_edge(int(r['c_int'])-1, react_index-1, 'red')
+            react_index += 1
+        # prepare figure
+        fig = gv.d3(graph.graph_gjgf, graph_height=300,
             node_label_data_source='label',
-            show_edge_label=True, edge_label_data_source='label')
+            show_edge_label=True, edge_label_data_source='label',
+            edge_curvature=0.4, zoom_factor=2.5)
         isExist = os.path.isfile(p.working_dir+'/acs.html')
         if not isExist:
             fig.export_html(p.working_dir+'/acs.html')

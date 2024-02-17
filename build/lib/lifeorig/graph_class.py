@@ -25,3 +25,10 @@ class graph_obj:
         node['metadata']['border_color'] = border_color
         node['metadata']['border_size'] = border_size
         self.graph_gjgf['graph']['nodes'].append(node)
+    def add_edge(self, source, target, color):
+        edge = {}
+        edge['source'] = source
+        edge['target'] = target
+        edge['metadata'] = {}
+        edge['metadata']['color'] = color
+        self.graph_gjgf['graph']['edges'].append(edge)
