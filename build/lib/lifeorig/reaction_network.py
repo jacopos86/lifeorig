@@ -25,22 +25,19 @@ class reaction_net_class:
         # reactions set
         self.ligand_reactions = []
         self.cleavage_reactions = []
-    def set_binary_polymer_model(self):
+    def set_binary_polymer_model(self, catalyst_set):
         # n. food set bits
         self.n_F_bits = math.log2(self.size_F)
         log.info("\t max. string size : " + str(self.strng_size))
         # build the catalysts set (C)
-        self.build_catalysts_set()
+        self.define_catalysts_set(catalyst_set)
         # builid food set
         self.build_food_set()
         # build set of reactions
         self.build_reactions_set()
     # catalysts set
-    def build_catalysts_set(self):
-        while len(self.catalyst_set) <= self.size_C:
-            i = random.choice(np.arange(1, self.size_X+1, 1))
-            if i not in self.catalyst_set:
-                self.catalyst_set.append(i)
+    def define_catalysts_set(self, catalyst_set):
+        self.catalyst_set = catalyst_set
         log.info("\n")
         log.info("\t C = " + str(self.catalyst_set))
         log.info("\t " + p.sep)
@@ -321,7 +318,7 @@ class reaction_net_class:
             fig.export_html(p.working_dir+'/g2.html')
     #
     # show full network
-    def show_network(self):
+    def show_network(self, file_name):
         graph = graph_obj()
         graph.set_metadata(14, 'green', 10, 'blue')
         # first add the food set nodes
@@ -359,6 +356,6 @@ class reaction_net_class:
             node_label_data_source='label',
             show_edge_label=True, edge_label_data_source='label',
             edge_curvature=0.4, zoom_factor=2.5)
-        isExist = os.path.isfile(p.working_dir+'/acs.html')
+        isExist = os.path.isfile(file_name)
         if not isExist:
-            fig.export_html(p.working_dir+'/acs.html')
+            fig.export_html(file_name)

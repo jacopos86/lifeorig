@@ -7,7 +7,7 @@ from lifeorig.read_input import p
 from lifeorig.set_rndm_matrix import random_matrix
 from lifeorig.fitness_distr import fitness_distr
 from lifeorig.quasi_species_solver import QuasiSpeciesSolver
-from lifeorig.reaction_network import reaction_net_class
+from lifeorig.build_acf_set import build_ACFS
 from lifeorig.logging_module import log
 
 args = parser.parse_args()
@@ -35,7 +35,7 @@ log.info("\n")
 
 # set random matrix
 
-size = p.genome_size
+size = p.ACFS_size
 mutation_obj = random_matrix(size)
 mutation_obj.set_rand_matrix(p.seed)
 mutation_obj.normalize_matrix()
@@ -67,7 +67,4 @@ solver.solve(p.x0, fitness_func, mutation_obj)
 
 # set random networks -> one for each species
 
-chem_network = reaction_net_class(p.bpol_strng_size, p.size_F, p.size_C)
-chem_network.set_binary_polymer_model()
-chem_network.show_network()
-chem_network.set_network_genome()
+ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C)

@@ -27,8 +27,8 @@ class parameters_class:
             if not isExist:
                 os.mkdir(self.working_dir)
         # genome size
-        if "genome_size" in data:
-            self.genome_size = data["genome_size"]
+        if "ACFS_size" in data:
+            self.ACFS_size = data["ACFS_size"]
         # max fitness
         if "max_fitness" in data:
             self.max_fitness = data["max_fitness"]
@@ -36,7 +36,7 @@ class parameters_class:
         # same size as network : number of edges
         if "init_distribution" in data:
             self.x0 = np.array(data["init_distribution"])
-            assert len(self.x0) == self.genome_size
+            assert len(self.x0) == self.ACFS_size
             assert np.abs(sum(self.x0)-1.) < 1.E-7
         # food set size
         if "food_set_size" in data:
