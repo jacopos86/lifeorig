@@ -7,7 +7,7 @@ from lifeorig.read_input import p
 from lifeorig.set_rndm_matrix import random_matrix
 from lifeorig.fitness_distr import fitness_distr
 from lifeorig.quasi_species_solver import QuasiSpeciesSolver
-from lifeorig.build_acf_set import build_ACFS
+from lifeorig.build_acf_set import build_ACFS, compute_hamm_dist_matrix
 from lifeorig.logging_module import log
 
 args = parser.parse_args()
@@ -68,3 +68,5 @@ solver.solve(p.x0, fitness_func, mutation_obj)
 # set random networks -> one for each species
 
 ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C)
+HDij = compute_hamm_dist_matrix(ACF_set)
+print(HDij)

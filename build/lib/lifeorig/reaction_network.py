@@ -220,6 +220,14 @@ class reaction_net_class:
             log.info("\n")
             log.info("\t " + p.sep)
     #
+    # find ACF subset
+    # this subroutine find RAF subset if present in the network
+    # RAF subset has 2 properties
+    # 1- must be autocatalytic
+    # 2- food generated
+    def find_ACF_subset(self):
+        pass
+    #
     # show the reaction network
     def show_network_test(self):
         graph1 = {
