@@ -2,6 +2,8 @@
 #   main program :
 #   life origin simulator
 #
+import numpy as np
+import random
 from lifeorig.parser import parser
 from lifeorig.read_input import p
 from lifeorig.set_rndm_matrix import random_matrix
@@ -49,7 +51,12 @@ fitness_func.show_fitness_distr()
 
 # initial distrib.
 
-log.info("\t x0 = " + str(p.x0))
+x0 = np.zeros(p.ACFS_size)
+for i in range(p.ACFS_size):
+    x0[i] = random.uniform(0., 1.)
+x0[:] = x0[:] / np.sum(x0)
+assert np.abs(sum(x0)-1.) < 1.E-7
+log.info("\t x0 = " + str(x0[:50]))
 log.info("\n")
 log.info("\t " + p.sep)
 
@@ -63,10 +70,11 @@ log.info("\t " + p.sep)
 # set quasi species solver
 
 solver = QuasiSpeciesSolver(size, p.dt, p.T)
-solver.solve(p.x0, fitness_func, mutation_obj)
+solver.solve(x0, fitness_func, mutation_obj)
 
 # set random networks -> one for each species
 
 ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C)
 HDij = compute_hamm_dist_matrix(ACF_set)
 print(HDij)
+print(min(HDij))

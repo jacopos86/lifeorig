@@ -3,7 +3,7 @@
     "bpol_strng_size" : 4,
     "food_set_size" : 4,
     "catalyst_set_size" : 7,
-    "ACFS_size" : 10,
+    "ACFS_size" : 100,
     "max_iter" : 10000,
     "r_mut" : 0.005,
     "r_cross" : 0.1,

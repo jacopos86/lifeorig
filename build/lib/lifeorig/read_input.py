@@ -32,12 +32,6 @@ class parameters_class:
         # max fitness
         if "max_fitness" in data:
             self.max_fitness = data["max_fitness"]
-        # initial species distribution
-        # same size as network : number of edges
-        if "init_distribution" in data:
-            self.x0 = np.array(data["init_distribution"])
-            assert len(self.x0) == self.ACFS_size
-            assert np.abs(sum(self.x0)-1.) < 1.E-7
         # food set size
         if "food_set_size" in data:
             self.size_F = data["food_set_size"]
