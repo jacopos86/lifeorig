@@ -226,7 +226,29 @@ class reaction_net_class:
     # 1- must be autocatalytic
     # 2- food generated
     def find_ACF_subset(self):
-        pass
+        Nl = len(self.ligand_reactions)
+        Nc = len(self.cleavage_reactions)
+        R = np.arange(Nl+Nc)
+        F = np.arange(1, self.size_F+1)
+        print(R, Nl+Nc)
+        print(F, self.size_F)
+        # compute Cl_R(F)
+        Cl_R = self.compute_closure_set(R, F)
+    # routine to compute
+    # the closure set of F
+    def compute_closure_set(self, R, F):
+        # input 1 : R - set of reactions
+        # input 2 : X - molecules set
+        X = set(F)
+        Y = set()
+        while Y != X:
+            Y = X
+            for r in self.ligand_reactions:
+                print(r)
+            for r in self.cleavage_reactions:
+                print(r)
+            X = Y
+        print(X)
     #
     # show the reaction network
     def show_network_test(self):
