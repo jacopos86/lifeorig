@@ -230,10 +230,9 @@ class reaction_net_class:
         Nc = len(self.cleavage_reactions)
         R = np.arange(Nl+Nc)
         F = np.arange(1, self.size_F+1)
-        print(R, Nl+Nc)
-        print(F, self.size_F)
         # compute Cl_R(F)
         Cl_R = self.compute_closure_set(R, F)
+        print(Cl_R)
     # routine to compute
     # the closure set of F
     def compute_closure_set(self, R, F):
@@ -242,13 +241,17 @@ class reaction_net_class:
         X = set(F)
         Y = set()
         while Y != X:
-            Y = X
+            Y = X.copy()
             for r in self.ligand_reactions:
-                print(r)
+                if self.ligand_reactions.index(r) in R:
+                    if r['r1_int'] in X and r['r2_int'] in X and r['c_int'] in X:
+                        X.add(r['p_int'])
             for r in self.cleavage_reactions:
-                print(r)
-            X = Y
-        print(X)
+                if self.cleavage_reactions.index(r) in R:
+                    if r['r_int'] in X and r['c_int'] in X:
+                        X.add(r['p1_int'])
+                        X.add(r['p2_int'])
+        return Y
     #
     # show the reaction network
     def show_network_test(self):
