@@ -228,29 +228,67 @@ class reaction_net_class:
     def find_ACF_subset(self):
         Nl = len(self.ligand_reactions)
         Nc = len(self.cleavage_reactions)
-        R = np.arange(Nl+Nc)
+        R2 = list(np.arange(Nl+Nc))
+        R  = []
         F = np.arange(1, self.size_F+1)
-        # compute Cl_R(F)
-        Cl_R = self.compute_closure_set(R, F)
-        print(Cl_R)
+        # reaction set - full list
+        reaction_set = []
+        for r in self.ligand_reactions:
+            reaction_set.append(r)
+        for r in self.cleavage_reactions:
+            reaction_set.append(r)
+        # find final reaction set
+        while R2 != R:
+            R = R2
+            R2 = []
+            # compute Cl_R(F)
+            Cl_R = self.compute_closure_set(R, F, reaction_set)
+            # find new reaction set
+            for ri in R:
+                r = reaction_set[ri]
+                if 'r1_int' in r and 'r2_int' in r:
+                    r1 = r['r1_int']
+                    r2 = r['r2_int']
+                    c  = r['c_int']
+                    if r1 in Cl_R and r2 in Cl_R and c in Cl_R:
+                        R2.append(ri)
+                elif 'r_int' in r:
+                    r1 = r['r_int']
+                    c  = r['c_int']
+                    if r1 in Cl_R and c in Cl_R:
+                        R2.append(ri)
+            print(R, R2)
+        # set up ACF set
+        self.ACF_set = []
+        for ri in R:
+            r = reaction_set[ri]
+            self.ACF_set.append(r)
+            print(r)
     # routine to compute
     # the closure set of F
-    def compute_closure_set(self, R, F):
+    def compute_closure_set(self, R, F, reaction_set):
         # input 1 : R - set of reactions
         # input 2 : X - molecules set
         X = set(F)
         Y = set()
         while Y != X:
             Y = X.copy()
-            for r in self.ligand_reactions:
-                if self.ligand_reactions.index(r) in R:
-                    if r['r1_int'] in X and r['r2_int'] in X and r['c_int'] in X:
-                        X.add(r['p_int'])
-            for r in self.cleavage_reactions:
-                if self.cleavage_reactions.index(r) in R:
-                    if r['r_int'] in X and r['c_int'] in X:
-                        X.add(r['p1_int'])
-                        X.add(r['p2_int'])
+            for r in reaction_set:
+                if reaction_set.index(r) in R:
+                    # ligand reactions
+                    if 'r1_int' in r and 'r2_int' in r:
+                        r1 = r['r1_int']
+                        r2 = r['r2_int']
+                        c  = r['c_int']
+                        if r1 in X and r2 in X and c in X:
+                            X.add(r['p_int'])
+                    # cleavage reactions
+                    elif 'r_int' in r:
+                        r1 = r['r_int']
+                        c  = r['c_int']
+                        if r1 in X and c in X:
+                            X.add(r['p1_int'])
+                            X.add(r['p2_int'])
         return Y
     #
     # show the reaction network
