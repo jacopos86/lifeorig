@@ -405,7 +405,10 @@ class reaction_net_class:
         react_index = self.size_X+1
         for r in self.ligand_reactions:
             label = 'r'+str(react_index-self.size_X)
-            graph.add_node(react_index-1, label, 'white', 10, 'rectangle', 'black', 20, 'black', 3)
+            if r not in self.ACF_set:
+                graph.add_node(react_index-1, label, 'white', 10, 'rectangle', 'black', 20, 'black', 3)
+            else:
+                graph.add_node(react_index-1, label, 'white', 10, 'rectangle', 'green', 20, 'green', 3)
             graph.add_edge(r['r1_int']-1, react_index-1, 'black')
             if r['r2_int'] != r['r1_int']:
                 graph.add_edge(r['r2_int']-1, react_index-1, 'black')
@@ -415,6 +418,10 @@ class reaction_net_class:
         # add cleavage reactions
         for r in self.cleavage_reactions:
             label = 'r'+str(react_index-self.size_X)
+            if r not in self.ACF_set:
+                graph.add_node(react_index-1, label, 'white', 10, 'rectangle', 'black', 20, 'black', 3)
+            else:
+                graph.add_node(react_index-1, label, 'white', 10, 'rectangle', 'green', 20, 'green', 3)
             graph.add_node(react_index-1, label, 'white', 10, 'rectangle', 'black', 20, 'black', 3)
             graph.add_edge(r['r_int']-1, react_index-1, 'black')
             graph.add_edge(react_index-1, r['p1_int']-1, 'black')

@@ -16,6 +16,7 @@ def build_ACFS(size_ACFS, size_bpol, size_F, size_C):
         size_X = ACFS.size_X
         catalyst_set = build_catalysts_set(size_X, size_C)
         ACFS.set_binary_polymer_model(catalyst_set)
+        ACFS.find_ACF_subset()
         # prepare network plot
         file_name = p.working_dir+'/acs-' + str(i) + '.html'
         ACFS.show_network(file_name)

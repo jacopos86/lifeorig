@@ -76,4 +76,3 @@ solver.solve(x0, fitness_func, mutation_obj)
 
 ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C)
 HDij = compute_hamm_dist_matrix(ACF_set)
-ACF_set[0].find_ACF_subset()
