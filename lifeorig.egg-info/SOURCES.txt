@@ -4,6 +4,7 @@ lifeorig/__init__.py
 lifeorig/__main__.py
 lifeorig/build_acf_set.py
 lifeorig/fitness_distr.py
+lifeorig/gillespie_algo.py
 lifeorig/graph_class.py
 lifeorig/logging_module.py
 lifeorig/mutation_rate.py

@@ -5,6 +5,7 @@ import logging
 from lifeorig.logging_module import log
 from lifeorig.read_input import p
 from lifeorig.graph_class import graph_obj
+from lifeorig.gillespie_algo import chemical_kinetics_solver
 import gravis as gv
 import os
 #  class describing the
@@ -219,6 +220,12 @@ class reaction_net_class:
             log.info("\t network genome : " + self.genome)
             log.info("\n")
             log.info("\t " + p.sep)
+    #
+    # define the reaction kinetic
+    # model
+    def set_chemical_kinetics_solver(self):
+        # first set the solver
+        kinetic_solver = chemical_kinetics_solver()
     #
     # find ACF subset
     # this subroutine find RAF subset if present in the network

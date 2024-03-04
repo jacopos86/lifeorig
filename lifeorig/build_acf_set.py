@@ -22,6 +22,10 @@ def build_ACFS(size_ACFS, size_bpol, size_F, size_C):
         ACFS.show_network(file_name)
         # produce network genome
         ACFS.set_network_genome()
+        # here we solve the kinetic model
+        # multiple times -> average different final
+        # configurations
+        ACFS.set_chemical_kinetics_solver()
         ACF_set.append(ACFS)
         i += 1
     return ACF_set
