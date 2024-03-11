@@ -20,6 +20,28 @@ class chemical_kinetics_solver:
         self.stoichiometry = []
         # propensities list
         self.propensity = []
+    def build_X_set(self, size_X):
+        self.X_set = list(np.arange(1, size_X+1, 1))
+        log.info("\t X set : " + str(self.X_set))
+    def set_stoichiometry(self, reaction_set, size_X):
+        for r in reaction_set:
+            stch = np.zeros(size_X, dtype=int)
+            if 'r1_int' in r and 'r2_int' in r and 'p_int' in r:
+                i1 = self.X_set.index(r['r1_int'])
+                i2 = self.X_set.index(r['r2_int'])
+                p  = self.X_set.index(r['p_int'])
+                stch[i1]  =-1
+                stch[i2] +=-1
+                stch[p]  += 1
+            elif 'r_int' in r and 'p1_int' in r and 'p2_int' in r:
+                i = self.X_set.index(r['r_int'])
+                p1= self.X_set.index(r['p1_int'])
+                p2= self.X_set.index(r['p2_int'])
+                stch[i]  =-1
+                stch[p1]+= 1
+                stch[p2]+= 1
+            self.stoichiometry.append(stch)
+        print(len(self.stoichiometry), len(reaction_set))
     # test function
     def test(self):
         # initial state

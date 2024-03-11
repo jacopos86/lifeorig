@@ -226,6 +226,16 @@ class reaction_net_class:
     def set_chemical_kinetics_solver(self):
         # first set the solver
         kinetic_solver = chemical_kinetics_solver()
+        # reaction set full list
+        reaction_set = []
+        for r in self.ligand_reactions:
+            reaction_set.append(r)
+        for r in self.cleavage_reactions:
+            reaction_set.append(r)
+        # set stoichiometry
+        # list
+        kinetic_solver.build_X_set(self.size_X)
+        kinetic_solver.set_stoichiometry(reaction_set, self.size_X)
     #
     # find ACF subset
     # this subroutine find RAF subset if present in the network
