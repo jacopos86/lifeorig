@@ -1,5 +1,5 @@
 {
-    "working_dir" : "/home/jacopo/PROJECTS/lifeorig-code-base/TESTS/1",
+    "working_dir" : "/home/jacopo/Documents/LifeOrigin/CIS-THESIS-PROJECT/lifeorig-code-base/TESTS/1",
     "bpol_strng_size" : 4,
     "food_set_size" : 4,
     "catalyst_set_size" : 7,
@@ -10,6 +10,7 @@
     "random_seed" : 1,
     "max_fitness" : 1.0,
     "init_distribution" : [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "total_population_molecules" : 10000,
     "T" : 1.0,
     "dt" : 0.001
 }

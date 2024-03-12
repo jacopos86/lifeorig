@@ -41,6 +41,9 @@ class parameters_class:
         # molecule set size
         if "bpol_strng_size" in data:
             self.bpol_strng_size = data["bpol_strng_size"]
+        # total molecules population
+        if "total_population_molecules" in data:
+            self.n0 = data["total_population_molecules"]
         # time variables
         if "T" in data:
             self.T = data["T"]

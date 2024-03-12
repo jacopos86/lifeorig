@@ -235,6 +235,7 @@ class reaction_net_class:
         # set stoichiometry
         # list
         kinetic_solver.build_X_set(self.size_X)
+        kinetic_solver.set_initial_population(self.food_set)
         kinetic_solver.set_stoichiometry(reaction_set, self.size_X)
     #
     # find ACF subset

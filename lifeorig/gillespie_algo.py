@@ -2,6 +2,7 @@ import gillespie
 import numpy as np
 import matplotlib.pyplot as plt
 from lifeorig.logging_module import log
+from lifeorig.read_input import p
 #
 #  This module implements
 #  the Gillespie algorithm
@@ -41,7 +42,25 @@ class chemical_kinetics_solver:
                 stch[p1]+= 1
                 stch[p2]+= 1
             self.stoichiometry.append(stch)
-        print(len(self.stoichiometry), len(reaction_set))
+    def set_initial_population(self, F_set):
+        size_F = len(F_set)
+        nF = np.zeros(size_F, dtype=int)
+        nF[:] = int(p.n0 / size_F)
+        iF = 0
+        while (sum(nF) < p.n0):
+            nF[iF] += 1
+            if iF == size_F-1:
+                iF = 0
+            else:
+                iF+= 1
+        log.info("\t initial Food set population : " + str(nF))
+        self.initial_state = [None]*len(self.X_set)
+        for i in self.X_set:
+            ind = self.X_set.index(i)
+            if i in F_set:
+                self.initial_state[ind] = nF[ind]
+            else:
+                self.initial_state[ind] = 0
     # test function
     def test(self):
         # initial state
