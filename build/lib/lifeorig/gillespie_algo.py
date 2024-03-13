@@ -61,7 +61,23 @@ class chemical_kinetics_solver:
                 self.initial_state[ind] = nF[ind]
             else:
                 self.initial_state[ind] = 0
-        print(self.initial_state)
+    def set_propensity(self, reaction_set, size_X):
+        # run over reactions
+        for r in reaction_set:
+            if 'r1_int' in r and 'r2_int' in r and 'p_int' in r:
+                func = 'lambda x: '
+                r1i = self.X_set.index(r['r1_int'])
+                r2i = self.X_set.index(r['r2_int'])
+                ci  = self.X_set.index(r['c_int'])
+                func += 'x['+str(r1i)+']*'+'x['+str(r2i)+']*'+'x['+str(ci)+']'
+                self.propensity.append(eval(func))
+                print(func)
+                input = tuple(self.initial_state)
+                print(input)
+                p = self.propensity[-1]
+                print(p(input))
+                import sys
+                sys.exit()
     # test function
     def test(self):
         # initial state
