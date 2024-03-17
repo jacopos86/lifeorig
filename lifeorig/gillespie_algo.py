@@ -76,8 +76,12 @@ class chemical_kinetics_solver:
                 print(input)
                 p = self.propensity[-1]
                 print(p(input))
-                import sys
-                sys.exit()
+            if 'r_int' in r and 'p1_int' in r and 'p2_int' in r:
+                func = 'lambda x: '
+                ri = self.X_set.index(r['r_int'])
+                ci = self.X_set.index(r['c_int'])
+                func += 'x['+str(ri)+']*'+'x['+str(ci)+']'
+                self.propensity.append(eval(func))
     # test function
     def test(self):
         # initial state
