@@ -65,23 +65,46 @@ class chemical_kinetics_solver:
         # run over reactions
         for r in reaction_set:
             if 'r1_int' in r and 'r2_int' in r and 'p_int' in r:
-                func = 'lambda x: '
+                func = 'lambda '
                 r1i = self.X_set.index(r['r1_int'])
                 r2i = self.X_set.index(r['r2_int'])
                 ci  = self.X_set.index(r['c_int'])
-                func += 'x['+str(r1i)+']*'+'x['+str(r2i)+']*'+'x['+str(ci)+']'
+                # prefactor
+                #if r1i == r2i:
+                #    func += 'x['+str(r1i)+']*'+'(x['+str(r1i)+']-1)*'+'x['+str(ci)+']/2'
+                #else:
+                #    func += 'x['+str(r1i)+']*'+'x['+str(r2i)+']*'+'x['+str(ci)+']'
+                for i in range(1, size_X):
+                    func += 'x'+str(i)+', '
+                func += 'x'+str(size_X)+': x'+str(r1i+1)+'*x'+str(r2i+1)+'*x'+str(ci+1)
                 self.propensity.append(eval(func))
-                print(func)
-                input = tuple(self.initial_state)
-                print(input)
-                p = self.propensity[-1]
-                print(p(input))
             if 'r_int' in r and 'p1_int' in r and 'p2_int' in r:
                 func = 'lambda x: '
                 ri = self.X_set.index(r['r_int'])
                 ci = self.X_set.index(r['c_int'])
-                func += 'x['+str(ri)+']*'+'x['+str(ci)+']'
+                func = 'lambda '
+                for i in range(1, size_X):
+                    func += 'x'+str(i)+', '
+                func += 'x'+str(size_X)+': x'+str(ri+1)+'*x'+str(ci+1)
+                #func += 'x['+str(ri)+']*'+'x['+str(ci)+']'
                 self.propensity.append(eval(func))
+            #input = tuple(self.initial_state)
+            #p = self.propensity[-1]
+            #print(input, func, p(input))
+    def solve(self):
+        # run simulation
+        log.info("\t START KINETIC MODEL SIMULATION")
+        print(len(self.propensity))
+        times, measurements = gillespie.simulate(self.initial_state, self.propensity, self.stoichiometry, duration=30)
+        t = np.array(times)
+        state = np.array(measurements)
+        plt.plot(t, state[:,0], color='k', linewidth=1.5)
+        plt.plot(t, state[:,1], color='b', linewidth=1.5)
+        plt.plot(t, state[:,2], color='g', linewidth=1.5)
+        plt.plot(t, state[:,10], color='r', linewidth=2.5)
+        plt.grid()
+        plt.show()
+        log.info("\t END KINETIC SIMULATION")
     # test function
     def test(self):
         # initial state
