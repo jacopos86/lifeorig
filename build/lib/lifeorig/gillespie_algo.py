@@ -70,13 +70,13 @@ class chemical_kinetics_solver:
                 r2i = self.X_set.index(r['r2_int'])
                 ci  = self.X_set.index(r['c_int'])
                 # prefactor
-                #if r1i == r2i:
-                #    func += 'x['+str(r1i)+']*'+'(x['+str(r1i)+']-1)*'+'x['+str(ci)+']/2'
-                #else:
-                #    func += 'x['+str(r1i)+']*'+'x['+str(r2i)+']*'+'x['+str(ci)+']'
                 for i in range(1, size_X):
                     func += 'x'+str(i)+', '
-                func += 'x'+str(size_X)+': x'+str(r1i+1)+'*x'+str(r2i+1)+'*x'+str(ci+1)
+                func += 'x'+str(size_X)+': '
+                if r1i == r2i:
+                    func += '(x'+str(r1i+1)+'-1)*x'+str(r1i+1)+'*x'+str(ci+1)+'/2'
+                else:
+                    func += 'x'+str(r1i+1)+'*x'+str(r2i+1)+'*x'+str(ci+1)+'/2'
                 self.propensity.append(eval(func))
             if 'r_int' in r and 'p1_int' in r and 'p2_int' in r:
                 func = 'lambda x: '
@@ -86,7 +86,6 @@ class chemical_kinetics_solver:
                 for i in range(1, size_X):
                     func += 'x'+str(i)+', '
                 func += 'x'+str(size_X)+': x'+str(ri+1)+'*x'+str(ci+1)
-                #func += 'x['+str(ri)+']*'+'x['+str(ci)+']'
                 self.propensity.append(eval(func))
             #input = tuple(self.initial_state)
             #p = self.propensity[-1]
