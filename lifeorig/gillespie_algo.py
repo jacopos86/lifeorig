@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from lifeorig.logging_module import log
 from lifeorig.read_input import p
+from matplotlib.pyplot import cm
 #
 #  This module implements
 #  the Gillespie algorithm
@@ -92,17 +93,24 @@ class chemical_kinetics_solver:
             #print(input, func, p(input))
     def solve(self):
         # run simulation
+        log.info("\t " + p.sep)
         log.info("\t START KINETIC MODEL SIMULATION")
         times, measurements = gillespie.simulate(self.initial_state, self.propensity, self.stoichiometry, duration=30)
-        t = np.array(times)
-        state = np.array(measurements)
-        plt.plot(t, state[:,0], color='k', linewidth=1.5)
-        plt.plot(t, state[:,1], color='b', linewidth=1.5)
-        plt.plot(t, state[:,2], color='g', linewidth=1.5)
-        plt.plot(t, state[:,10], color='r', linewidth=2.5)
-        plt.grid()
-        plt.show()
+        self.t = np.array(times)
+        self.state_t = np.array(measurements)
         log.info("\t END KINETIC SIMULATION")
+        log.info("\t " + p.sep)
+    def show(self, target_molecules):
+        # plot state
+        n = len(target_molecules)
+        color = iter(cm.rainbow(np.linspace(0, 1, n)))
+        for i in range(n):
+            ml = target_molecules[i]
+            c = next(color)
+            plt.plot(self.t, self.state_t[:,ml], color=c, linewidth=1.5, label=str(ml))
+        plt.grid()
+        plt.legend()
+        plt.show()
     # test function
     def test(self):
         # initial state

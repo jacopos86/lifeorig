@@ -239,6 +239,11 @@ class reaction_net_class:
         kinetic_solver.set_stoichiometry(reaction_set, self.size_X)
         kinetic_solver.set_propensity(reaction_set, self.size_X)
         kinetic_solver.solve()
+        # molecules to display
+        target_molecules = p.target_molecules
+        for x in self.food_set:
+            target_molecules.append(x)
+        kinetic_solver.show(target_molecules)
     #
     # find ACF subset
     # this subroutine find RAF subset if present in the network

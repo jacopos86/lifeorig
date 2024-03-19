@@ -44,6 +44,9 @@ class parameters_class:
         # total molecules population
         if "total_population_molecules" in data:
             self.n0 = data["total_population_molecules"]
+        # target molecules
+        if "target_molecules" in data:
+            self.target_molecules = data["target_molecules"]
         # time variables
         if "T" in data:
             self.T = data["T"]
