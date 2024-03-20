@@ -25,6 +25,11 @@ class chemical_kinetics_solver:
     def build_X_set(self, size_X):
         self.X_set = list(np.arange(1, size_X+1, 1))
         log.info("\t X set : " + str(self.X_set))
+        self.X_mass = []
+        for x in self.X_set:
+            mx = bin(x).count('1')
+            self.X_mass.append(mx)
+        log.info("\t X set masses : " + str(self.X_mass)) 
     def set_stoichiometry(self, reaction_set, size_X):
         for r in reaction_set:
             stch = np.zeros(size_X, dtype=int)
@@ -108,6 +113,18 @@ class chemical_kinetics_solver:
             ml = target_molecules[i]
             c = next(color)
             plt.plot(self.t, self.state_t[:,ml], color=c, linewidth=1.5, label=str(ml))
+        # n. molecules
+        sm_t = np.zeros(len(self.t))
+        for i in range(len(self.t)):
+            sm_t[i] = np.sum(self.state_t[i,:])
+        plt.plot(self.t, sm_t, '--', color='k', linewidth=2, label='n. molecules')
+        # molecules total mass
+        size_X = len(self.X_set)
+        mm_t = np.zeros(len(self.t))
+        for i in range(len(self.t)):
+            for j in range(size_X):
+                mm_t[i] += self.X_mass[j] * self.state_t[i,j]
+        plt.plot(self.t, mm_t, '--', color='b', linewidth=2, label='total mass')
         plt.grid()
         plt.legend()
         plt.show()
