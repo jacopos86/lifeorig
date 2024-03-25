@@ -26,6 +26,8 @@ class reaction_net_class:
         # reactions set
         self.ligand_reactions = []
         self.cleavage_reactions = []
+        # fitness
+        self.fitness = 0.
     def set_binary_polymer_model(self, catalyst_set):
         # n. food set bits
         self.n_F_bits = math.log2(self.size_F)
@@ -220,6 +222,28 @@ class reaction_net_class:
             log.info("\t network genome : " + self.genome)
             log.info("\n")
             log.info("\t " + p.sep)
+    def compute_fitness(self, kinetic_solver):
+        avg_state_t = kinetic_solver.avg_state_t
+        # fitness = \sum_target molecules ni / N
+        T = -1
+        target_molecules = p.target_molecules
+        # molecular masses
+        X_mass = kinetic_solver.X_mass
+        # n. target molecules
+        nt = len(target_molecules)
+        target_mass = 0
+        for i in range(nt):
+            ml = target_molecules[i]
+            target_mass += avg_state_t[T,ml] * X_mass[ml]
+        # total mass
+        total_mass = 0
+        for i in range(self.size_X):
+            total_mass += avg_state_t[T,i] * X_mass[i]
+        self.fitness = target_mass / total_mass
+        log.info("\n")
+        log.info("\t " + p.sep)
+        log.info("\t network fitness : " + str(self.fitness))
+        log.info("\t " + p.sep)
     #
     # define the reaction kinetic
     # model
@@ -244,6 +268,9 @@ class reaction_net_class:
         for x in self.food_set:
             target_molecules.append(x)
         kinetic_solver.show(target_molecules)
+        # set fitness of chemical
+        # network
+        self.compute_fitness(kinetic_solver)
     #
     # find ACF subset
     # this subroutine find RAF subset if present in the network

@@ -11,6 +11,8 @@ class parameters_class:
         self.max_fitness = 1.
         # random seed
         self.seed = 1
+        # n. config
+        self.nconfig = 1
 
     def read_input_json(self, json_file):
         try:
@@ -47,6 +49,10 @@ class parameters_class:
         # target molecules
         if "target_molecules" in data:
             self.target_molecules = data["target_molecules"]
+        # n. config. to average 
+        # kinetic simulation
+        if "number_config" in data:
+            self.nconfig = data["number_config"]
         # time variables
         if "T" in data:
             self.T = data["T"]

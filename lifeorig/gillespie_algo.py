@@ -100,9 +100,18 @@ class chemical_kinetics_solver:
         # run simulation
         log.info("\t " + p.sep)
         log.info("\t START KINETIC MODEL SIMULATION")
-        times, measurements = gillespie.simulate(self.initial_state, self.propensity, self.stoichiometry, duration=30)
-        self.t = np.array(times)
-        self.state_t = np.array(measurements)
+        state_t = [None]*p.nconfig
+        # run over config.
+        for ic in range(p.nconfig):
+            print(ic)
+            times, measurements = gillespie.simulate(self.initial_state, self.propensity, self.stoichiometry, duration=25)
+            if ic == 0:
+                self.t = np.array(times)
+            state_t[ic] = np.array(measurements)
+        self.avg_state_t = np.zeros(state_t[0].shape)
+        for ic in range(p.nconfig):
+            self.avg_state_t += state_t[ic]
+        self.avg_state_t = self.avg_state_t / p.nconfig
         log.info("\t END KINETIC SIMULATION")
         log.info("\t " + p.sep)
     def show(self, target_molecules):
@@ -112,18 +121,18 @@ class chemical_kinetics_solver:
         for i in range(n):
             ml = target_molecules[i]
             c = next(color)
-            plt.plot(self.t, self.state_t[:,ml], color=c, linewidth=1.5, label=str(ml))
+            plt.plot(self.t, self.avg_state_t[:,ml], color=c, linewidth=1.5, label=str(ml))
         # n. molecules
         sm_t = np.zeros(len(self.t))
         for i in range(len(self.t)):
-            sm_t[i] = np.sum(self.state_t[i,:])
+            sm_t[i] = np.sum(self.avg_state_t[i,:])
         plt.plot(self.t, sm_t, '--', color='k', linewidth=2, label='n. molecules')
         # molecules total mass
         size_X = len(self.X_set)
         mm_t = np.zeros(len(self.t))
         for i in range(len(self.t)):
             for j in range(size_X):
-                mm_t[i] += self.X_mass[j] * self.state_t[i,j]
+                mm_t[i] += self.X_mass[j] * self.avg_state_t[i,j]
         plt.plot(self.t, mm_t, '--', color='b', linewidth=2, label='total mass')
         plt.grid()
         plt.legend()
