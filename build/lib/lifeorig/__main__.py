@@ -40,6 +40,7 @@ log.info("\n")
 # set random matrix
 
 size = p.ACFS_size
+'''
 mutation_obj = random_matrix(size)
 mutation_obj.set_rand_matrix(p.seed)
 mutation_obj.normalize_matrix()
@@ -73,7 +74,7 @@ log.info("\t " + p.sep)
 
 solver = QuasiSpeciesSolver(size, p.dt, p.T)
 solver.solve(x0, fitness_func, mutation_obj)
-
+'''
 # set random networks -> one for each species
 
 ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C)

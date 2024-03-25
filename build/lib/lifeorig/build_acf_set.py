@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import logging
 from lifeorig.reaction_network import reaction_net_class
 from lifeorig.read_input import p
 from lifeorig.logging_module import log
@@ -8,6 +9,9 @@ from lifeorig.logging_module import log
 # make a sequence of catalysts set
 # size = size_ACFS
 def build_ACFS(size_ACFS, size_bpol, size_F, size_C):
+    # open data file
+    file_name = p.working_dir + "/ACF_data.txt"
+    f = open(file_name, 'a')
     ACF_set = []
     i = 1
     while len(ACF_set) < size_ACFS:
@@ -18,8 +22,9 @@ def build_ACFS(size_ACFS, size_bpol, size_F, size_C):
         ACFS.set_binary_polymer_model(catalyst_set)
         ACFS.find_ACF_subset()
         # prepare network plot
-        file_name = p.working_dir+'/acs-' + str(i) + '.html'
-        ACFS.show_network(file_name)
+        if log.level == logging.DEBUG:
+            file_name = p.working_dir+'/acs-' + str(i) + '.html'
+            ACFS.show_network(file_name)
         # produce network genome
         ACFS.set_network_genome()
         # here we solve the kinetic model
@@ -27,7 +32,11 @@ def build_ACFS(size_ACFS, size_bpol, size_F, size_C):
         # configurations
         ACFS.set_chemical_kinetics_solver()
         ACF_set.append(ACFS)
+        # append to file
+        f.write("%s          " % ACFS.genome + "%d          " % len(ACFS.ACF_set) + "%.7f\n" % ACFS.fitness)
+        # append data to file
         i += 1
+    f.close()
     return ACF_set
 #
 # build catalyst set

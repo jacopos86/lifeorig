@@ -95,7 +95,6 @@ class chemical_kinetics_solver:
                 self.propensity.append(eval(func))
             #input = tuple(self.initial_state)
             #p = self.propensity[-1]
-            #print(input, func, p(input))
     def solve(self):
         # run simulation
         log.info("\t " + p.sep)
@@ -103,7 +102,6 @@ class chemical_kinetics_solver:
         state_t = [None]*p.nconfig
         # run over config.
         for ic in range(p.nconfig):
-            print(ic)
             times, measurements = gillespie.simulate(self.initial_state, self.propensity, self.stoichiometry, duration=25)
             if ic == 0:
                 self.t = np.array(times)
@@ -121,7 +119,7 @@ class chemical_kinetics_solver:
         for i in range(n):
             ml = target_molecules[i]
             c = next(color)
-            plt.plot(self.t, self.avg_state_t[:,ml], color=c, linewidth=1.5, label=str(ml))
+            plt.plot(self.t, self.X_mass[ml]*self.avg_state_t[:,ml], color=c, linewidth=1.5, label=str(ml))
         # n. molecules
         sm_t = np.zeros(len(self.t))
         for i in range(len(self.t)):

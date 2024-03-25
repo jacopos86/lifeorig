@@ -265,9 +265,8 @@ class reaction_net_class:
         kinetic_solver.solve()
         # molecules to display
         target_molecules = p.target_molecules
-        for x in self.food_set:
-            target_molecules.append(x)
-        kinetic_solver.show(target_molecules)
+        if log.level == logging.DEBUG:
+            kinetic_solver.show(target_molecules)
         # set fitness of chemical
         # network
         self.compute_fitness(kinetic_solver)
@@ -309,13 +308,12 @@ class reaction_net_class:
                     c  = r['c_int']
                     if r1 in Cl_R and c in Cl_R:
                         R2.append(ri)
-            print(R, R2)
+            #print(R, R2)
         # set up ACF set
         self.ACF_set = []
         for ri in R:
             r = reaction_set[ri]
             self.ACF_set.append(r)
-            print(r)
     # routine to compute
     # the closure set of F
     def compute_closure_set(self, R, F, reaction_set):
