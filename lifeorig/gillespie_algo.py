@@ -140,10 +140,12 @@ class chemical_kinetics_solver:
         # initial state
         self.initial_state = [290, 10, 0]
         # propensities
-        self.propensity = [lambda s, i, r: 2*s*i/300,
-                           lambda s, i, r: 0.5*i]
+        self.propensity = [lambda s, i, r: 2*s*i*r/300,
+                           lambda s, i, r: 0.5*i*r,
+                           lambda s, i, r: 0.01*i]
         # stoichiometry
         self.stoichiometry = [[-1, 1, 0],
+                              [0, -1, 1],
                               [0, -1, 1]]
         # run simulation
         times, measurements = gillespie.simulate(self.initial_state, self.propensity, self.stoichiometry, duration=15)

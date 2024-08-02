@@ -12,18 +12,14 @@ class random_matrix():
         self.size = size
         self.Q = np.zeros((size,size))
         self.Q_oft = None
-    def set_rand_matrix(self, s):
+    def set_rand_matrix(self, s, mu, sigma):
         np.random.seed(s)
         # uniform distrib. [0,1)
-        self.Q = np.random.rand(self.size,self.size)
+        self.Q = s = np.random.normal(mu, sigma, self.size*self.size).reshape(self.size, self.size)
     def normalize_matrix(self):
         for i in range(self.size):
             s = sum(self.Q[i,:])
             self.Q[i,:] = self.Q[i,:] / s
-    # set random matrix with pointwise
-    # mutations
-    def set_rand_matrix_pwmut(self):
-        pass
     # set time random matrix
     def set_constant_mutation_over_time(self, nt):
         self.Q_oft = np.zeros((self.size, self.size, nt))
