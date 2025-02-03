@@ -1,2 +1,4 @@
-TESTS
 PLOT
+dist
+build
+lifeorig.egg-info
