@@ -136,26 +136,31 @@ class chemical_kinetics_solver:
         plt.legend()
         plt.show()
     # test function
-    def test(self):
+    def test(self, initial_state, expr, stoichiometry, out_file):
         # initial state
-        self.initial_state = [290, 10, 0]
+        self.initial_state = initial_state
         # propensities
-        self.propensity = [lambda s, i, r: 2*s*i*r/300,
-                           lambda s, i, r: 0.5*i*r,
-                           lambda s, i, r: 0.01*i]
+        #self.propensity = [lambda s, i, r: 2*s*i*r/300,
+        #                   lambda s, i, r: 0.5*i*r,
+        #                   lambda s, i, r: 0.01*i]
+        self.propensity = []
+        for ex in expr:
+            self.propensity.append(lambda s, i, r: eval(ex))
         # stoichiometry
-        self.stoichiometry = [[-1, 1, 0],
-                              [0, -1, 1],
-                              [0, -1, 1]]
+        self.stoichiometry = stoichiometry
         # run simulation
         times, measurements = gillespie.simulate(self.initial_state, self.propensity, self.stoichiometry, duration=15)
         log.debug("\t TEST SUCCESSFUL")
         # plot 
         t = np.array(times)
         state = np.array(measurements)
-        plt.plot(t, state[:,0], color='k', linewidth=1.5)
-        plt.plot(t, state[:,1], color='b', linewidth=1.5)
-        plt.plot(t, state[:,2], color='g', linewidth=1.5)
-        plt.plot(t, state[:,0]+state[:,1]+state[:,2], '--', color='k', linewidth=1.5)
+        plt.plot(t, state[:,0], color='k', linewidth=1.5, label="X1")
+        plt.plot(t, state[:,1], color='b', linewidth=1.5, label="X2")
+        plt.plot(t, state[:,2], color='g', linewidth=1.5, label="X3")
+        plt.plot(t, state[:,0]+state[:,1]+state[:,2], '--', color='k', linewidth=1.5, label="TOTAL")
+        plt.xlabel("time [a.u.]")
+        plt.ylabel("<X(t)>")
+        plt.legend()
         plt.grid()
+        plt.savefig(out_file)
         plt.show()
