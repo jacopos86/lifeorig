@@ -2,3 +2,4 @@ TESTS
 build
 dist
 lifeorig.egg-info
+lifeorig/__pycache__
