@@ -1,5 +1,3 @@
-import numpy as np
-import random
 import logging
 from lifeorig.reaction_network import reaction_net_class
 from lifeorig.read_input import p
@@ -8,17 +6,19 @@ from lifeorig.logging_module import log
 # ACF set builder :
 # make a sequence of catalysts set
 # size = size_ACFS
-def build_ACFS(size_ACFS, size_bpol, size_F, size_C):
+def build_ACFS(num_ACFS, size_bpol, size_F, size_C, size_C_ACFset):
     # open data file
     file_name = p.working_dir + "/ACF_data.txt"
     f = open(file_name, 'a')
-    ACF_set = []
+    ACF_set_list = []
     i = 1
-    while len(ACF_set) < size_ACFS:
-        ACFS = reaction_net_class(size_bpol, size_F, size_C)
+    while len(ACF_set_list) < num_ACFS:
+        ACFS = reaction_net_class(size_bpol, size_F, size_C_ACFset)
         # set up catalyst set
         size_X = ACFS.size_X
-        catalyst_set = build_catalysts_set(size_X, size_C)
+        exit()
+        catalyst_set = build_catalysts_set(size_X, size_C, size_C_ACFset)
+        exit()
         ACFS.set_binary_polymer_model(catalyst_set)
         ACFS.find_ACF_subset()
         # prepare network plot
@@ -44,13 +44,3 @@ def build_ACFS(size_ACFS, size_bpol, size_F, size_C):
         i += 1
     f.close()
     return ACF_set
-#
-# build catalyst set
-# 
-def build_catalysts_set(size_X, size_C):
-    catalyst_set = []
-    while len(catalyst_set) < size_C:
-        i = random.choice(np.arange(1, size_X+1, 1))
-        if i not in catalyst_set:
-            catalyst_set.append(i)
-    return catalyst_set
