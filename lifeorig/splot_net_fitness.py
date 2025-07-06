@@ -55,11 +55,11 @@ x = np.arange(0, max(net_size)+1)
 
 fig, axs = plt.subplots(2, 1, layout='constrained')
 axs[0].scatter(net_size, fitness, alpha=0.5)
-axs[0].set_xlabel('size ACF set')
+axs[0].set_xlabel('size RAF set')
 axs[0].set_ylabel('network fitness')
 axs[0].grid(True)
 
-axs[0].set_xlabel('size ACF set')
+axs[0].set_xlabel('size RAF set')
 axs[1].set_ylabel('network fitness')
 axs[1].plot(x, avg_fit, '--', linewidth=2)
 axs[1].scatter(x, avg_fit, alpha=0.5, label='avg. fitness')
