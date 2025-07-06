@@ -17,6 +17,8 @@ class parameters_class:
         self.n_acf_distr = 1
         # set evolutionary game dyn.
         self.EvolutionaryGameDyn = False
+        # catalyst prob. distr.
+        self.catalyst_prob_distr = "uniform"
 
     def read_input_json(self, json_file):
         try:
@@ -37,7 +39,7 @@ class parameters_class:
             self.EvolutionaryGameDyn = data["EvolutionaryGameDyn"]
         # size initial ACF set
         if "ACFS_size" in data:
-            self.ACFS_size = data["ACFS_size"]
+            self.num_ACFS = data["num_ACFS"]
         # size sample space
         if "evol_size" in data:
             self.evol_size = data["evol_size"]
@@ -53,6 +55,15 @@ class parameters_class:
         # catalysts set size
         if "catalyst_set_size" in data:
             self.size_C = data["catalyst_set_size"]
+        # catalysts in ACF set
+        if "catalyst_in_ACF_set" in data:
+            self.size_C_ACF_set = data["catalyst_in_ACF_set"]
+        # catalysts distribution
+        if "catalyst_prob_distr" in data:
+            self.catalyst_prob_distr = data["catalyst_prob_distr"]
+        # distrib. parameters
+        if "distribution_parameters" in data:
+            self.distr_parameters = data["distribution_parameters"]
         # molecule set size
         if "bpol_strng_size" in data:
             self.bpol_strng_size = data["bpol_strng_size"]
