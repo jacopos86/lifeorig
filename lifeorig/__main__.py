@@ -31,7 +31,10 @@ log.info("\t ++++++                           LIFEORIG   CODE                   
 log.info("\t ++++++                                                                                  ++++++")
 log.info("\t ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 log.info("\n")
-print(calc_type)
+log.info("\t " + p.sep)
+log.info("\t CALCULATION TYPE : " + calc_type)
+log.info("\t " + p.sep)
+log.info("\n")
 
 # test gillespie algo
 if log.level <= logging.DEBUG:
@@ -40,11 +43,11 @@ if log.level <= logging.DEBUG:
 
 if calc_type == "acf_set":
     
-    size = p.ACFS_size
+    size = p.num_ACFS
     
     # set random networks -> one for each species
 
-    ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C)
+    ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C, p.size_C_ACF_set)
 
 elif calc_type == "ml":
     
