@@ -47,7 +47,7 @@ if calc_type == "acf_set":
     
     # set random networks -> one for each species
 
-    ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C, p.size_C_ACF_set)
+    ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C, p.size_C_ACF_set, p.ratio_C_ACFset)
 
 elif calc_type == "ml":
     
