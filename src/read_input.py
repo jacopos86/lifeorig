@@ -61,9 +61,8 @@ class parameters_class:
         # catalysts distribution
         if "catalyst_prob_distr" in data:
             self.catalyst_prob_distr = data["catalyst_prob_distr"]
-        # distrib. parameters
-        if "distribution_parameters" in data:
-            self.distr_parameters = data["distribution_parameters"]
+        if "ratio_C_ACF_set" in data:
+            self.ratio_C_ACFset = data["ratio_C_ACF_set"]
         # molecule set size
         if "bpol_strng_size" in data:
             self.bpol_strng_size = data["bpol_strng_size"]
