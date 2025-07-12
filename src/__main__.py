@@ -10,7 +10,7 @@ from src.set_rndm_matrix import random_matrix
 from src.mutation_rate import zero_mutation, dist_mutation
 from src.fitness_distr import fitness_distr, fitness_distr_game_dyn
 from src.quasi_species_solver import BuildQuasiSpeciesSolver
-from src.build_acf_set import build_ACFS
+from src.build_acf_set import build_chem_networks
 from src.build_sample_space import set_sample_space
 from src.gillespie_algo import chemical_kinetics_solver
 from src.mutation_rate import compute_hamm_dist_matrix
@@ -41,13 +41,13 @@ if log.level <= logging.DEBUG:
     kin_solver = chemical_kinetics_solver()
     kin_solver.test()
 
-if calc_type == "acf_set":
+if calc_type == "chem_nets":
     
     size = p.num_ACFS
     
     # set random networks -> one for each species
 
-    ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C, p.size_C_ACF_set, p.ratio_C_ACFset)
+    ACF_set = build_chem_networks(size, p.bpol_strng_size, p.size_F, p.size_C, p.intern_C_size, p.ratio_C_ACFset, p.QSP_indiv)
 
 elif calc_type == "ml":
     
