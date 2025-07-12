@@ -11,7 +11,7 @@ import os
 #  class describing the
 #  reaction network -> we use a binary polymer model
 class reaction_net_class:
-    def __init__(self, size_bpol, size_F, size_C, size_C_ACFset):
+    def __init__(self, size_bpol, size_F, size_C):
         # max. size string
         # polymer model
         self.strng_size = size_bpol
@@ -20,7 +20,6 @@ class reaction_net_class:
         self.food_set = []
         # catalysts size
         self.size_C = size_C
-        self.size_C_ACFset = size_C_ACFset
         self.catalyst_set = []
         # size of molecules set
         self.size_X = 2 ** size_bpol - 1
