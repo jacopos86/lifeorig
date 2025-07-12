@@ -2,22 +2,24 @@ import logging
 from src.reaction_network import reaction_net_class
 from src.read_input import p
 from src.logging_module import log
-from src.catalysts_set import build_catalysts_set
+from src.catalysts_set import build_catalysts_rr_set, set_catalysts_prob_distr
 #
 # ACF set builder :
 # make a sequence of catalysts set
 # size = size_ACFS
-def build_ACFS(num_ACFS, size_bpol, size_F, size_C, size_C_ACFset, ratio_C_ACFset):
+def build_chem_networks(num_ACFS, size_bpol, size_F, size_C, size_C_intern, ratio_C_ACFset, nQSP_indiv):
     # open data file
     file_name = p.working_dir + "/ACF_data.txt"
     f = open(file_name, 'a')
     ACF_set_list = []
     i = 1
     while len(ACF_set_list) < num_ACFS:
-        ACFS = reaction_net_class(size_bpol, size_F, size_C, size_C_ACFset[i-1])
+        ACFS = reaction_net_class(size_bpol, size_F, size_C)
         # set up catalyst set
         size_X = ACFS.size_X
-        catalyst_set = build_catalysts_set(size_X, size_C, size_C_ACFset[i-1], ratio_C_ACFset[i-1])
+        print(size_X, size_C, ratio_C_ACFset[i-1])
+        catalyst_rr_set = build_catalysts_rr_set(size_C, size_C_intern[i-1])
+        catalyst_prob_distr = set_catalysts_prob_distr(size_C, size_C_intern[i-1], ratio_C_ACFset[i-1])
         exit()
         ACFS.set_binary_polymer_model(catalyst_set)
         ACFS.find_ACF_subset()
