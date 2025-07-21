@@ -40,7 +40,7 @@ if log.level <= logging.DEBUG:
 
 if calc_type == "acf_set":
     
-    size = p.ACFS_size
+    size = p.num_ACFS
     
     # set random networks -> one for each species
 
