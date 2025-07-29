@@ -41,9 +41,17 @@ if log.level <= logging.DEBUG:
     kin_solver = chemical_kinetics_solver()
     kin_solver.test()
 
+if calc_type == "acf_set":
+    
+    size = p.QSP_size
+    
+    # set random networks -> one for each species
+
+    ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C)
+
 if calc_type == "chem_nets":
     
-    size = p.num_ACFS
+    size = p.QSP_size
     
     # set random networks -> one for each species
 
