@@ -1,0 +1,6 @@
+numpy
+colorlog
+gillespie
+matplotlib
+gravis
+pytest
