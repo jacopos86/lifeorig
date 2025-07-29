@@ -41,6 +41,8 @@ if log.level <= logging.DEBUG:
     kin_solver = chemical_kinetics_solver()
     kin_solver.test()
 
+# build ACF set section
+
 if calc_type == "acf_set":
     
     size = p.QSP_size
