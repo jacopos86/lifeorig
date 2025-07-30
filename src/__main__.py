@@ -11,7 +11,7 @@ from src.mutation_rate import zero_mutation, dist_mutation
 from src.fitness_distr import fitness_distr, fitness_distr_game_dyn
 from src.quasi_species_solver import BuildQuasiSpeciesSolver
 from src.build_acf_set import build_chem_networks
-from src.build_sample_space import set_sample_space
+from src.build_acfs_popul import build_ACFS_networks
 from src.gillespie_algo import chemical_kinetics_solver
 from src.mutation_rate import compute_hamm_dist_matrix
 #from lifeorig.network_predict import generate_predictor, build_Xy_data
@@ -49,7 +49,7 @@ if calc_type == "acf_set":
     
     # set random networks -> one for each species
 
-    ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C)
+    ACF_set = build_ACFS_networks(size, p.bpol_strng_size, p.size_F, p.size_C)
 
 if calc_type == "chem_nets":
     
