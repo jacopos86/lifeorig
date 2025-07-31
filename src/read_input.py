@@ -39,8 +39,8 @@ class parameters_class:
         if "num_ACFS" in data:
             self.num_ACFS = data["num_ACFS"]
         # num. individuals in QSP to average
-        if "n_QSP_indiv" in data:
-            self.QSP_indiv = data["n_QSP_indiv"]
+        if "QSP_size" in data:
+            self.QSP_size = data["QSP_size"]
         # size sample space
         if "evol_size" in data:
             self.evol_size = data["evol_size"]
