@@ -1,21 +1,37 @@
-from src.logging_module import log
+from logging_module import log
 from random import randrange
 import logging
 import os
-from src.mutation_rate import compute_hamming_distance
-from src.read_input import p
-from src.reaction_network import reaction_net_class
+from mutation_rate import compute_hamming_distance
+from read_input import p
+from reaction_network import reaction_net_class
 # This module builds the sample space
 # for the evolutionary dynamics
-# given a network - it builds the correspondent sample
-# space with networks at genomic distance 1 - 10
+# given a list of network types - it builds the correspondent sample
 # size of sample space given in input
 #
-def set_sample_space(size, size_bpol, size_F, size_C, iter):
+def check_input_data(size, size_bpol, size_C):
+    ntyp = len(size_bpol)
+    check = (len(size_C) == ntyp)
+    n3 = 0
+    for i in range(ntyp):
+        n1 = size_bpol[i][1]
+        n2 = size_C[i][1]
+        check = check and (n1 == n2)
+        n3 += n1
+    check = check and (size == n3)
+    return check
+
+def build_ACFS_networks(size, size_bpol, size_F, size_C):
+    # check input data
+    assert(check_input_data(size, size_bpol, size_C) == True)
     # build ACFS
-    ACFS = reaction_net_class(size_bpol, size_F, size_C)
-    # set up catalyst set
-    size_X = ACFS.size_X
+    ntyp = len(size_bpol)
+    for it in range(ntyp):
+        n1 = size_bpol[it][1]
+        ACFS = reaction_net_class(size_bpol[it][0], size_F, size_C[it][0])
+        # set up catalyst set
+        size_X = ACFS.size_X
     catalyst_set = build_catalysts_set(size_X, size_C)
     ACFS.set_binary_polymer_model(catalyst_set)
     ACFS.find_ACF_subset()

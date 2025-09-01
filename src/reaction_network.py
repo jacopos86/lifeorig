@@ -2,10 +2,10 @@ import math
 import random
 import numpy as np
 import logging
-from src.logging_module import log
-from src.read_input import p
-from src.graph_class import graph_obj
-from src.gillespie_algo import chemical_kinetics_solver
+from logging_module import log
+from read_input import p
+from graph_class import graph_obj
+from gillespie_algo import chemical_kinetics_solver
 import gravis as gv
 import os
 #  class describing the

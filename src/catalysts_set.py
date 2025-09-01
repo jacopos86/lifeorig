@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from math import exp
-from src.read_input import p
-from src.constants import R
+from read_input import p
+from constants import R
 import pytest
 
 def reaction_rate(Delta, x0, xgr, sig, E_a, T):

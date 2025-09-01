@@ -4,18 +4,18 @@
 #
 import numpy as np
 import logging
-from src.parser import parser
-from src.read_input import p
-from src.set_rndm_matrix import random_matrix
-from src.mutation_rate import zero_mutation, dist_mutation
-from src.fitness_distr import fitness_distr, fitness_distr_game_dyn
-from src.quasi_species_solver import BuildQuasiSpeciesSolver
-from src.build_acf_set import build_chem_networks
-from src.build_sample_space import set_sample_space
-from src.gillespie_algo import chemical_kinetics_solver
-from src.mutation_rate import compute_hamm_dist_matrix
+from parser import parser
+from read_input import p
+from set_rndm_matrix import random_matrix
+from mutation_rate import zero_mutation, dist_mutation
+from fitness_distr import fitness_distr, fitness_distr_game_dyn
+from quasi_species_solver import BuildQuasiSpeciesSolver
+from build_acf_set import build_chem_networks
+from build_acfs_popul import build_ACFS_networks
+from gillespie_algo import chemical_kinetics_solver
+from mutation_rate import compute_hamm_dist_matrix
 #from lifeorig.network_predict import generate_predictor, build_Xy_data
-from src.logging_module import log
+from logging_module import log
 
 args = parser.parse_args()
 calc_type = args.ct[0]
@@ -41,13 +41,15 @@ if log.level <= logging.DEBUG:
     kin_solver = chemical_kinetics_solver()
     kin_solver.test()
 
+# build ACF set section
+
 if calc_type == "acf_set":
     
     size = p.QSP_size
     
     # set random networks -> one for each species
 
-    ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C)
+    ACF_set = build_ACFS_networks(size, p.bpol_strng_size, p.size_F, p.size_C)
 
 if calc_type == "chem_nets":
     

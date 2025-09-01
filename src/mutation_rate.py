@@ -1,5 +1,5 @@
-from src.logging_module import log
-from src.read_input import p
+from logging_module import log
+from read_input import p
 import numpy as np
 import logging
 from math import sin, exp
