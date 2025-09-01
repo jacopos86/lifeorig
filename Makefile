@@ -1,33 +1,34 @@
-VENV = env
+ROOT = $(shell pwd)
+VENV = $(ROOT)/env
 PYTHON = $(VENV)/bin/python3
 PIP = $(VENV)/bin/pip
 
-configure : requirements.txt
+configure : $(ROOT)/requirements.txt
 	python3 -m venv $(VENV); \
 	. $(VENV)/bin/activate; \
-	$(PIP) install -r requirements.txt
+	$(PIP) install -r $(ROOT)/requirements.txt
 install :
 	. $(VENV)/bin/activate ; \
 	$(PIP) install .
 .PHONY :
 	clean
 clean :
-	rm -rf ./src/*~ ; \
-	if [ -d ./src/__pycache__ ] ; \
+	rm -rf $(ROOT)/src/*~ ; \
+	if [ -d $(ROOT)/src/__pycache__ ] ; \
 	then \
-		rm -rf ./src/__pycache__ ; \
+		rm -rf $(ROOT)/src/__pycache__ ; \
 	fi ; \
-	if [ -d ./build ] ; \
+	if [ -d $(ROOT)/build ] ; \
 	then \
-		rm -rf ./build ; \
+		rm -rf $(ROOT)/build ; \
 	fi ; \
-	if [ -d ./__pycache__ ] ; \
+	if [ -d $(ROOT)/__pycache__ ] ; \
 	then \
-		rm -rf ./__pycache__ ; \
+		rm -rf $(ROOT)/__pycache__ ; \
 	fi ; \
-	if [ -d ./lifeorig.egg-info ] ; \
+	if [ -d $(ROOT)/lifeorig.egg-info ] ; \
 	then \
-		rm -rf ./lifeorig.egg-info ; \
+		rm -rf $(ROOT)/lifeorig.egg-info ; \
 	fi ; \
 	if [ -d $(VENV) ] ; \
 	then \
