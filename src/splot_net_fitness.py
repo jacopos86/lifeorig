@@ -1,6 +1,6 @@
-from src.parser import parser
+from parser import parser
 import matplotlib.pyplot as plt
-from src.logging_module import log
+from logging_module import log
 import numpy as np
 
 #

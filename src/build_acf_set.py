@@ -1,8 +1,8 @@
 import logging
-from src.reaction_network import reaction_net_class
-from src.read_input import p
-from src.logging_module import log
-from src.catalysts_set import build_catalysts_rr_set, set_catalysts_prob_distr
+from reaction_network import reaction_net_class
+from read_input import p
+from logging_module import log
+from catalysts_set import build_catalysts_rr_set, set_catalysts_prob_distr
 #
 # ACF set builder :
 # make a sequence of catalysts set

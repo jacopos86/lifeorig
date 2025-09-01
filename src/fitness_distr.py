@@ -1,8 +1,8 @@
 import numpy as np
 import math
-from src.read_input import p
-from src.logging_module import log
-from src.reaction_network import reaction_net_class
+from read_input import p
+from logging_module import log
+from reaction_network import reaction_net_class
 # This class defines the fitness
 # function
 class fitness_distr():

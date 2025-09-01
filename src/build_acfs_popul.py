@@ -1,10 +1,10 @@
-from src.logging_module import log
+from logging_module import log
 from random import randrange
 import logging
 import os
-from src.mutation_rate import compute_hamming_distance
-from src.read_input import p
-from src.reaction_network import reaction_net_class
+from mutation_rate import compute_hamming_distance
+from read_input import p
+from reaction_network import reaction_net_class
 # This module builds the sample space
 # for the evolutionary dynamics
 # given a list of network types - it builds the correspondent sample

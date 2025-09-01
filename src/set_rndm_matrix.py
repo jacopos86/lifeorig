@@ -1,6 +1,6 @@
 import numpy as np
-from src.logging_module import log
-from src.read_input import p
+from logging_module import log
+from read_input import p
 import logging
 # This module set up a random matrix
 # conditions to be satisfied :
