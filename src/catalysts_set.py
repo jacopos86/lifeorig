@@ -3,6 +3,7 @@ import numpy as np
 from math import exp
 from read_input import p
 from constants import R
+from scipy.stats import truncnorm
 import pytest
 
 def reaction_rate(Delta, x0, xgr, sig, E_a, T):
@@ -12,18 +13,6 @@ def reaction_rate(Delta, x0, xgr, sig, E_a, T):
     for i in range(N):
         rr[i] = Delta * exp(-(xgr[i] - x0)**2 / (2*sig**2)) * exp(-E_a / (R*T))
     return rr
-
-def plot_reaction_rate_distr(rr_ACFS, rr_extset, output_file):
-    plt.ylim([-0.1, 1.1])
-    plt.xlabel(r"catalysts distribution")
-    plt.ylabel(r"reaction rates")
-    xgr = rr_ACFS["xgr"]
-    rr = rr_ACFS["rr"]
-    plt.scatter(xgr, rr, alpha=0.5, color='red')
-    xgr = rr_extset["xgr"]
-    rr = rr_extset["rr"]
-    plt.scatter(xgr, rr, alpha=0.5, color='red')
-    plt.savefig(output_file, format="pdf", bbox_inches="tight")
 
 #
 #  This module builds the catalysts set
@@ -84,6 +73,23 @@ def set_catalysts_prob_distr(size_C, size_C_intern, ratio_C_ACFset):
     print(prob_distr)
     assert(pytest.approx(np.sum(prob_distr), rel=1e-9) == 1.)
     return prob_distr
+
+#
+#  build ACFS catalyst distribution
+#
+
+def build_catalysts_distr_ACFS(size_X, distr_p):
+    mean = distr_p[0]
+    std_dev = distr_p[1]
+    # Calculate the truncation points for the standard normal distribution
+    # (a and b are in terms of standard deviations from the mean)
+    min_val = 0
+    max_val = size_X
+    a = (min_val - mean) / std_dev
+    b = (max_val - mean) / std_dev
+    # Create a truncated normal distribution object
+    truncated_dist = truncnorm(a=a, b=b, loc=mean, scale=std_dev)
+    return truncated_dist
 
 #
 #  set up single reaction
