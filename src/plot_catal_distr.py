@@ -21,7 +21,7 @@ def plot_reaction_rate_distr(rr_ACFS, rr_extset, output_file):
 #  plot ACFS distribution
 #
 
-def plot_ACFS_distr(frozen_rv):
+def plot_ACFS_distr(frozen_rv, output_file):
     # 2. Define the range of x-values for plotting
     # It's good practice to create a range that covers most of the distribution's mass.
     # For a normal distribution, the mean ± 4 standard deviations is a common choice.
@@ -36,4 +36,4 @@ def plot_ACFS_distr(frozen_rv):
     plt.ylabel('Probability Density')
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.6)
-    plt.show()
+    plt.savefig(output_file, format="pdf", bbox_inches="tight")
