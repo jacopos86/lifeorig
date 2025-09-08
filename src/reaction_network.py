@@ -11,16 +11,15 @@ import os
 #  class describing the
 #  reaction network -> we use a binary polymer model
 class reaction_net_class:
-    def __init__(self, size_bpol, size_F, size_C):
+    def __init__(self, size_bpol, size_F):
         # max. size string
         # polymer model
         self.strng_size = size_bpol
         # food set size
         self.size_F = size_F
         self.food_set = []
-        # catalysts size
-        self.size_C = size_C
-        self.catalyst_set = []
+        # catalysts distr.
+        self.catalyst_distr = None
         # size of molecules set
         self.size_X = 2 ** size_bpol - 1
         # reactions set
@@ -28,22 +27,23 @@ class reaction_net_class:
         self.cleavage_reactions = []
         # fitness
         self.fitness = 0.
-    def set_binary_polymer_model(self, catalyst_set):
+    def set_binary_polymer_model(self, catalyst_distr):
         # n. food set bits
         self.n_F_bits = math.log2(self.size_F)
         log.info("\t max. string size : " + str(self.strng_size))
         # build the catalysts set (C)
-        self.define_catalysts_set(catalyst_set)
+        self.define_catalysts_set(catalyst_distr)
         # build food set
         self.build_food_set()
+        exit()
         # build set of reactions
         self.build_reactions_set()
-    def set_binary_polymer_from_genome(self, catalyst_set):
+    def set_binary_polymer_from_genome(self, catalyst_distr):
         # n. food set bits
         self.n_F_bits = math.log2(self.size_F)
         log.info("\t max. string size : " + str(self.strng_size))
         # build catalysts set C
-        self.define_catalysts_set(catalyst_set)
+        self.define_catalysts_set(catalyst_distr)
         # set catalysts
         catal_set_react = self.genome_to_catalysts()
         # builid food set
@@ -51,10 +51,10 @@ class reaction_net_class:
         # build reactions
         self.build_reactions_set_from_catalysts(catal_set_react)
     # catalysts set
-    def define_catalysts_set(self, catalyst_set):
-        self.catalyst_set = catalyst_set
+    def define_catalysts_set(self, catalyst_distr):
+        self.catalyst_distr = catalyst_distr
         log.info("\n")
-        log.info("\t C = " + str(self.catalyst_set))
+        log.info("\t C = " + str(self.catalyst_distr))
         log.info("\t " + p.sep)
     # build food set
     def build_food_set(self):
