@@ -35,9 +35,6 @@ class parameters_class:
         # evolutionary game dyn.
         if "EvolutionaryGameDyn" in data:
             self.EvolutionaryGameDyn = data["EvolutionaryGameDyn"]
-        # size initial ACF set
-        if "num_ACFS" in data:
-            self.num_ACFS = data["num_ACFS"]
         # num. individuals in QSP to average
         if "QSP_size" in data:
             self.QSP_size = data["QSP_size"]
