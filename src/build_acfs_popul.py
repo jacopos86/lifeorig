@@ -33,17 +33,20 @@ def build_ACFS_networks(size, size_bpol, size_F, size_C):
         net_num = size_bpol[ityp][1]
         net_index = 0
         while net_index < net_num:
-            ACFS = reaction_net_class(size_bpol[ityp][0], size_F, size_C[ityp][net_index])
+            CNET = reaction_net_class(size_bpol[ityp][0], size_F)
             # set up catalyst set
-            size_X = ACFS.size_X
+            size_X = CNET.size_X
             log.info("\t size_X: " + str(size_X) +
                       " -- catalyst avg: " + str(size_C[ityp][net_index][0]) + 
                       " -- catalyst sig: " + str(size_C[ityp][net_index][1]))
             catalyst_distr = build_catalysts_distr_ACFS(size_X, size_C[ityp][net_index])
-            plot_ACFS_distr(catalyst_distr)
+            if log.level <= logging.INFO:
+                file_name = p.working_dir + "/ACF_catal_distr" + str(ityp) + "-" + str(net_index) + ".pdf"
+                plot_ACFS_distr(catalyst_distr, file_name)
+            # build chemical net
+            CNET.set_binary_polymer_model(catalyst_distr)
             net_index += 1
     exit()
-    ACFS.set_binary_polymer_model(catalyst_set)
     ACFS.find_ACF_subset()
     # prepare network plot
     if log.level == logging.INFO:
