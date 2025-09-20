@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from logging_module import log
 from read_input import p
 from matplotlib.pyplot import cm
+from scipy.interpolate import interp1d
 #
 #  This module implements
 #  the Gillespie algorithm
@@ -15,13 +16,15 @@ from matplotlib.pyplot import cm
 #  3. next reaction t <- t + tau ; x <- x + vj
 #  4. record (x,t) return to 1. 
 class chemical_kinetics_solver:
-    def __init__(self):
+    def __init__(self, n_simul):
+        # n. simulations
+        self.n_simul = n_simul
         # initial state list -> population of chemicals
         self.initial_state = []
         # reactions stoichiometry
         self.stoichiometry = []
         # propensities list
-        self.propensity = []
+        self.propensity = None
     def build_X_set(self, size_X):
         self.X_set = list(np.arange(1, size_X+1, 1))
         log.info("\t X set : " + str(self.X_set))
@@ -29,7 +32,7 @@ class chemical_kinetics_solver:
         for x in self.X_set:
             mx = bin(x).count('1')
             self.X_mass.append(mx)
-        log.info("\t X set masses : " + str(self.X_mass)) 
+        log.info("\t X set masses : " + str(self.X_mass))
     def set_stoichiometry(self, reaction_set, size_X):
         for r in reaction_set:
             stch = np.zeros(size_X, dtype=int)
@@ -67,14 +70,18 @@ class chemical_kinetics_solver:
                 self.initial_state[ind] = nF[ind]
             else:
                 self.initial_state[ind] = 0
-    def set_propensity(self, reaction_set, size_X):
+    def set_propensity(self, reaction_set, size_X, C_index=None):
+        self.propensity = []
         # run over reactions
         for r in reaction_set:
             if 'r1_int' in r and 'r2_int' in r and 'p_int' in r:
                 func = 'lambda '
                 r1i = self.X_set.index(r['r1_int'])
                 r2i = self.X_set.index(r['r2_int'])
-                ci  = self.X_set.index(r['c_int'])
+                if C_index is None:
+                    ci  = self.X_set.index(r['c_int'])
+                else:
+                    ci  = self.X_set.index(r['cList'][C_index])
                 # prefactor
                 for i in range(1, size_X):
                     func += 'x'+str(i)+', '
@@ -87,31 +94,55 @@ class chemical_kinetics_solver:
             if 'r_int' in r and 'p1_int' in r and 'p2_int' in r:
                 func = 'lambda x: '
                 ri = self.X_set.index(r['r_int'])
-                ci = self.X_set.index(r['c_int'])
+                if C_index is None:
+                    ci = self.X_set.index(r['c_int'])
+                else:
+                    ci = self.X_set.index(r['cList'][C_index])
                 func = 'lambda '
                 for i in range(1, size_X):
                     func += 'x'+str(i)+', '
                 func += 'x'+str(size_X)+': x'+str(ri+1)+'*x'+str(ci+1)
                 self.propensity.append(eval(func))
-            #input = tuple(self.initial_state)
-            #p = self.propensity[-1]
+    def interpolate_trajectory(self, times, states, t_grid, method='linear'):
+        n_species = states.shape[1]
+        interpolated = np.zeros((len(t_grid), n_species))
+        for i in range(n_species):
+            interp_fn = interp1d(times, states[:,i],
+                                 kind=method,
+                                 bounds_error=False,
+                                 fill_value=(states[0,i], states[-1,i]))
+            interpolated[:,i] = interp_fn(t_grid)
+        return interpolated
+    def average_trajectories(self, List_times, List_states):
+        max_time = max(times[-1] for times in List_times)
+        nt = max(len(times) for times in List_times)
+        t_grid = np.linspace(0., max_time, nt)
+        interpolated_trajectories = []
+        for times, states in zip(List_times, List_states):
+            times = np.array(times)
+            states = np.array(states)
+            interpolated = self.interpolate_trajectory(times, states, t_grid)
+            interpolated_trajectories.append(interpolated)
+        all_states = np.stack(interpolated_trajectories, axis=0)
+        avg_state = np.mean(all_states, axis=0)
+        return t_grid, avg_state
     def solve(self):
         # run simulation
         log.info("\t " + p.sep)
         log.info("\t START KINETIC MODEL SIMULATION")
-        state_t = [None]*p.nconfig
+        List_state_t = [None]*self.n_simul
+        List_time = [None]*self.n_simul
         # run over config.
-        for ic in range(p.nconfig):
-            times, measurements = gillespie.simulate(self.initial_state, self.propensity, self.stoichiometry, duration=25)
-            if ic == 0:
-                self.t = np.array(times)
-            state_t[ic] = np.array(measurements)
-        self.avg_state_t = np.zeros(state_t[0].shape)
-        for ic in range(p.nconfig):
-            self.avg_state_t += state_t[ic]
-        self.avg_state_t = self.avg_state_t / p.nconfig
+        for ic in range(self.n_simul):
+            times, measurements = gillespie.simulate(self.initial_state, self.propensity, self.stoichiometry, duration=100)
+            List_state_t[ic] = np.array(measurements)
+            List_time[ic] = np.array(times)
+        t_grid, avg_states_t = self.average_trajectories(List_time, List_state_t)
+        log.info("\t " + p.sep)
+        log.info("\t " + str(avg_states_t.shape))
         log.info("\t END KINETIC SIMULATION")
         log.info("\t " + p.sep)
+        return t_grid, avg_states_t
     def show(self, target_molecules):
         # plot state
         n = len(target_molecules)
