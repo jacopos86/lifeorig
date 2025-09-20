@@ -1,6 +1,6 @@
 {
-  "python.analysis.extraPaths": ["./", "./pydephasing", "./pydeph/bin/"],
-  "python.defaultInterpreterPath": "./pydeph/bin/python3",
+  "python.analysis.extraPaths": ["./", "./src", "./env/bin/"],
+  "python.defaultInterpreterPath": "./env/bin/python3",
   // Associate .cu files with CUDA C++
   "files.associations": {
     "*.cu": "cuda-cpp",
