@@ -12,7 +12,8 @@ class parameters_class:
         # random seed
         self.seed = 1
         # n. config
-        self.nconfig = 1
+        self.nconfig = 10
+        self.nkin_simul = 100
         # n. ACF distr
         self.n_acf_distr = 1
         # set evolutionary game dyn.
@@ -74,10 +75,11 @@ class parameters_class:
         # target molecules
         if "target_molecules" in data:
             self.target_molecules = data["target_molecules"]
-        # n. config. to average 
-        # kinetic simulation
+        # n. config. to average (each catalysts set)
         if "number_config" in data:
             self.nconfig = data["number_config"]
+        if "number_kin_simulations" in data:
+            self.nkin_simul = data["number_kin_simulations"]
         # n. ACF distr.
         if "number_ACF" in data:
             self.n_acf_distr = data["number_ACF"]
