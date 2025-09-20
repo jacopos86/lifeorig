@@ -16,6 +16,7 @@ def plot_reaction_rate_distr(rr_ACFS, rr_extset, output_file):
     rr = rr_extset["rr"]
     plt.scatter(xgr, rr, alpha=0.5, color='red')
     plt.savefig(output_file, format="pdf", bbox_inches="tight")
+    plt.close()
 
 #
 #  plot ACFS distribution
@@ -37,3 +38,19 @@ def plot_ACFS_distr(frozen_rv, output_file):
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.savefig(output_file, format="pdf", bbox_inches="tight")
+    plt.close()
+
+#
+#  plot ACFS distribution with histogram
+#
+
+def plot_ACFS_hist_distr(samples_int, size_X, output_file):
+    plt.figure(figsize=(10, 6))
+    plt.hist(samples_int, bins=np.arange(0, size_X+2)-0.5, edgecolor='black', alpha=0.7)
+    plt.title('Histogram of Catalysts Distribution')
+    plt.xlabel('Sample Values')
+    plt.ylabel('Frequency')
+    plt.xticks(np.arange(0, size_X+1))  # Set x-ticks to be integers between 0 and size_X
+    plt.grid(True)
+    plt.savefig(output_file, format="pdf", bbox_inches="tight")
+    plt.close()
