@@ -92,6 +92,15 @@ def build_catalysts_distr_ACFS(size_X, distr_p):
     return truncated_dist
 
 #
+#  extract list of catalysts from distribution
+#
+
+def build_catalysts_list(truncated_dist, N):
+    samples = truncated_dist.rvs(N)
+    samples = np.round(samples).astype(int)
+    return samples
+
+#
 #  set up single reaction
 #
 
