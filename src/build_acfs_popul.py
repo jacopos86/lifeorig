@@ -33,7 +33,7 @@ def build_ACFS_networks(size, size_bpol, size_F, size_C):
         net_num = size_bpol[ityp][1]
         net_index = 0
         while net_index < net_num:
-            CNET = reaction_net_class(size_bpol[ityp][0], size_F)
+            CNET = reaction_net_class(size_bpol[ityp][0], size_F, ityp, net_index)
             # set up catalyst set
             size_X = CNET.size_X
             log.info("\t size_X: " + str(size_X) +
@@ -45,8 +45,13 @@ def build_ACFS_networks(size, size_bpol, size_F, size_C):
                 plot_ACFS_distr(catalyst_distr, file_name)
             # build chemical net
             CNET.set_binary_polymer_model(catalyst_distr)
+            # set chemical kinetics solver
+            # here we solve the kinetic model
+            # multiple times -> average different final
+            # configurations
+            CNET.set_chemical_kinetics_solver(p.nkin_simul)
             net_index += 1
-    exit()
+            exit()
     ACFS.find_ACF_subset()
     # prepare network plot
     if log.level == logging.INFO:
@@ -58,10 +63,7 @@ def build_ACFS_networks(size, size_bpol, size_F, size_C):
         ACFS.show_network(file_name)
     # produce network genome
     ACFS.set_network_genome()
-    # here we solve the kinetic model
-    # multiple times -> average different final
-    # configurations
-    ACFS.set_chemical_kinetics_solver()
+    
     log.info("\t SIZE SAMPLE SPACE : " + str(size))
     log.info("\t fitness initial network : " + str(ACFS.fitness))
     # divide size into 10 groups
