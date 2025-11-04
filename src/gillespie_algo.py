@@ -103,6 +103,9 @@ class chemical_kinetics_solver:
                     func += 'x'+str(i)+', '
                 func += 'x'+str(size_X)+': x'+str(ri+1)+'*x'+str(ci+1)
                 self.propensity.append(eval(func))
+            if 'r1_int' in r and 'r2_int' in r and 'p_int' in r and 'r_rate' in r:
+                '''add reaction rate coefficient'''
+                pass
     def interpolate_trajectory(self, times, states, t_grid, method='linear'):
         n_species = states.shape[1]
         interpolated = np.zeros((len(t_grid), n_species))
@@ -125,6 +128,7 @@ class chemical_kinetics_solver:
             interpolated_trajectories.append(interpolated)
         all_states = np.stack(interpolated_trajectories, axis=0)
         avg_state = np.mean(all_states, axis=0)
+        print(avg_state)
         return t_grid, avg_state
     def solve(self):
         # run simulation
