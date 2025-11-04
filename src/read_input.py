@@ -72,9 +72,14 @@ class parameters_class:
         # total molecules population
         if "total_population_molecules" in data:
             self.n0 = data["total_population_molecules"]
-        # target molecules
-        if "target_molecules" in data:
-            self.target_molecules = data["target_molecules"]
+        # fitness molecules
+        if "fitness_molecules" in data:
+            self.target_molecules = data["fitness_molecules"]
+        # fitness parameters -> [0]: fitness rate - 
+        # [1]: fitness final molecule conc.
+        if "fitness_parameters" in data:
+            self.fitness_parameters = data["fitness_parameters"]
+            self.fitness_parameters = self.fitness_parameters / np.sum(self.fitness_parameters)
         # n. config. to average (each catalysts set)
         if "number_config" in data:
             self.nconfig = data["number_config"]
