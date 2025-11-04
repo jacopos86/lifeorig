@@ -8,6 +8,7 @@ from graph_class import graph_obj
 from gillespie_algo import chemical_kinetics_solver
 from catalysts_set import build_catalysts_list
 from plot_catal_distr import plot_ACFS_hist_distr
+from network_fitness import network_fitness
 import gravis as gv
 import os
 #  class describing the
@@ -32,7 +33,7 @@ class reaction_net_class:
         self.ligand_reactions = []
         self.cleavage_reactions = []
         # fitness
-        self.fitness = 0.
+        self.netw_fitness = None
     def set_binary_polymer_model(self, catalyst_distr):
         # n. food set bits
         self.n_F_bits = math.log2(self.size_F)
@@ -452,7 +453,7 @@ class reaction_net_class:
     #
     # define the reaction kinetic
     # model
-    def set_chemical_kinetics_solver(self, nkin_simul):
+    def set_chemical_kinetics_solver(self, nkin_simul, molecules_fitness, fitness_p, max_fitness):
         # first set the solver
         kinetic_solver = chemical_kinetics_solver(nkin_simul)
         # reaction set full list
@@ -473,14 +474,19 @@ class reaction_net_class:
             log.info("\t configuration: " + str(ic) + " / " + str(p.nconfig))
             kinetic_solver.set_propensity(reaction_set, self.size_X, ic)
             t_grid, avg_states_t = kinetic_solver.solve()
+            print('         OK           ')
             List_times[ic] = t_grid
             List_state_t[ic] = avg_states_t
         t_grid, avg_states_t = kinetic_solver.average_trajectories(List_times, List_state_t)
+        # define network fitness
+        self.netw_fitness = network_fitness(kinetic_solver.X_set, 
+                                            kinetic_solver.X_mass, 
+                                            molecules_fitness, 
+                                            max_fitness)
+        if log.level == logging.INFO:
+            self.netw_fitness.show_fitness_distr()
+        self.netw_fitness.set_fitness_info(t_grid, avg_states_t, fitness_p)
         exit()
-        # molecules to display
-        target_molecules = p.target_molecules
-        if log.level == logging.DEBUG:
-            kinetic_solver.show(target_molecules)
         # set fitness of chemical
         # network
         self.compute_fitness(kinetic_solver)
