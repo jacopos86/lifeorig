@@ -49,7 +49,7 @@ def build_ACFS_networks(size, size_bpol, size_F, size_C):
             # here we solve the kinetic model
             # multiple times -> average different final
             # configurations
-            CNET.set_chemical_kinetics_solver(p.nkin_simul)
+            CNET.set_chemical_kinetics_solver(p.nkin_simul, p.target_molecules[ityp][net_index], p.fitness_parameters, p.max_fitness)
             net_index += 1
             exit()
     ACFS.find_ACF_subset()
