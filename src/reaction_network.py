@@ -44,6 +44,7 @@ class reaction_net_class:
         self.build_food_set()
         # build set of reactions
         self.build_reactions_set()
+    '''
     def set_binary_polymer_from_genome(self, catalyst_distr):
         # n. food set bits
         self.n_F_bits = math.log2(self.size_F)
@@ -56,6 +57,7 @@ class reaction_net_class:
         self.build_food_set()
         # build reactions
         self.build_reactions_set_from_catalysts(catal_set_react)
+    '''
     # catalysts set
     def define_catalysts_set(self, catalyst_distr):
         self.catalyst_distr = catalyst_distr
@@ -474,7 +476,6 @@ class reaction_net_class:
             log.info("\t configuration: " + str(ic) + " / " + str(p.nconfig))
             kinetic_solver.set_propensity(reaction_set, self.size_X, ic)
             t_grid, avg_states_t = kinetic_solver.solve()
-            print('         OK           ')
             List_times[ic] = t_grid
             List_state_t[ic] = avg_states_t
         t_grid, avg_states_t = kinetic_solver.average_trajectories(List_times, List_state_t)
