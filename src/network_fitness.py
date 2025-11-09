@@ -16,7 +16,7 @@ class network_fitness():
         self.molecules_fitness = None
         self.tot_mass = 0.
         self.set_molecules_fitness(distr_p, max_fitness)
-    def set_molecules_fitness(self, distr_p, max_fitness):
+    def set_molecules_fitness(self, distr_p, max_fitness=1.0):
         mean = distr_p[0]
         std_dev = distr_p[1]
         # Calculate the truncation points for the standard normal distribution
@@ -30,13 +30,15 @@ class network_fitness():
         # Evaluate PDF at each molecule index (0 to nmol - 1)
         raw_fitness = truncated_dist.pdf(self.molecule_indices)
         # Check if any values > 1, and normalize only if needed
-        if np.any(raw_fitness > 1.0):
-            normalized_fitness = raw_fitness / np.max(raw_fitness)
+        if np.any(raw_fitness > max_fitness):
+            normalized_fitness = raw_fitness / np.max(raw_fitness) * max_fitness
         else:
             normalized_fitness = raw_fitness  # already safe
         # Store the fitness values
         self.molec_fitness_distr = truncated_dist
         self.molecules_fitness = normalized_fitness
+        print(self.molecules_fitness)
+        exit(0)
     def show_fitness_distr(self):
         # 2. Define the range of x-values for plotting
         # It's good practice to create a range that covers most of the distribution's mass.
@@ -55,7 +57,6 @@ class network_fitness():
         plt.show()
         plt.close()
     def check_total_mass_conserved(self, states_t):
-        print(self.molecule_mass)
         tot_mass0 = 0.
         for mol_id in self.molecule_indices:
             mass = self.molecule_mass[mol_id-1]
@@ -119,6 +120,35 @@ class network_fitness():
                 self.avg_times[mol_id] = np.inf
         print(self.avg_times)
     def weight_react_times(self):
+        """
+        Compute time-based weights for molecules based on average reaction times.
+
+        Parameters
+        ----------
+        mode : str
+            'inverse'  -> weight = 1 / t_avg (fast = high weight)
+            'linear'   -> weight = 1 - normalized(t_avg)
+        normalize : bool
+        Whether to normalize weights to [0, 1] or sum to 1.
+        """
+        mol_ids = list(self.avg_times.keys())
+        t_values = np.array(list(self.avg_times.values()), dtype=float)
+        print(mol_ids, t_values)
+        # Replace NaNs with infs (in case something weird slipped in)
+        t_values[np.isnan(t_values)] = np.inf
+        # Detect finite entries
+        finite_mask = np.isfinite(t_values)
+        print(finite_mask)
+        # Case 1: all molecules have infinite times → no reactions occurred
+        if not np.any(finite_mask):
+            self.reaction_time_weights = {mid: 0.0 for mid in mol_ids}
+        self.weighted_time_score = 0.0
+        '''
+        self.time_based_fitness_valid = False
+            log.warning("\t No finite reaction times found — network produced no target molecules.")
+            return
+        '''
+    def compute_react_t_score(self):
         pass
     def set_fitness_info(self, t_grid, states_t, fitness_p):
         self.check_total_mass_conserved(states_t)
@@ -126,6 +156,7 @@ class network_fitness():
         # reactions times
         self.compute_avg_react_times(t_grid, states_t)
         self.weight_react_times()
+        self.compute_react_t_score()
 
 
 
