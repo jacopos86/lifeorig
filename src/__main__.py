@@ -14,7 +14,6 @@ from build_acf_set import build_chem_networks
 from build_acfs_popul import build_ACFS_networks
 from gillespie_algo import chemical_kinetics_solver
 from mutation_rate import compute_hamm_dist_matrix
-#from lifeorig.network_predict import generate_predictor, build_Xy_data
 from logging_module import log
 
 args = parser.parse_args()
