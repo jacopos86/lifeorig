@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import truncnorm
+from scipy.signal import savgol_filter
 import matplotlib.pyplot as plt
 import pytest
 
@@ -38,7 +39,6 @@ class network_fitness():
         self.molec_fitness_distr = truncated_dist
         self.molecules_fitness = normalized_fitness
         print(self.molecules_fitness)
-        exit(0)
     def show_fitness_distr(self):
         # 2. Define the range of x-values for plotting
         # It's good practice to create a range that covers most of the distribution's mass.
@@ -49,7 +49,7 @@ class network_fitness():
         # 4. Plot the results
         plt.figure(figsize=(10, 6))
         plt.plot(x_values, pdf_values, label='Frozen Normal PDF', color='blue')
-        plt.title('PDF of a Frozen Continuous Distribution')
+        plt.title('PDF of Molecular Fitness Distribution')
         plt.xlabel('X-values')
         plt.ylabel('Fitness')
         plt.legend()
@@ -95,7 +95,7 @@ class network_fitness():
             for mol_id in self.molecule_indices:
                 nmol_profile = states_t[:, mol_id-1]
                 # inst. derivative
-                dnmol_dt = np.gradient(nmol_profile, t_grid)
+                dnmol_dt = np.gradient(savgol_filter(nmol_profile, 5, 3), t_grid)
                 pos_slope = np.maximum(dnmol_dt, 0)
                 # weighted time : sum(t * dN/dt) / sum(dN/dt)
                 total_production = np.sum(pos_slope)
@@ -107,7 +107,7 @@ class network_fitness():
                 if plot:
                     plt.figure(figsize=(8,4))
                     plt.plot(t_grid, nmol_profile, label='Profile')
-                    #plt.plot(t_grid, pos_slope, label='Positive derivative')
+                    plt.plot(t_grid, pos_slope, label='Positive derivative')
                     plt.axvline(t_avg, color='r', linestyle='--', label=f'Weighted avg t = {t_avg:.2f}')
                     plt.xlabel('Time')
                     plt.ylabel('Molecule count / Production rate')
@@ -118,7 +118,6 @@ class network_fitness():
         else:
             for mol_id in self.molecule_indices:
                 self.avg_times[mol_id] = np.inf
-        print(self.avg_times)
     def weight_react_times(self):
         """
         Compute time-based weights for molecules based on average reaction times.
@@ -138,30 +137,33 @@ class network_fitness():
         t_values[np.isnan(t_values)] = np.inf
         # Detect finite entries
         finite_mask = np.isfinite(t_values)
-        print(finite_mask)
         # Case 1: all molecules have infinite times → no reactions occurred
         if not np.any(finite_mask):
             self.reaction_time_weights = {mid: 0.0 for mid in mol_ids}
-        self.weighted_time_score = 0.0
-        '''
-        self.time_based_fitness_valid = False
-            log.warning("\t No finite reaction times found — network produced no target molecules.")
-            return
-        '''
+        else:
+            finite_t = t_values[finite_mask]
+            inv_t = 1.0 / finite_t
+            norm_inv_t = inv_t / np.sum(inv_t)
+            # store weights
+            weights = np.zeros_like(t_values)
+            weights[finite_mask] = norm_inv_t
+            self.reaction_time_weights = {mid: w for mid, w in zip(mol_ids, weights)}
+        print(self.reaction_time_weights)
     def compute_react_t_score(self):
-        pass
-    def set_fitness_info(self, t_grid, states_t, fitness_p):
+        # Compute weighted time score
+        self.weighted_time_score = sum(
+            self.molecules_fitness[mid - 1] * w for mid, w in self.reaction_time_weights.items()
+        )
+        print(self.weighted_time_score)
+    def set_fitness(self, t_grid, states_t, fitness_p):
         self.check_total_mass_conserved(states_t)
         self.compute_mass_score(states_t)
         # reactions times
         self.compute_avg_react_times(t_grid, states_t)
         self.weight_react_times()
         self.compute_react_t_score()
-
-
-
-
-
+        fitness = fitness_p[0] * self.mass_score + fitness_p[1] * self.weighted_time_score
+        return fitness
 
 '''
 
