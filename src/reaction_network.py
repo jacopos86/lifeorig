@@ -430,32 +430,10 @@ class reaction_net_class:
                 j += 1
             catalysts_lst.append(r)
         return catalysts_lst
-    def compute_fitness(self, kinetic_solver):
-        avg_state_t = kinetic_solver.avg_state_t
-        # fitness = \sum_target molecules ni / N
-        T = -1
-        target_molecules = p.target_molecules
-        # molecular masses
-        X_mass = kinetic_solver.X_mass
-        # n. target molecules
-        nt = len(target_molecules)
-        target_mass = 0
-        for i in range(nt):
-            ml = target_molecules[i]
-            target_mass += avg_state_t[T,ml] * X_mass[ml]
-        # total mass
-        total_mass = 0
-        for i in range(self.size_X):
-            total_mass += avg_state_t[T,i] * X_mass[i]
-        self.fitness = target_mass / total_mass
-        log.info("\n")
-        log.info("\t " + p.sep)
-        log.info("\t network fitness : " + str(self.fitness))
-        log.info("\t " + p.sep)
     #
     # define the reaction kinetic
     # model
-    def set_chemical_kinetics_solver(self, nkin_simul, molecules_fitness, fitness_p, max_fitness):
+    def set_fitness_from_chemical_kinetics(self, nkin_simul, molecules_fitness, fitness_p, max_fitness):
         # first set the solver
         kinetic_solver = chemical_kinetics_solver(nkin_simul)
         # reaction set full list
@@ -486,11 +464,8 @@ class reaction_net_class:
                                             max_fitness)
         if log.level == logging.INFO:
             self.netw_fitness.show_fitness_distr()
-        self.netw_fitness.set_fitness_info(t_grid, avg_states_t, fitness_p)
-        exit()
-        # set fitness of chemical
-        # network
-        self.compute_fitness(kinetic_solver)
+        fitness = self.netw_fitness.set_fitness(t_grid, avg_states_t, fitness_p)
+        log.info("\t fitness value: " + str(fitness))
     #
     # find ACF subset
     # this subroutine find RAF subset if present in the network
