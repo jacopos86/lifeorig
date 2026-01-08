@@ -7,6 +7,7 @@ from read_input import p
 from reaction_network import reaction_net_class
 from catalysts_set import build_catalysts_distr_ACFS
 from plot_catal_distr import plot_ACFS_distr
+from RAF_engine import RAFEngine
 # This module builds the sample space
 # for the evolutionary dynamics
 # given a list of network types - it builds the correspondent sample
@@ -49,10 +50,12 @@ def build_ACFS_networks(size, size_bpol, size_F, size_C):
             # here we solve the kinetic model
             # multiple times -> average different final
             # configurations
-            CNET.set_chemical_kinetics_solver(p.nkin_simul, p.target_molecules[ityp][net_index], p.fitness_parameters, p.max_fitness)
+            CNET.set_fitness_from_chemical_kinetics(p.nkin_simul, p.target_molecules[ityp][net_index], p.fitness_parameters, p.max_fitness)
+            RAF_eng = RAFEngine(CNET)
+            maxRafL = RAF_eng.find_maxRAF()
+            print(maxRafL)
             net_index += 1
-            exit()
-    ACFS.find_ACF_subset()
+            exit(0)
     # prepare network plot
     if log.level == logging.INFO:
         file_name = p.working_dir+'/'+str(iter)+'/acfs.html'
