@@ -1,23 +1,18 @@
 import logging
-from reaction_network import reaction_net_class
-from read_input import p
-from logging_module import log
-from catalysts_set import build_catalysts_rr_set, set_catalysts_prob_distr
+from src.chem_network.reaction_network import ReactionNetwork
+from src.input.read_input import p
+from src.utilities.logging_module import log
+from src.catalysts.catalysts_set import set_catalysts_prob_distr
 #
 # ACF set builder :
 # make a sequence of catalysts set
 # size = size_ACFS
-def build_chem_networks(num_ACFS, size_bpol, size_F, size_C, size_C_intern, ratio_C_ACFset, nQSP_indiv):
-    # open data file
-    file_name = p.working_dir + "/ACF_data.txt"
-    f = open(file_name, 'a')
-    ACF_set_list = []
-    i = 1
-    while len(ACF_set_list) < num_ACFS:
-        ACFS = reaction_net_class(size_bpol, size_F, size_C)
+def build_chem_networks(protocell_list, X_set, size_bpol, catalyst_set_params, rates_params):
+    # iterate over protocells
+    for protocell in protocell_list:
+        print(protocell)
+        Rnet = ReactionNetwork(size_bpol)
         # set up catalyst set
-        size_X = ACFS.size_X
-        print(size_X, size_C, ratio_C_ACFset[i-1])
         catalyst_rr_set = build_catalysts_rr_set(size_C, size_C_intern[i-1])
         catalyst_prob_distr = set_catalysts_prob_distr(size_C, size_C_intern[i-1], ratio_C_ACFset[i-1])
         exit()

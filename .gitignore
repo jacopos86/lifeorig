@@ -5,3 +5,4 @@ dist
 lifeorig.egg-info
 src/__pycache__
 env
+promem

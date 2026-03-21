@@ -1,8 +1,15 @@
 import numpy as np
 import math
-from read_input import p
-from logging_module import log
-from reaction_network import reaction_net_class
+from abc import ABC
+from src.input.read_input import p
+from src.utilities.logging_module import log
+
+# BASE class
+
+class fitness_base(ABC):
+    def __init__(self):
+        pass
+
 # This class defines the fitness
 # function
 class fitness_distr():
@@ -63,6 +70,10 @@ class fitness_distr():
         log.info("\t " + line)
         log.info("\n")
         log.info("\t " + p.sep)
+
+class fitness_distr_TD_rates(fitness_base):
+    def __init__(self, n, T):
+        pass
         
 #
 #  fitness distribution

@@ -1,42 +1,15 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from math import exp
-from read_input import p
-from constants import R
+from src.input.read_input import p
+from scipy.stats import truncnorm
 import pytest
-
-def reaction_rate(Delta, x0, xgr, sig, E_a, T):
-    # E_a in mJ/mol
-    N = len(xgr)
-    rr = np.zeros(N)
-    for i in range(N):
-        rr[i] = Delta * exp(-(xgr[i] - x0)**2 / (2*sig**2)) * exp(-E_a / (R*T))
-    return rr
-
-def plot_reaction_rate_distr(rr_ACFS, rr_extset, output_file):
-    plt.ylim([-0.1, 1.1])
-    plt.xlabel(r"catalysts distribution")
-    plt.ylabel(r"reaction rates")
-    xgr = rr_ACFS["xgr"]
-    rr = rr_ACFS["rr"]
-    plt.scatter(xgr, rr, alpha=0.5, color='red')
-    xgr = rr_extset["xgr"]
-    rr = rr_extset["rr"]
-    plt.scatter(xgr, rr, alpha=0.5, color='red')
-    plt.savefig(output_file, format="pdf", bbox_inches="tight")
 
 #
 #  This module builds the catalysts set
 #
 
-def build_catalysts_rr_set(size_C, size_C_intern):
-    #TODO: run over QSP individuals
-    # these are required to compute avg. fitness
-    # catalist reaction rate distribution inside ACF set
-    E_a = p.ACFS_catalyst_prob_distr["E_a"]
-    Delta = p.ACFS_catalyst_prob_distr["Delta"]
-    sig = p.ACFS_catalyst_prob_distr["sigma_0"]
-    T = p.ACFS_catalyst_prob_distr["temperature"]   # K
+def set_inital_catalyst_set(X_set, rates_params):
+    # set catalysts based on distribution
+
     #TODO : use internal catalysts set size 
     xgr_ACFS = np.arange(1, size_C_intern+1, 1)
     x0 = np.random.choice(xgr_ACFS)
@@ -86,8 +59,27 @@ def set_catalysts_prob_distr(size_C, size_C_intern, ratio_C_ACFset):
     return prob_distr
 
 #
-#  set up single reaction
+#  build ACFS catalyst distribution
 #
 
-def set_up_reaction(ratio_C_ACFset, rr_ACFset_dict, rr_extset_dict):
-    pass
+def build_catalysts_distr_ACFS(size_X, distr_p):
+    mean = distr_p[0]
+    std_dev = distr_p[1]
+    # Calculate the truncation points for the standard normal distribution
+    # (a and b are in terms of standard deviations from the mean)
+    min_val = 0
+    max_val = size_X
+    a = (min_val - mean) / std_dev
+    b = (max_val - mean) / std_dev
+    # Create a truncated normal distribution object
+    truncated_dist = truncnorm(a=a, b=b, loc=mean, scale=std_dev)
+    return truncated_dist
+
+#
+#  extract list of catalysts from distribution
+#
+
+def build_catalysts_list(truncated_dist, N):
+    samples = truncated_dist.rvs(N)
+    samples = np.round(samples).astype(int)
+    return samples

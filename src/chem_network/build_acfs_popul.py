@@ -1,10 +1,12 @@
-from logging_module import log
+from src.utilities.logging_module import log
 from random import randrange
 import logging
 import os
-from mutation_rate import compute_hamming_distance
-from read_input import p
-from reaction_network import reaction_net_class
+from src.mutations.mutation_rate import compute_hamming_distance
+from src.input.read_input import p
+from src.catalysts.catalysts_set import build_catalysts_distr_ACFS
+from src.utilities.plot_catal_distr import plot_ACFS_distr
+from src.RAF.RAF_engine import RAFEngine
 # This module builds the sample space
 # for the evolutionary dynamics
 # given a list of network types - it builds the correspondent sample
@@ -14,9 +16,9 @@ def check_input_data(size, size_bpol, size_C):
     ntyp = len(size_bpol)
     check = (len(size_C) == ntyp)
     n3 = 0
-    for i in range(ntyp):
-        n1 = size_bpol[i][1]
-        n2 = size_C[i][1]
+    for it in range(ntyp):
+        n1 = size_bpol[it][1]
+        n2 = len(size_C[it])
         check = check and (n1 == n2)
         n3 += n1
     check = check and (size == n3)
@@ -27,14 +29,32 @@ def build_ACFS_networks(size, size_bpol, size_F, size_C):
     assert(check_input_data(size, size_bpol, size_C) == True)
     # build ACFS
     ntyp = len(size_bpol)
-    for it in range(ntyp):
-        n1 = size_bpol[it][1]
-        ACFS = reaction_net_class(size_bpol[it][0], size_F, size_C[it][0])
-        # set up catalyst set
-        size_X = ACFS.size_X
-    catalyst_set = build_catalysts_set(size_X, size_C)
-    ACFS.set_binary_polymer_model(catalyst_set)
-    ACFS.find_ACF_subset()
+    for ityp in range(ntyp):
+        net_num = size_bpol[ityp][1]
+        net_index = 0
+        while net_index < net_num:
+            CNET = reaction_net_class(size_bpol[ityp][0], size_F, ityp, net_index)
+            # set up catalyst set
+            size_X = CNET.size_X
+            log.info("\t size_X: " + str(size_X) +
+                      " -- catalyst avg: " + str(size_C[ityp][net_index][0]) + 
+                      " -- catalyst sig: " + str(size_C[ityp][net_index][1]))
+            catalyst_distr = build_catalysts_distr_ACFS(size_X, size_C[ityp][net_index])
+            if log.level <= logging.INFO:
+                file_name = p.working_dir + "/ACF_catal_distr" + str(ityp) + "-" + str(net_index) + ".pdf"
+                plot_ACFS_distr(catalyst_distr, file_name)
+            # build chemical net
+            CNET.set_binary_polymer_model(catalyst_distr)
+            # set chemical kinetics solver
+            # here we solve the kinetic model
+            # multiple times -> average different final
+            # configurations
+            CNET.set_fitness_from_chemical_kinetics(p.nkin_simul, p.target_molecules[ityp][net_index], p.fitness_parameters, p.max_fitness)
+            RAF_eng = RAFEngine(CNET)
+            maxRafL = RAF_eng.find_maxRAF()
+            print(maxRafL)
+            net_index += 1
+            exit(0)
     # prepare network plot
     if log.level == logging.INFO:
         file_name = p.working_dir+'/'+str(iter)+'/acfs.html'
@@ -45,10 +65,7 @@ def build_ACFS_networks(size, size_bpol, size_F, size_C):
         ACFS.show_network(file_name)
     # produce network genome
     ACFS.set_network_genome()
-    # here we solve the kinetic model
-    # multiple times -> average different final
-    # configurations
-    ACFS.set_chemical_kinetics_solver()
+    
     log.info("\t SIZE SAMPLE SPACE : " + str(size))
     log.info("\t fitness initial network : " + str(ACFS.fitness))
     # divide size into 10 groups

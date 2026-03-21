@@ -2,59 +2,58 @@ import math
 import random
 import numpy as np
 import logging
-from logging_module import log
-from read_input import p
-from graph_class import graph_obj
-from gillespie_algo import chemical_kinetics_solver
-import gravis as gv
 import os
+from src.utilities.logging_module import log
+from src.input.read_input import p
+from src.utilities.graph_class import graph_obj
+from src.molecules_dyn.gillespie_algo import chemical_kinetics_solver
+from src.catalysts.catalysts_set import build_catalysts_list
+from src.utilities.plot_catal_distr import plot_ACFS_hist_distr
+from src.chem_network.network_fitness import network_fitness
+
 #  class describing the
 #  reaction network -> we use a binary polymer model
-class reaction_net_class:
-    def __init__(self, size_bpol, size_F, size_C):
+class ReactionNetwork:
+    def __init__(self, size_bpol):
         # max. size string
         # polymer model
-        self.strng_size = size_bpol
-        # food set size
-        self.size_F = size_F
-        self.food_set = []
-        # catalysts size
-        self.size_C = size_C
-        self.catalyst_set = []
+        self.max_polymer_size = size_bpol
+        # catalysts distr.
+        self.catalyst_distr = None
         # size of molecules set
         self.size_X = 2 ** size_bpol - 1
         # reactions set
         self.ligand_reactions = []
         self.cleavage_reactions = []
-        # fitness
-        self.fitness = 0.
-    def set_binary_polymer_model(self, catalyst_set):
+    def set_binary_polymer_model(self, catalyst_distr):
         # n. food set bits
         self.n_F_bits = math.log2(self.size_F)
         log.info("\t max. string size : " + str(self.strng_size))
         # build the catalysts set (C)
-        self.define_catalysts_set(catalyst_set)
+        self.define_catalysts_set(catalyst_distr)
         # build food set
         self.build_food_set()
         # build set of reactions
         self.build_reactions_set()
-    def set_binary_polymer_from_genome(self, catalyst_set):
+    '''
+    def set_binary_polymer_from_genome(self, catalyst_distr):
         # n. food set bits
         self.n_F_bits = math.log2(self.size_F)
         log.info("\t max. string size : " + str(self.strng_size))
         # build catalysts set C
-        self.define_catalysts_set(catalyst_set)
+        self.define_catalysts_set(catalyst_distr)
         # set catalysts
         catal_set_react = self.genome_to_catalysts()
         # builid food set
         self.build_food_set()
         # build reactions
         self.build_reactions_set_from_catalysts(catal_set_react)
+    '''
     # catalysts set
-    def define_catalysts_set(self, catalyst_set):
-        self.catalyst_set = catalyst_set
+    def define_catalysts_set(self, catalyst_distr):
+        self.catalyst_distr = catalyst_distr
         log.info("\n")
-        log.info("\t C = " + str(self.catalyst_set))
+        log.info("\t C = " + str(self.catalyst_distr))
         log.info("\t " + p.sep)
     # build food set
     def build_food_set(self):
@@ -111,12 +110,18 @@ class reaction_net_class:
                     react['r2_int'] = self.convert_binstr_to_dec(x2)
                     react['p']  = y.rjust(self.strng_size, '.')
                     react['p_int'] = self.convert_binstr_to_dec(y)
-                    # select catalyst (randomly)
-                    c = random.choice(self.catalyst_set)
-                    react['c_int'] = c
-                    cx= bin(c)
-                    cx= cx[2:]
-                    react['c'] = cx.rjust(self.strng_size, '.')
+                    # select catalyst list from distribution
+                    if self.catalyst_distr is None:
+                        c = random.choice(self.catalyst_set)
+                        react['c_int'] = c
+                        cx= bin(c)
+                        cx= cx[2:]
+                        react['c'] = cx.rjust(self.strng_size, '.')
+                    else:
+                        react['cList'] = build_catalysts_list(self.catalyst_distr, p.nconfig)
+                        if log.level <= logging.INFO:
+                            output_file = p.working_dir + "/ACF_HIST_catal_distr" + str(r1) + "-" + str(r2) + "-" + str(self.typ_index) + "-" + str(self.net_index) + ".pdf"
+                            plot_ACFS_hist_distr(react['cList'], self.size_X, output_file)
                     self.ligand_reactions.append(react)
                     # include also the opposite
                     # reaction
@@ -133,17 +138,23 @@ class reaction_net_class:
                             react['r2_int'] = self.convert_binstr_to_dec(x1)
                             react['p']  = y2.rjust(self.strng_size, '.')
                             react['p_int'] = self.convert_binstr_to_dec(y2)
-                            # select catalyst (randomly)
-                            c2 = random.choice(self.catalyst_set)
-                            react['c_int'] = c2
-                            cx= bin(c2)
-                            cx= cx[2:]
-                            react['c'] = cx.rjust(self.strng_size, '.')
+                            # select catalyst
+                            if self.catalyst_distr is None:
+                                c2 = random.choice(self.catalyst_set)
+                                react['c_int'] = c2
+                                cx= bin(c2)
+                                cx= cx[2:]
+                                react['c'] = cx.rjust(self.strng_size, '.')
+                            else:
+                                react['cList'] = build_catalysts_list(self.catalyst_distr, p.nconfig)
                             self.ligand_reactions.append(react)
         if log.level <= logging.DEBUG:
             log.info("\n")
             for r in self.ligand_reactions:
-                log.debug("\t r1 : " + r['r1'] + " |\t r2 : " + r['r2'] + " |\t c : " + r['c'] + " |\t p : " + r['p'])
+                if self.catalyst_distr is None:
+                    log.debug("\t r1 : " + r['r1'] + " |\t r2 : " + r['r2'] + " |\t c : " + r['c'] + " |\t p : " + r['p'])
+                else:
+                    log.debug("\t r1 : " + r['r1'] + " |\t r2 : " + r['r2'] + " |\t c : " + r['cList'] + " |\t p : " + r['p'])
             log.info("\t " + p.sep)
         # for cleavage
         # 1) 'r'  : reactant
@@ -201,17 +212,23 @@ class reaction_net_class:
             react['p1_int']= self.convert_binstr_to_dec(x1)
             react['p2']= x2.rjust(self.strng_size, '.')
             react['p2_int']= self.convert_binstr_to_dec(x2)
-            # select catalyst (randomly)
-            c = random.choice(self.catalyst_set)
-            react['c_int'] = c
-            cx= bin(c)
-            cx= cx[2:]
-            react['c'] = cx.rjust(self.strng_size, '.')
+            # select catalyst distribution
+            if self.catalyst_distr is None:
+                c = random.choice(self.catalyst_set)
+                react['c_int'] = c
+                cx= bin(c)
+                cx= cx[2:]
+                react['c'] = cx.rjust(self.strng_size, '.')
+            else:
+                react['cList'] = build_catalysts_list(self.catalyst_distr, p.nconfig)
             self.cleavage_reactions.append(react)
         if log.level <= logging.DEBUG:
             log.info("\n")
             for r in self.cleavage_reactions:
-                log.debug("\t r : " + r['r'] + " |\t c : " + r['c'] + " |\t p1 : " + r['p1'] + " |\t p2 : " + r['p2'])
+                if self.catalyst_distr is None:
+                    log.debug("\t r : " + r['r'] + " |\t c : " + r['c'] + " |\t p1 : " + r['p1'] + " |\t p2 : " + r['p2'])
+                else:
+                    log.debug("\t r : " + r['r'] + " |\t c : " + r['cList'] + " |\t p1 : " + r['p1'] + " |\t p2 : " + r['p2'])
             log.info("\t " + p.sep)
     #
     # set network genome
@@ -404,34 +421,12 @@ class reaction_net_class:
                 j += 1
             catalysts_lst.append(r)
         return catalysts_lst
-    def compute_fitness(self, kinetic_solver):
-        avg_state_t = kinetic_solver.avg_state_t
-        # fitness = \sum_target molecules ni / N
-        T = -1
-        target_molecules = p.target_molecules
-        # molecular masses
-        X_mass = kinetic_solver.X_mass
-        # n. target molecules
-        nt = len(target_molecules)
-        target_mass = 0
-        for i in range(nt):
-            ml = target_molecules[i]
-            target_mass += avg_state_t[T,ml] * X_mass[ml]
-        # total mass
-        total_mass = 0
-        for i in range(self.size_X):
-            total_mass += avg_state_t[T,i] * X_mass[i]
-        self.fitness = target_mass / total_mass
-        log.info("\n")
-        log.info("\t " + p.sep)
-        log.info("\t network fitness : " + str(self.fitness))
-        log.info("\t " + p.sep)
     #
     # define the reaction kinetic
     # model
-    def set_chemical_kinetics_solver(self):
+    def set_fitness_from_chemical_kinetics(self, nkin_simul, molecules_fitness, fitness_p, max_fitness):
         # first set the solver
-        kinetic_solver = chemical_kinetics_solver()
+        kinetic_solver = chemical_kinetics_solver(nkin_simul)
         # reaction set full list
         reaction_set = []
         for r in self.ligand_reactions:
@@ -443,15 +438,25 @@ class reaction_net_class:
         kinetic_solver.build_X_set(self.size_X)
         kinetic_solver.set_initial_population(self.food_set)
         kinetic_solver.set_stoichiometry(reaction_set, self.size_X)
-        kinetic_solver.set_propensity(reaction_set, self.size_X)
-        kinetic_solver.solve()
-        # molecules to display
-        target_molecules = p.target_molecules
-        if log.level == logging.DEBUG:
-            kinetic_solver.show(target_molecules)
-        # set fitness of chemical
-        # network
-        self.compute_fitness(kinetic_solver)
+        # run over catalysts list
+        List_state_t = [None]*p.nconfig
+        List_times = [None]*p.nconfig
+        for ic in range(p.nconfig):
+            log.info("\t configuration: " + str(ic) + " / " + str(p.nconfig))
+            kinetic_solver.set_propensity(reaction_set, self.size_X, ic)
+            t_grid, avg_states_t = kinetic_solver.solve()
+            List_times[ic] = t_grid
+            List_state_t[ic] = avg_states_t
+        t_grid, avg_states_t = kinetic_solver.average_trajectories(List_times, List_state_t)
+        # define network fitness
+        self.netw_fitness = network_fitness(kinetic_solver.X_set, 
+                                            kinetic_solver.X_mass, 
+                                            molecules_fitness, 
+                                            max_fitness)
+        if log.level == logging.INFO:
+            self.netw_fitness.show_fitness_distr()
+        fitness = self.netw_fitness.set_fitness(t_grid, avg_states_t, fitness_p)
+        log.info("\t fitness value: " + str(fitness))
     #
     # find ACF subset
     # this subroutine find RAF subset if present in the network
