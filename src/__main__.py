@@ -4,25 +4,24 @@
 #
 import numpy as np
 import logging
-from parser import parser
-from read_input import p
-from set_rndm_matrix import random_matrix
-from mutation_rate import zero_mutation, dist_mutation
-from fitness_distr import fitness_distr, fitness_distr_game_dyn
-from quasi_species_solver import BuildQuasiSpeciesSolver
-from build_acf_set import build_chem_networks
-from build_acfs_popul import build_ACFS_networks
-from gillespie_algo import chemical_kinetics_solver
-from mutation_rate import compute_hamm_dist_matrix
-from logging_module import log
+from src.input.parser import parser
+from src.input.read_input import p
+from src.common.set_rndm_matrix import random_matrix
+from src.mutations.mutation_rate import zero_mutation, dist_mutation
+from src.QSP.fitness_distr import fitness_distr, fitness_distr_game_dyn
+from src.QSP.quasi_species_solver import BuildQuasiSpeciesSolver
+from src.chem_network.build_network import build_chem_networks
+from src.chem_network.build_acfs_popul import build_ACFS_networks
+from src.cell.build_QSP_list import set_up_empty_QSP_list
+from src.molecules_dyn.gillespie_algo import chemical_kinetics_solver
+from src.mutations.mutation_rate import compute_hamm_dist_matrix
+from src.utilities.logging_module import log
+from src.molecules.define_molecule_set import build_molecule_set
 
 args = parser.parse_args()
 calc_type = args.ct[0]
 p.read_input_json(args.json_input[0])
-if calc_type == "ml":
-    p.read_NN_params(args.json_NN_input[0])
-
-# set up GA
+p.validate()
 
 log.info("\t ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 log.info("\t ++++++                                                                                  ++++++")
@@ -40,45 +39,28 @@ if log.level <= logging.DEBUG:
     kin_solver = chemical_kinetics_solver()
     kin_solver.test()
 
-# build ACF set section
+# build chemical networks section
 
-if calc_type == "acf_set":
+if calc_type == "set_initial_state":
     
-    size = p.QSP_size
-    
-    # set random networks -> one for each species
+    # set list molecular types
 
-    ACF_set = build_ACFS_networks(size, p.bpol_strng_size, p.size_F, p.size_C)
+    X_set, X_set_map = build_molecule_set(p.metabolites_params)
+    
+    # set list of protocells
 
-if calc_type == "chem_nets":
-    
-    size = p.QSP_size
-    
-    # set random networks -> one for each species
+    n_protocells = p.QSP_size
 
-    ACF_set = build_chem_networks(size, p.bpol_strng_size, p.size_F, p.size_C, p.intern_C_size, p.ratio_C_ACFset, p.QSP_indiv)
+    protocell_list = set_up_empty_QSP_list(n_protocells)
 
-elif calc_type == "ml":
-    
-    size = p.ACFS_size
-    
-    # set random networks -> one for each species
+    protocell_list.set_initial_molecule_distr(X_set, p.metabolites_params)
 
-    # here read ACF_set
+    # set random networks -> one for each protocell
+
+    build_chem_networks(protocell_list, X_set, p.bpol_strng_size, p.catalyst_set_params, p.rates_params)
     
-    #   ACF_set = build_ACFS(size, p.bpol_strng_size, p.size_F, p.size_C)
-    
-    # read fitness distrib.
-    
-    # learn fitness model
-    
-    # genome_size = len(ACF_set[0].genome)
-    # fitness_model = generate_predictor(p.NN_model, genome_size)
-    # fitness_model.set_model(p.NN_parameters)
-    # X, y = build_Xy_data(ACF_set)
-    # X_test, y_test = fitness_model.fit(p.NN_parameters, X, y)
-    # log.info("\t NN TEST SCORE : " + str(fitness_model.get_score(X_test, y_test)))
-    
+# evolutionary section
+
 elif calc_type == "evol":
 
     if p.fitness_eval != "compute":
