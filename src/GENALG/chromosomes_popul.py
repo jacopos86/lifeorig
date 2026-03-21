@@ -1,9 +1,8 @@
-from lifeorig.read_input import p
+from src.input.read_input import p
 import numpy as np
 from numpy.random import randint
 from numpy.random import rand
-from lifeorig.objective_func import objective
-from lifeorig.logging_module import log
+from src.utilities.src.utilities.logging_module import log
 #
 #  interface classical / quantum
 #  GA
