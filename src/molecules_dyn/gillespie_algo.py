@@ -1,8 +1,8 @@
 import gillespie
 import numpy as np
 import matplotlib.pyplot as plt
-from logging_module import log
-from read_input import p
+from src.utilities.logging_module import log
+from src.input.read_input import p
 from matplotlib.pyplot import cm
 from scipy.interpolate import interp1d
 #

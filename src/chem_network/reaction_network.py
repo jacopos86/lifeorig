@@ -2,38 +2,29 @@ import math
 import random
 import numpy as np
 import logging
-from logging_module import log
-from read_input import p
-from graph_class import graph_obj
-from gillespie_algo import chemical_kinetics_solver
-from catalysts_set import build_catalysts_list
-from plot_catal_distr import plot_ACFS_hist_distr
-from network_fitness import network_fitness
-import gravis as gv
 import os
+from src.utilities.logging_module import log
+from src.input.read_input import p
+from src.utilities.graph_class import graph_obj
+from src.molecules_dyn.gillespie_algo import chemical_kinetics_solver
+from src.catalysts.catalysts_set import build_catalysts_list
+from src.utilities.plot_catal_distr import plot_ACFS_hist_distr
+from src.chem_network.network_fitness import network_fitness
+
 #  class describing the
 #  reaction network -> we use a binary polymer model
-class reaction_net_class:
-    def __init__(self, size_bpol, size_F, typ_index, net_index):
-        # network labels
-        self.typ_index = typ_index
-        self.net_index = net_index
+class ReactionNetwork:
+    def __init__(self, size_bpol):
         # max. size string
         # polymer model
-        self.strng_size = size_bpol
-        # food set size
-        self.size_F = size_F
-        self.food_set = []
+        self.max_polymer_size = size_bpol
         # catalysts distr.
         self.catalyst_distr = None
-        self.catalyst_set = None
         # size of molecules set
         self.size_X = 2 ** size_bpol - 1
         # reactions set
         self.ligand_reactions = []
         self.cleavage_reactions = []
-        # fitness
-        self.netw_fitness = None
     def set_binary_polymer_model(self, catalyst_distr):
         # n. food set bits
         self.n_F_bits = math.log2(self.size_F)

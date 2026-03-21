@@ -3,7 +3,6 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-ct", nargs=1, default=["evol"])
 parser.add_argument("-json_input", nargs=1, default=None)
-parser.add_argument("-json_NN_input", nargs=1, default=None)
 
 # plot fitness data
 parser.add_argument("-acf_data", nargs='+', default=None)

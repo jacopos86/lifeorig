@@ -1,13 +1,12 @@
-from logging_module import log
+from src.utilities.logging_module import log
 from random import randrange
 import logging
 import os
-from mutation_rate import compute_hamming_distance
-from read_input import p
-from reaction_network import reaction_net_class
-from catalysts_set import build_catalysts_distr_ACFS
-from plot_catal_distr import plot_ACFS_distr
-from RAF_engine import RAFEngine
+from src.mutations.mutation_rate import compute_hamming_distance
+from src.input.read_input import p
+from src.catalysts.catalysts_set import build_catalysts_distr_ACFS
+from src.utilities.plot_catal_distr import plot_ACFS_distr
+from src.RAF.RAF_engine import RAFEngine
 # This module builds the sample space
 # for the evolutionary dynamics
 # given a list of network types - it builds the correspondent sample

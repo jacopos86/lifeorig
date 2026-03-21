@@ -1,9 +1,8 @@
 import numpy as np
 import math
 from abc import ABC
-from read_input import p
-from logging_module import log
-from reaction_network import reaction_net_class
+from src.input.read_input import p
+from src.utilities.logging_module import log
 
 # BASE class
 

@@ -1,31 +1,15 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from math import exp
-from read_input import p
-from constants import R
+from src.input.read_input import p
 from scipy.stats import truncnorm
 import pytest
-
-def reaction_rate(Delta, x0, xgr, sig, E_a, T):
-    # E_a in mJ/mol
-    N = len(xgr)
-    rr = np.zeros(N)
-    for i in range(N):
-        rr[i] = Delta * exp(-(xgr[i] - x0)**2 / (2*sig**2)) * exp(-E_a / (R*T))
-    return rr
 
 #
 #  This module builds the catalysts set
 #
 
-def build_catalysts_rr_set(size_C, size_C_intern):
-    #TODO: run over QSP individuals
-    # these are required to compute avg. fitness
-    # catalist reaction rate distribution inside ACF set
-    E_a = p.ACFS_catalyst_prob_distr["E_a"]
-    Delta = p.ACFS_catalyst_prob_distr["Delta"]
-    sig = p.ACFS_catalyst_prob_distr["sigma_0"]
-    T = p.ACFS_catalyst_prob_distr["temperature"]   # K
+def set_inital_catalyst_set(X_set, rates_params):
+    # set catalysts based on distribution
+
     #TODO : use internal catalysts set size 
     xgr_ACFS = np.arange(1, size_C_intern+1, 1)
     x0 = np.random.choice(xgr_ACFS)
@@ -99,10 +83,3 @@ def build_catalysts_list(truncated_dist, N):
     samples = truncated_dist.rvs(N)
     samples = np.round(samples).astype(int)
     return samples
-
-#
-#  set up single reaction
-#
-
-def set_up_reaction(ratio_C_ACFset, rr_ACFset_dict, rr_extset_dict):
-    pass

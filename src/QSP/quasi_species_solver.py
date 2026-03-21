@@ -1,6 +1,6 @@
 import numpy as np
-from read_input import p
-from mutation_rate import compute_hamm_dist_matrix
+from src.input.read_input import p
+from src.mutations.mutation_rate import compute_hamm_dist_matrix
 #
 # The quasi species solver solves
 # the quasi species equation given in input

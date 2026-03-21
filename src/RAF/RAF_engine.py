@@ -1,6 +1,6 @@
 import numpy as np
 import copy
-from read_input import p
+from src.input.read_input import p
 
 class RAFEngine:
     """
