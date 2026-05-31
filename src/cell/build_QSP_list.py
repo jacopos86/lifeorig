@@ -1,13 +1,16 @@
 import numpy as np
-from src.cell.protocell import Protocell
+from src.cell.spher_protocell import SphProtocell
 
 #
 #   This module sets up the quasi species system
 #   It will be a list of protocells
 #
 
-def set_up_empty_QSP_list(n_protocells):
-    return ProtocellList(n_protocells)
+def set_up_empty_QSP_list(n_protocells, protocell_data):
+    return ProtocellList(
+        n=n_protocells, 
+        protocell_data=protocell_data
+    )
 
 #
 #    Protocell list class
@@ -23,15 +26,22 @@ class ProtocellList:
         - step(dt) : advance internal dynamics
         - divide() : handle division
     """
-    def __init__(self, n):
+    def __init__(self, n, protocell_data):
         self._list = []
         # optionally initialize with n empty protocells
         for idx in range(n):
-            self.add_random_protocell(idx)
-    def add_random_protocell(self, idx):
+            self.add_random_protocell(
+                idx=idx, 
+                protocell_data=protocell_data
+            )
+    def add_random_protocell(self, idx, protocell_data):
         """Add a new random protocell (user-defined)"""
         # placeholder: replace with your Protocell constructor
-        proto = Protocell(idx=idx)
+        proto = SphProtocell(
+            idx=idx, 
+            radius=protocell_data.get("radius"), 
+            n_shells=protocell_data.get("n_shells")
+        )
         self._list.append(proto)
     def add(self, protocell):
         """Add an existing protocell object"""
@@ -48,7 +58,7 @@ class ProtocellList:
     # ----------------------------
     # set initial molecules set
     # ----------------------------
-    def set_initial_molecule_distr(self, X_set, metabolites_data):
+    def set_initial_metabolite_distr(self, X_set, metabolites_data):
         """
         Initialize molecule counts inside each protocell.
         Parameters
@@ -59,32 +69,24 @@ class ProtocellList:
             Total number of molecules per protocell
         """
         distr_type = metabolites_data.get("metabolites_distr_type")
-        init_size = metabolites_data.get("initial_population_molecules")
         # normalize X_set
         if isinstance(X_set, dict):
             molecules = list(X_set.values())
         else:
             molecules = list(X_set)
-        n_types = len(molecules)
         # --- compute probabilities ---
         if distr_type == "uniform":
+            n_types = len(molecules)
             probs = np.ones(n_types) / n_types
         elif distr_type == "length_decay":
             alpha = metabolites_data.get("decay_const")
-            lengths = np.array([mol.length for mol in molecules])
+            lengths = np.array([len(mol) for mol in molecules])
             # exponential decay
             weights = np.exp(-alpha * lengths)
             probs = weights / weights.sum()
         else:
             log.error(f"Unknown distribution mode: {distr_type}")
-        for cell in self._list:
-            # random multinomial distribution
-            counts = np.random.multinomial(init_size, probs)
-            cell.X_set = {
-                mol: count
-                for mol, count in zip(molecules, counts)
-                if count > 0
-            }
+        return probs
     # ----------------------------
     # Population-level dynamics
     # ----------------------------
