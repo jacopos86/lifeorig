@@ -3,6 +3,9 @@ VENV = $(ROOT)/env
 PYTHON = $(VENV)/bin/python3
 PIP = $(VENV)/bin/pip
 
+PHREEQC_DIR = $(ROOT)/external/phreeqc
+PHREEQC_DB = $(PHREEQC_DIR)/database/phreeqc.dat
+
 configure : $(ROOT)/requirements.txt
 	python3 -m venv $(VENV); \
 	. $(VENV)/bin/activate; \
@@ -10,8 +13,14 @@ configure : $(ROOT)/requirements.txt
 install :
 	. $(VENV)/bin/activate ; \
 	$(PIP) install .
+install-phreeqc-db :
+	mkdir -p $(PHREEQC_DIR)/database ; \
+	wget -O $(PHREEQC_DIR)/database/phreeqc.dat https://raw.githubusercontent.com/usgs-coupled/phreeqc/master/database/phreeqc.dat ; \
+	wget -O $(PHREEQC_DIR)/database/pitzer.dat https://raw.githubusercontent.com/usgs-coupled/phreeqc/master/database/pitzer.dat
+test-ocean :
+	PHREEQC_DATABASE=$(PHREEQC_DB) $(PYTHON) ./src/ocean_chem/test_ocean_chem_0.py
 .PHONY :
-	clean
+	clean install-phreeqc-db test-ocean
 clean :
 	rm -rf $(ROOT)/src/*~ ; \
 	if [ -d $(ROOT)/src/__pycache__ ] ; \
