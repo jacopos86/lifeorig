@@ -4,27 +4,277 @@ import numpy as np
 import logging
 import os
 from src.utilities.logging_module import log
-from src.input.read_input import p
+from src.input_data.read_input import p
 from src.utilities.graph_class import graph_obj
 from src.molecules_dyn.gillespie_algo import chemical_kinetics_solver
 from src.catalysts.catalysts_set import build_catalysts_list
 from src.utilities.plot_catal_distr import plot_ACFS_hist_distr
 from src.chem_network.network_fitness import network_fitness
+from src.chem_network.abstract_reaction_network import ReactionNetwork
+from src.reactions.reaction_class import LigationReaction, CleavageReaction
 
 #  class describing the
 #  reaction network -> we use a binary polymer model
-class ReactionNetwork:
-    def __init__(self, size_bpol):
-        # max. size string
-        # polymer model
-        self.max_polymer_size = size_bpol
-        # catalysts distr.
-        self.catalyst_distr = None
-        # size of molecules set
-        self.size_X = 2 ** size_bpol - 1
+
+
+class BinaryReactionNetwork(ReactionNetwork):
+    """
+    Binary polymer reaction network without catalyst assignment.
+
+    This class only builds the reaction topology.
+    Catalyst assignment is handled later by the protocell.
+    """
+    def __init__(self):
+        super().__init__(
+            network_type="binary_polymer"
+        )
+        self.reaction_list = []
+    # --------------------------------------------------
+    # required interface
+    # --------------------------------------------------
+    def build_network(self, X_set):
+        self._clear_reactions()
+        self._build_species_maps(X_set)
+        self._build_ligation_reactions()
+        self._build_cleavage_reactions()
+        self._validate_network()
+    # --------------------------------------------------
+    # validation
+    # --------------------------------------------------
+    def _validate_network(self):
+        """
+        Validate internal consistency of the reaction network object.
+        Raise ValueError with a clear message on failure.
+        """
+        # basic sizes
+        if self.size_X <= 0:
+            log.error("size_X must be > 0")
+        if not hasattr(self, "species_set") or len(self.species_set) == 0:
+            log.error("species_set is empty")
+        # species maps
+        if not hasattr(self, "X_set") or len(self.X_set) != self.size_X:
+            log.error("X_set size is inconsistent with size_X")
+        if not hasattr(self, "x_to_id") or not hasattr(self, "id_to_x"):
+            log.error("species maps x_to_id / id_to_x are missing")
+        if len(self.x_to_id) != self.size_X:
+            log.error("x_to_id size is inconsistent with size_X")
+        if len(self.id_to_x) != self.size_X:
+            log.error("id_to_x size is inconsistent with size_X")
+        # species ids must match convention 1..size_X
+        expected_species = list(range(1, self.size_X + 1))
+        if list(self.species_set) != expected_species:
+            log.error(
+                f"species_set is inconsistent: expected {expected_species}, got {self.species_set}"
+            )
+        # reverse consistency of maps
+        for sid in self.species_set:
+            if sid not in self.id_to_x:
+                log.error(f"id {sid} missing in id_to_x")
+            mol = self.id_to_x[sid]
+            if mol not in self.x_to_id:
+                log.error(f"molecule for id {sid} missing in x_to_id")
+            if self.x_to_id[mol] != sid:
+                log.error(
+                    f"inconsistent species maps for id {sid}: x_to_id[id_to_x[{sid}]] != {sid}"
+                )
+        # max string size consistency
+        max_len = max(len(mol) for mol in self.X_set)
+        if self.max_strng_size != max_len:
+            log.error(
+                f"max_strng_size inconsistent: expected {max_len}, got {self.max_strng_size}"
+            )
+        # sequence lookup map if present
+        if hasattr(self, "seq_to_id"):
+            if len(self.seq_to_id) != self.size_X:
+                log.error("seq_to_id size is inconsistent with size_X")
+            for sid, mol in self.id_to_x.items():
+                seq = mol.show_sequence()
+                if seq not in self.seq_to_id:
+                    log.error(f"sequence '{seq}' missing in seq_to_id")
+                if self.seq_to_id[seq] != sid:
+                    log.error(
+                        f"inconsistent seq_to_id for sequence '{seq}': expected id {sid}, got {self.seq_to_id[seq]}"
+                    )
+        # reaction list if present
+        if hasattr(self, "reaction_list"):
+            seen = set()
+            for rxn in self.reaction_list:
+                if not hasattr(rxn, "reaction_id"):
+                    log.error("reaction without reaction_id found")
+                if not hasattr(rxn, "reaction_type"):
+                    log.error(f"reaction {rxn.reaction_id} missing reaction_type")
+                if rxn.reaction_type not in {"ligation", "cleavage"}:
+                    log.error(
+                        f"reaction {rxn.reaction_id} has invalid reaction_type '{rxn.reaction_type}'"
+                    )
+                if not hasattr(rxn, "reactants") or not hasattr(rxn, "products"):
+                    log.error(
+                        f"reaction {rxn.reaction_id} missing reactants/products"
+                    )
+                # check species ids in reactions
+                for sid in list(rxn.reactants) + list(rxn.products):
+                    if sid not in self.id_to_x:
+                        log.error(
+                            f"reaction {rxn.reaction_id} references unknown species id {sid}"
+                        )
+                # uniqueness check
+                key = (rxn.reaction_type, tuple(rxn.reactants), tuple(rxn.products))
+                if key in seen:
+                    log.error(
+                        f"duplicate reaction found: type={rxn.reaction_type}, "
+                        f"reactants={rxn.reactants}, products={rxn.products}"
+                    )
+                seen.add(key)
+        log.info("\n")
+        log.info("\t NETWORK VALIDATION TEST PASSED")
+        log.info("\t " + p.sep)
+    # --------------------------------------------------
+    # species set
+    # --------------------------------------------------
+    def _build_species_maps(self, X_set):
+        """
+        Build mappings:
+            molecule string -> molecule id
+            molecule id     -> molecule string
+
+        Molecule ids are 1-based to match your current convention.
+        """
+        self.X_set = list(X_set)
+        self.x_to_id = {}
+        self.id_to_x = {}
+        self.seq_to_id = {}
+        # run over X_set
+        for i, mol in enumerate(self.X_set, start=1):
+            self.x_to_id[mol] = i
+            self.id_to_x[i] = mol
+            self.seq_to_id[mol.show_sequence()] = i
+        # species set
+        self.species_set = list(range(1, len(self.X_set) + 1))
+        self.size_X = len(X_set)
+        self.max_strng_size = max(len(mol) for mol in X_set)
+    # --------------------------------------------------
+    # reaction builders
+    # --------------------------------------------------
+    def _build_ligation_reactions(self):
+        reaction_id = 0
+        stored = set()
+        for r1 in self.species_set:
+            x1 = self.id_to_x[r1]
+            n1 = len(x1)
+            for r2 in self.species_set:
+                x2 = self.id_to_x[r2]
+                n2 = len(x2)
+                if n1 + n2 > self.max_strng_size:
+                    continue
+                y = x1.ligate(x2)
+                y_seq = y.show_sequence()
+                # 1) convert back to species id
+                if y_seq not in self.seq_to_id:
+                    continue
+                p_id = self.seq_to_id[y_seq]
+                # ligation key
+                rl_key = (r1, r2, p_id)
+                if rl_key in stored:
+                    continue
+                stored.add(rl_key)
+                react = LigationReaction(
+                    r1=r1, 
+                    r2=r2, 
+                    p=p_id, 
+                    reaction_id=reaction_id
+                )
+                self.add_reaction(react)
+                reaction_id += 1
+    # cleavage reactions
+    def _build_cleavage_reactions(self):
+        if len(self.reaction_list) == 0:
+            reaction_id = 0
+        else:
+            reaction_id = self.reaction_list[-1].reaction_id + 1
+        stored = set()
+        for r in self.species_set:
+            x = self.id_to_x[r]
+            n = len(x)
+            if n <= 1:
+                continue
+            x_seq = x.show_sequence()
+            for i in range(1, n):
+                # split the sequence
+                s1 = x_seq[:i]
+                s2 = x_seq[i:]
+                if len(s1) == 0 or len(s2) == 0:
+                    continue
+                # map products to id
+                if s1 not in self.seq_to_id or s2 not in self.seq_to_id:
+                    continue
+                p1_id = self.seq_to_id[s1]
+                p2_id = self.seq_to_id[s2]
+                # cleavage key
+                rc_key = (r, p1_id, p2_id)
+                if rc_key in stored:
+                    continue
+                stored.add(rc_key)
+                react = CleavageReaction(
+                    r=r,
+                    p1=p1_id, 
+                    p2=p2_id, 
+                    reaction_id=reaction_id
+                )
+                self.add_reaction(react)
+                reaction_id += 1
+    # --------------------------------------------------
+    # utilities
+    # --------------------------------------------------
+    def convert_binstr_to_dec(self, y):
+        return int(y.zfill(self.strng_size), 2)
+    def convert_dec_to_binstr(self, x):
+        return bin(x)[2:]
+    def fmt_str(self, x):
+        return x.rjust(self.strng_size, ".")
+    # --------------------------------------------------
+    # convenience
+    # --------------------------------------------------
+    def get_reaction_by_id(self, reaction_id):
+        for rxn in self.reaction_list:
+            if rxn.reaction_id == reaction_id:
+                return rxn
+        log.error(f"Reaction id {reaction_id} not found")
+    def summary(self):
+        n_lig = sum(1 for r in self.reaction_list if r.reaction_type == "ligation")
+        n_clv = sum(1 for r in self.reaction_list if r.reaction_type == "cleavage")
+        log.info(f"\t network_type: {self.network_type}")
+        log.info(f"\t max strng_size: {self.max_strng_size}")
+        log.info(f"\t size_X: {self.size_X}")
+        log.info(f"\t n_species: {len(self.species_set)}")
+        log.info(f"\t n_reactions: {len(self.reaction_list)}")
+        log.info(f"\t n_ligations: {n_lig}")
+        log.info(f"\t n_cleavages: {n_clv}")
+        log.info("\t " + p.sep)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class _BinaryReactionNetwork:
+    """
+    Binary polymer model reaction network class
+    """
+    def __init__(self):
+        # max. num. reactions
+        self.num_reactions = None
         # reactions set
-        self.ligand_reactions = []
-        self.cleavage_reactions = []
+        self.ligand_reactions = None
+        self.cleavage_reactions = None
     def set_binary_polymer_model(self, catalyst_distr):
         # n. food set bits
         self.n_F_bits = math.log2(self.size_F)
