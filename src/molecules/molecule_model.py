@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.input.read_input import p
+from src.input_data.read_input import p
 
 #
 #   Abstract base molecule class
@@ -8,7 +8,6 @@ from src.input.read_input import p
 class MoleculeModel(ABC):
     def __init__(self, sequence):
         self.sequence = sequence
-        self.length = len(sequence)
         self.properties = {}  # dictionary for additional features (stability, polarity, etc.)
     @abstractmethod
     def ligate(self, other):
@@ -33,6 +32,8 @@ class MoleculeModel(ABC):
     def show_sequence(self):
         ''' return sequence as string'''
         raise NotImplementedError
+    def __len__(self):
+        return len(self.sequence)
 
 #
 #   Binary polymer implementation
@@ -40,6 +41,7 @@ class MoleculeModel(ABC):
 
 class BinaryPolymer(MoleculeModel):
     ''' binary polymer class '''
+    _MONOMER_TYPES = {'0', '1'}
     def __init__(self, sequence):
         super().__init__(sequence)
         # ensure only 0 and 1
