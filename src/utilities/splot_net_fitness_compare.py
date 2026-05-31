@@ -1,4 +1,4 @@
-from src.input.parser import parser
+from src.input_data.parser import parser
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
