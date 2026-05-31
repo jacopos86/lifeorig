@@ -1,0 +1,695 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\title{Quantitative Pathway for Coupling Atmosphere, Hydrosphere, Interior Thermal State, and Geochemistry}
+\author{LIFEORIG working note}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+This document defines a quantitative pathway for deciding whether a planet has
+a hydrosphere and, if it does, how the hydrosphere should provide boundary
+conditions for ocean and geochemical calculations.
+
+The intended sequence is:
+\begin{enumerate}
+    \item Solve the atmosphere.
+    \item Use the atmosphere plus planet structure to evaluate liquid/ice water.
+    \item Decide whether there is no hydrosphere, a surface ocean/pond, or an
+    ice shell plus subsurface ocean.
+    \item Use the hydrosphere state to define the pressure, temperature,
+    composition, and mineral boundary conditions for PHREEQC/geochemistry.
+\end{enumerate}
+
+This note is written to be implementable. The details of specific ocean/ice
+layer models can replace the simple formulas below, but the data flow should
+remain the same.
+
+\section{Atmospheric Inputs}
+
+After the atmospheric solver converges, the hydrosphere module should receive:
+\begin{align}
+    z_i               &\quad \mathrm{altitude\ grid}\ [\mathrm{m}], \\
+    T_i               &\quad \mathrm{temperature\ profile}\ [\mathrm{K}], \\
+    P_i               &\quad \mathrm{pressure\ profile}\ [\mathrm{Pa}], \\
+    n_{\mathrm{H_2O},i} &\quad \mathrm{H_2O\ number\ density\ profile}\ [\mathrm{m^{-3}}], \\
+    T_s               &= T(z=0), \\
+    P_s               &= P(z=0).
+\end{align}
+
+The atmosphere is the source of surface boundary conditions and of the
+condensable vapor reservoir. If outgassing, delivery, or non-equilibrium
+chemistry adds water to the system, it enters the atmosphere first and is then
+seen by the hydrosphere through $n_{\mathrm{H_2O}}(z)$.
+
+\section{Planetary Inputs}
+
+The planet model should provide:
+\begin{align}
+    M_p      &\quad \mathrm{planet\ mass}\ [\mathrm{kg}], \\
+    R_p      &\quad \mathrm{planet\ radius}\ [\mathrm{m}], \\
+    g_s      &= \frac{G M_p}{R_p^2}, \\
+    \rho_p   &= \frac{M_p}{(4/3)\pi R_p^3}.
+\end{align}
+
+The bulk density $\rho_p$ is not enough to determine composition uniquely, but
+it can provide a first-order estimate of rock/ice fraction. This is especially
+important for Europa-like bodies, where the ocean is not produced by
+atmospheric condensation.
+
+\section{Surface Liquid Water from Atmospheric Condensation}
+
+\subsection{Saturation vapor pressure}
+
+For each atmospheric layer, compute the saturation vapor pressure of water:
+\begin{equation}
+    p_{\mathrm{sat}}(T_i).
+\end{equation}
+
+A first implementation can use the Magnus formula:
+\begin{equation}
+    p_{\mathrm{sat}}(T) =
+    610.94
+    \exp\left[
+        \frac{17.625\,T_C}{T_C + 243.04}
+    \right]
+    \quad [\mathrm{Pa}],
+\end{equation}
+where
+\begin{equation}
+    T_C = T[\mathrm{K}] - 273.15.
+\end{equation}
+
+This is a practical approximation near ordinary liquid-water conditions. More
+accurate vapor pressure formulas can replace it later.
+
+\subsection{Saturation number density}
+
+The saturation number density of water vapor is
+\begin{equation}
+    n_{\mathrm{sat},i} =
+    \frac{p_{\mathrm{sat}}(T_i)}{k_B T_i}.
+\end{equation}
+
+The excess water vapor number density is
+\begin{equation}
+    n_{\mathrm{excess},i}
+    =
+    \max\left[
+        0,\,
+        n_{\mathrm{H_2O},i} - n_{\mathrm{sat},i}
+    \right].
+\end{equation}
+
+\subsection{Condensed water mass}
+
+The atmospheric water vapor mass is
+\begin{equation}
+    M_{\mathrm{H_2O,atm}}
+    =
+    \int_0^{z_{\mathrm{top}}}
+    n_{\mathrm{H_2O}}(z)\,
+    m_{\mathrm{H_2O}}\,
+    4\pi(R_p+z)^2\,dz .
+\end{equation}
+
+The saturation-capacity water mass is
+\begin{equation}
+    M_{\mathrm{H_2O,sat}}
+    =
+    \int_0^{z_{\mathrm{top}}}
+    n_{\mathrm{sat}}(z)\,
+    m_{\mathrm{H_2O}}\,
+    4\pi(R_p+z)^2\,dz .
+\end{equation}
+
+The condensed water mass implied by the atmospheric solution is
+\begin{equation}
+    M_{\mathrm{cond}}
+    =
+    \int_0^{z_{\mathrm{top}}}
+    n_{\mathrm{excess}}(z)\,
+    m_{\mathrm{H_2O}}\,
+    4\pi(R_p+z)^2\,dz .
+\end{equation}
+
+This is the surface-liquid reservoir directly implied by the atmosphere.
+
+\subsection{Surface liquid condition}
+
+Surface liquid water is allowed only if:
+\begin{align}
+    P_s &> P_{\mathrm{triple}} = 611.657\ \mathrm{Pa}, \\
+    T_s &\geq 273.15\ \mathrm{K}, \\
+    T_s &\leq T_{\mathrm{boil}}(P_s), \\
+    M_{\mathrm{cond}} &> 0.
+\end{align}
+
+If these conditions are satisfied, the equivalent global surface-ocean depth is
+\begin{equation}
+    d_{\mathrm{surf}}
+    =
+    \frac{M_{\mathrm{cond}}}
+    {4\pi R_p^2 \rho_w},
+\end{equation}
+where $\rho_w \approx 1000\ \mathrm{kg\,m^{-3}}$.
+
+The bottom pressure of that surface ocean is
+\begin{equation}
+    P_{\mathrm{bottom,surf}}
+    =
+    P_s + \rho_w g_s d_{\mathrm{surf}}.
+\end{equation}
+
+\section{Interior Water/Ice Estimate from Bulk Density}
+
+Atmospheric condensation cannot produce a Europa-like subsurface ocean. For
+icy bodies, estimate a bulk ice/water fraction from the planet density.
+
+\subsection{Two-component rock/ice model}
+
+Assume a first-order two-component body:
+\begin{equation}
+    \rho_p =
+    x_{\mathrm{ice}} \rho_{\mathrm{ice}}
+    +
+    (1-x_{\mathrm{ice}})\rho_{\mathrm{rock}},
+\end{equation}
+where $x_{\mathrm{ice}}$ is a volume fraction.
+
+Solving:
+\begin{equation}
+    x_{\mathrm{ice}}
+    =
+    \frac{\rho_{\mathrm{rock}}-\rho_p}
+    {\rho_{\mathrm{rock}}-\rho_{\mathrm{ice}}}.
+\end{equation}
+
+In implementation:
+\begin{equation}
+    x_{\mathrm{ice}} \leftarrow
+    \mathrm{clip}(x_{\mathrm{ice}},0,1).
+\end{equation}
+
+Use first-pass constants:
+\begin{align}
+    \rho_{\mathrm{ice}}  &\approx 1000\ \mathrm{kg\,m^{-3}}, \\
+    \rho_{\mathrm{rock}} &\approx 3300\ \mathrm{kg\,m^{-3}}.
+\end{align}
+
+The corresponding mass fraction is
+\begin{equation}
+    f_{\mathrm{ice,mass}}
+    =
+    \frac{x_{\mathrm{ice}}\rho_{\mathrm{ice}}}{\rho_p}.
+\end{equation}
+
+The total ice/water mass estimate is
+\begin{equation}
+    M_{\mathrm{ice/water}}
+    =
+    f_{\mathrm{ice,mass}} M_p.
+\end{equation}
+
+The equivalent global water-layer thickness is
+\begin{equation}
+    d_{\mathrm{water,eq}}
+    =
+    \frac{M_{\mathrm{ice/water}}}
+    {4\pi R_p^2 \rho_w}.
+\end{equation}
+
+\subsection{Interpretation}
+
+If $\rho_p > \rho_{\mathrm{rock}}$, the two-component model gives no ice/water
+component. The body is treated as rocky/metal-rich in this first-pass model.
+
+If $\rho_p < \rho_{\mathrm{ice}}$, the two-component model is insufficient:
+porosity, low-density volatiles, or gas-rich structure may be required.
+
+For Europa-like bodies, this model gives a physically motivated water/ice
+reservoir that does not come from atmospheric vapor.
+
+\section{Thermal Model for Ice Shell and Subsurface Ocean}
+
+\subsection{Interior heat flux}
+
+The interior model should provide an upward heat flux:
+\begin{equation}
+    q_{\mathrm{int}}\quad [\mathrm{W\,m^{-2}}].
+\end{equation}
+
+This can come from:
+\begin{itemize}
+    \item radiogenic heating,
+    \item tidal heating,
+    \item secular cooling,
+    \item parameterized convection in the rocky mantle,
+    \item a user-specified first-pass value.
+\end{itemize}
+
+\subsection{Conductive ice shell thickness}
+
+For an icy body with surface temperature below melting, a first conductive ice
+shell estimate is:
+\begin{equation}
+    q_{\mathrm{int}}
+    =
+    k_{\mathrm{ice}}
+    \frac{T_m - T_s}{d_{\mathrm{ice}}},
+\end{equation}
+so
+\begin{equation}
+    d_{\mathrm{ice}}
+    =
+    k_{\mathrm{ice}}
+    \frac{T_m - T_s}{q_{\mathrm{int}}}.
+\end{equation}
+
+Use first-pass constants:
+\begin{align}
+    k_{\mathrm{ice}} &\approx 2.5\ \mathrm{W\,m^{-1}\,K^{-1}}, \\
+    T_m &\approx 273.15\ \mathrm{K}.
+\end{align}
+
+The model should allow replacement of $T_m$ by a pressure- and salinity-dependent
+melting curve.
+
+\subsection{Subsurface ocean condition}
+
+A subsurface ocean exists in the first-pass model if:
+\begin{align}
+    M_{\mathrm{ice/water}} &> 0, \\
+    T_s &< T_m, \\
+    q_{\mathrm{int}} &> 0, \\
+    d_{\mathrm{water,eq}} &> d_{\mathrm{ice}}.
+\end{align}
+
+Then:
+\begin{align}
+    d_{\mathrm{ocean,sub}} &=
+    d_{\mathrm{water,eq}} - d_{\mathrm{ice}}, \\
+    M_{\mathrm{ocean,sub}} &=
+    4\pi R_p^2 \rho_w d_{\mathrm{ocean,sub}}.
+\end{align}
+
+The top pressure of the subsurface ocean is
+\begin{equation}
+    P_{\mathrm{ocean,top}}
+    =
+    P_s + \rho_{\mathrm{ice}} g_s d_{\mathrm{ice}}.
+\end{equation}
+
+The bottom pressure is
+\begin{equation}
+    P_{\mathrm{ocean,bottom}}
+    =
+    P_{\mathrm{ocean,top}}
+    +
+    \rho_w g_s d_{\mathrm{ocean,sub}}.
+\end{equation}
+
+\section{Ice Shell Convection Check}
+
+The conductive shell estimate should be followed by a convection check. A
+simple Rayleigh number is:
+\begin{equation}
+    Ra_{\mathrm{ice}}
+    =
+    \frac{
+        \rho_{\mathrm{ice}} g_s \alpha_{\mathrm{ice}}
+        \Delta T d_{\mathrm{ice}}^3
+    }{
+        \kappa_{\mathrm{ice}} \eta_{\mathrm{ice}}
+    },
+\end{equation}
+where
+\begin{align}
+    \Delta T &= T_m - T_s, \\
+    \alpha_{\mathrm{ice}} &\quad \mathrm{thermal\ expansivity}, \\
+    \kappa_{\mathrm{ice}} &\quad \mathrm{thermal\ diffusivity}, \\
+    \eta_{\mathrm{ice}} &\quad \mathrm{effective\ ice\ viscosity}.
+\end{align}
+
+If
+\begin{equation}
+    Ra_{\mathrm{ice}} > Ra_{\mathrm{crit}},
+\end{equation}
+then a purely conductive shell is not self-consistent. A first critical value is
+\begin{equation}
+    Ra_{\mathrm{crit}} \sim 10^3,
+\end{equation}
+but stagnant-lid ice convection uses more detailed scalings.
+
+In code, this can initially be stored as a diagnostic:
+\begin{equation}
+    \mathrm{ice\_shell\_regime}
+    =
+    \begin{cases}
+    \mathrm{conductive}, & Ra_{\mathrm{ice}} \leq Ra_{\mathrm{crit}}, \\
+    \mathrm{convective}, & Ra_{\mathrm{ice}} > Ra_{\mathrm{crit}}.
+    \end{cases}
+\end{equation}
+
+\section{Rocky Interior Thermal Evolution}
+
+For rocky planets or rocky cores, use parameterized convection rather than full
+2D/3D convection as the first implementation.
+
+\subsection{Energy balance}
+
+Let $T_m$ be a representative mantle/core temperature. A simple thermal
+evolution equation is:
+\begin{equation}
+    \rho_m C_p V_m \frac{dT_m}{dt}
+    =
+    H(t) - Q_{\mathrm{out}},
+\end{equation}
+where:
+\begin{align}
+    \rho_m &\quad \mathrm{mantle/core\ density}, \\
+    C_p &\quad \mathrm{heat\ capacity}, \\
+    V_m &\quad \mathrm{convecting\ volume}, \\
+    H(t) &\quad \mathrm{internal\ heat\ production}, \\
+    Q_{\mathrm{out}} &\quad \mathrm{heat\ loss}.
+\end{align}
+
+The heat loss is also the lower-boundary heat source for the atmosphere and
+surface energy balance. If $Q_{\mathrm{out}}$ is a total power, then the
+surface internal flux is:
+\begin{equation}
+    F_{\mathrm{int}}
+    =
+    \frac{Q_{\mathrm{out}}}{4\pi R_p^2}.
+\end{equation}
+If the interior model directly computes a heat flux $q_{\mathrm{int}}$, then:
+\begin{equation}
+    F_{\mathrm{int}} = q_{\mathrm{int}}.
+\end{equation}
+
+\subsection{Internal heat production}
+
+The total internal heat production is decomposed as:
+\begin{equation}
+    H(t)
+    =
+    H_{\mathrm{rad}}(t)
+    +
+    H_{\mathrm{tidal}}(t)
+    +
+    H_{\mathrm{grav}}(t).
+\end{equation}
+
+\subsubsection{Radiogenic heating}
+
+For a detailed isotope model:
+\begin{equation}
+    H_{\mathrm{rad}}(t)
+    =
+    \sum_i H_{i,0}\exp(-\lambda_i t),
+\end{equation}
+where
+\begin{equation}
+    \lambda_i = \frac{\ln 2}{t_{1/2,i}}.
+\end{equation}
+The main long-lived isotopes in rocky interiors are:
+\begin{equation}
+    ^{238}\mathrm{U},\quad
+    ^{235}\mathrm{U},\quad
+    ^{232}\mathrm{Th},\quad
+    ^{40}\mathrm{K}.
+\end{equation}
+
+For a first implementation, a lumped effective decay law is acceptable:
+\begin{equation}
+    H_{\mathrm{rad}}(t)
+    =
+    H_{\mathrm{rad},0}\exp\left(-\frac{t}{\tau_{\mathrm{rad}}}\right).
+\end{equation}
+
+\subsubsection{Tidal heating}
+
+For a synchronously rotating satellite or close-in planet with eccentricity
+tides, a first-order total tidal power is:
+\begin{equation}
+    H_{\mathrm{tidal}}
+    =
+    \frac{21}{2}
+    \frac{k_2}{Q}
+    \frac{
+        G M_\star^2 R_p^5 n e^2
+    }{
+        a^6
+    },
+\end{equation}
+where:
+\begin{align}
+    k_2 &\quad \mathrm{second\ Love\ number}, \\
+    Q &\quad \mathrm{tidal\ quality\ factor}, \\
+    M_\star &\quad \mathrm{host/primary\ mass}, \\
+    R_p &\quad \mathrm{planet/moon\ radius}, \\
+    n &\quad \mathrm{mean\ motion}, \\
+    e &\quad \mathrm{orbital\ eccentricity}, \\
+    a &\quad \mathrm{orbital\ semi-major\ axis}.
+\end{align}
+The mean motion is:
+\begin{equation}
+    n =
+    \sqrt{\frac{G M_\star}{a^3}}.
+\end{equation}
+
+The corresponding globally averaged tidal heat flux is:
+\begin{equation}
+    F_{\mathrm{tidal}}
+    =
+    \frac{H_{\mathrm{tidal}}}{4\pi R_p^2}.
+\end{equation}
+
+This term is essential for Europa-like cases, where the atmosphere does not
+control the existence of the subsurface ocean but tidal heat can maintain a
+liquid layer below an ice shell.
+
+\subsubsection{Gravitational and secular heat}
+
+Part of gravitational/secular cooling is already represented by the thermal
+inertia term on the left-hand side of the energy equation:
+\begin{equation}
+    \rho_m C_p V_m \frac{dT_m}{dt}.
+\end{equation}
+If an additional early-time gravitational energy source is desired, use a
+parameterized form:
+\begin{equation}
+    H_{\mathrm{grav}}(t)
+    =
+    H_{\mathrm{grav},0}
+    \exp\left(-\frac{t}{\tau_{\mathrm{grav}}}\right).
+\end{equation}
+This can represent early differentiation, contraction, or accretional residual
+heat in a first-pass model.
+
+\subsection{Nusselt-Rayleigh scaling}
+
+The convective heat flux can be parameterized as:
+\begin{equation}
+    Nu = a Ra^\beta.
+\end{equation}
+
+Then:
+\begin{equation}
+    q_{\mathrm{conv}}
+    =
+    Nu\,
+    \frac{k_m(T_m-T_s)}{D_m},
+\end{equation}
+and
+\begin{equation}
+    Q_{\mathrm{out}} =
+    4\pi R_p^2 q_{\mathrm{conv}}.
+\end{equation}
+
+The Rayleigh number is:
+\begin{equation}
+    Ra =
+    \frac{
+        \rho_m g_s \alpha_m (T_m-T_s) D_m^3
+    }{
+        \kappa_m \eta_m
+    }.
+\end{equation}
+
+First-pass values often use $\beta \approx 1/3$, but stagnant-lid convection
+requires care because viscosity is strongly temperature dependent.
+
+\section{Hydrosphere State Classification}
+
+After computing surface condensation and interior ice/water state, classify the
+planet:
+
+\begin{enumerate}
+    \item \textbf{No hydrosphere}
+    \begin{align}
+        M_{\mathrm{cond}} &= 0, \\
+        M_{\mathrm{ice/water}} &= 0
+    \end{align}
+    or liquid/ice conditions fail.
+
+    \item \textbf{Surface ocean or pond}
+    \begin{align}
+        M_{\mathrm{cond}} &> 0, \\
+        P_s &> P_{\mathrm{triple}}, \\
+        273.15\ \mathrm{K} \leq T_s &\leq T_{\mathrm{boil}}(P_s).
+    \end{align}
+
+    \item \textbf{Ice shell with subsurface ocean}
+    \begin{align}
+        T_s &< T_m, \\
+        d_{\mathrm{water,eq}} &> d_{\mathrm{ice}}.
+    \end{align}
+
+    \item \textbf{Ice-only hydrosphere}
+    \begin{align}
+        T_s &< T_m, \\
+        d_{\mathrm{water,eq}} &\leq d_{\mathrm{ice}}.
+    \end{align}
+\end{enumerate}
+
+\section{Geochemical Boundary Conditions}
+
+PHREEQC/geochemistry should run only after the hydrosphere state is known.
+
+\subsection{Surface pond or surface ocean}
+
+For a surface pond/ocean:
+\begin{align}
+    T_{\mathrm{geo}} &= T_s, \\
+    P_{\mathrm{geo}} &= P_s + \rho_w g_s d_{\mathrm{surf}}, \\
+    \mathrm{composition} &= \mathrm{planet.hydro[ocean\_composition]}, \\
+    \mathrm{minerals} &= \mathrm{surface\ rock\ preset}.
+\end{align}
+
+This corresponds to surface aqueous geochemistry, weathering, and volcanic-rock
+wetting environments.
+
+\subsection{Volcanic rock environment}
+
+For volcanic-rock chemistry:
+\begin{align}
+    T_{\mathrm{geo}} &= T_s \quad \mathrm{or\ a\ volcanic\ surface\ temperature}, \\
+    P_{\mathrm{geo}} &= P_s, \\
+    \mathrm{fluid} &= \mathrm{condensed\ water/pond\ composition}, \\
+    \mathrm{minerals} &= \mathrm{basaltic/volcanic\ rock\ assemblage}.
+\end{align}
+
+This environment is relevant when surface liquid water exists but does not cover
+all rocky surface. The model should track available exposed rock fraction if the
+surface ocean depth is shallow.
+
+\subsection{Hydrothermal vent}
+
+For hydrothermal vent chemistry:
+\begin{align}
+    T_{\mathrm{geo}} &= T_{\mathrm{reaction\ depth}}, \\
+    P_{\mathrm{geo}} &= P_{\mathrm{ocean,bottom}}, \\
+    \mathrm{fluid} &= \mathrm{ocean\ composition}, \\
+    \mathrm{minerals} &= \mathrm{rocky\ core/basalt/ultramafic\ assemblage}.
+\end{align}
+
+The reaction temperature should come from the interior thermal model. A first
+implementation can choose a reaction depth or a temperature window, for example:
+\begin{equation}
+    T_{\mathrm{reaction}} \in [350, 650]\ \mathrm{K}.
+\end{equation}
+
+The hydrothermal flux to the ocean can later be written:
+\begin{equation}
+    F_j =
+    \dot{M}_{\mathrm{fluid}}
+    \left(C_{j,\mathrm{vent}} - C_{j,\mathrm{ocean}}\right),
+\end{equation}
+where $\dot{M}_{\mathrm{fluid}}$ is a water circulation rate and $C_j$ is the
+concentration of species $j$.
+
+\section{Suggested Code Interface}
+
+The main implementation target should be:
+\begin{verbatim}
+compute_hydrosphere_state(
+    planet_mass,
+    planet_radius,
+    surface_temperature,
+    surface_pressure,
+    gravity,
+    altitude,
+    temperature_profile,
+    h2o_number_density,
+    internal_heat_flux,
+    rho_rock=3300 kg/m3,
+    rho_ice=1000 kg/m3,
+)
+\end{verbatim}
+
+It should return a state object containing:
+\begin{verbatim}
+has_surface_ocean
+surface_ocean_mass
+surface_ocean_depth
+has_subsurface_ocean
+ice_shell_thickness
+subsurface_ocean_mass
+subsurface_ocean_depth
+ice_shell_regime
+ocean_top_pressure
+ocean_bottom_pressure
+hydrosphere_class
+\end{verbatim}
+
+\section{References}
+
+\begin{enumerate}
+    \item Schubert, G., Turcotte, D. L., and Olson, P. \textit{Mantle
+    Convection in the Earth and Planets}. Cambridge University Press.
+    \url{https://www.cambridge.org/core/books/mantle-convection-in-the-earth-and-planets/}
+
+    \item Thiriet, M., Breuer, D., Michaut, C., and Plesa, A.-C. ``Scaling laws
+    of convection for cooling planets in a stagnant lid regime.'' \textit{Physics
+    of the Earth and Planetary Interiors}, 286, 138--153, 2019.
+    \url{https://doi.org/10.1016/j.pepi.2018.11.003}
+
+    \item Korenaga, J. ``Scaling of stagnant-lid convection with Arrhenius
+    rheology and the effects of mantle melting.'' \textit{Geophysical Journal
+    International}, 179, 154--170, 2009.
+    \url{https://academic.oup.com/gji/article/179/1/154/2007792}
+
+    \item Mitri, G. and Showman, A. P. ``Thermal convection in ice-I shells of
+    Titan and Enceladus.'' \textit{Icarus}, 2008.
+    \url{https://experts.arizona.edu/en/publications/thermal-convection-in-ice-i-shells-of-titan-and-enceladus}
+
+    \item Tobie, G. and collaborators. ``Tidal Deformation and Dissipation
+    Processes in Icy Worlds.'' Review article.
+    \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC11739232/}
+
+    \item Kang, W. and Flierl, G. ``Europa's Coupled Ice-Ocean System: Temporal
+    Evolution of a Pure Ice Shell.'' arXiv preprint.
+    \url{https://arxiv.org/abs/2309.16821}
+
+    \item Vance, S. D., Hand, K. P., and Pappalardo, R. T. ``Geophysical
+    controls of chemical disequilibria in Europa.'' Related literature on
+    subsurface ocean chemistry and exchange processes. For a broad review, see:
+    \url{https://experts.azregents.edu/en/publications/subsurface-water-oceans-on-icy-satellites-chemical-composition-an/}
+
+    \item Reactive transport modeling background:
+    \url{https://en.wikipedia.org/wiki/Reactive_transport_modeling_in_porous_media}
+
+    \item Serpentinization background and hydrothermal H2 production:
+    \url{https://en.wikipedia.org/wiki/Serpentinization}
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,1385 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\title{Quantitative Pathway for Protocell Formation Phases}
+\author{LIFEORIG working note}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+This note defines a quantitative pathway for modeling different physical
+stages of protocell formation inside the LIFEORIG framework. The aim is not to
+declare one origin-of-life pathway correct. The aim is to define computable
+states, transition criteria, and equations that can later be coupled to the
+atmosphere, hydrosphere, ocean chemistry, geophysical interior, and prebiotic
+reaction network.
+
+The phases considered here are:
+\begin{enumerate}
+    \item porous mineral or ice compartments;
+    \item solid surface compartments and adsorbed chemical networks;
+    \item liquid-liquid coacervate compartments;
+    \item amphiphilic vesicles and true protocell-like compartments.
+\end{enumerate}
+
+The working philosophy is:
+\begin{equation}
+    \mathrm{planetary\ environment}
+    \rightarrow
+    \mathrm{hydrosphere/geochemistry}
+    \rightarrow
+    \mathrm{chemical\ network}
+    \rightarrow
+    \mathrm{compartment\ physics}
+    \rightarrow
+    \mathrm{growth/division/selection}.
+\end{equation}
+
+\section{Environmental Inputs}
+
+The protocell module should not invent its own environment. It should receive
+boundary conditions from the atmosphere, hydrosphere, and geochemistry solvers.
+
+\subsection{Atmosphere and hydrosphere inputs}
+
+Required environmental variables:
+\begin{align}
+    T_s       &\quad \mathrm{surface\ temperature}\ [\mathrm{K}], \\
+    P_s       &\quad \mathrm{surface\ pressure}\ [\mathrm{Pa}], \\
+    F_{\mathrm{UV}}(\lambda,z)
+              &\quad \mathrm{local\ UV\ photon\ flux}, \\
+    \tau_{\mathrm{UV}}(\lambda,z)
+              &\quad \mathrm{UV\ optical\ depth}, \\
+    M_w        &\quad \mathrm{available\ liquid/ice\ water\ mass}, \\
+    d_w        &\quad \mathrm{surface\ water\ depth\ or\ pore\ water\ depth}, \\
+    a_w        &\quad \mathrm{water\ activity}, \\
+    \Phi_{\mathrm{wetdry}}
+              &\quad \mathrm{wet/dry\ cycling\ strength}, \\
+    \Phi_{\mathrm{freeze}}
+              &\quad \mathrm{freeze/thaw\ concentration\ factor}.
+\end{align}
+
+For a subsurface ocean, use the ocean pressure and temperature at the relevant
+depth:
+\begin{align}
+    T_o &= T(r_{\mathrm{ocean}}), \\
+    P_o &= P(r_{\mathrm{ocean}}).
+\end{align}
+
+For a surface pond or volcanic-rock environment, use local surface values:
+\begin{align}
+    T_{\mathrm{env}} &= T_s, \\
+    P_{\mathrm{env}} &= P_s.
+\end{align}
+
+\subsection{Geochemical inputs}
+
+The geochemistry module should provide:
+\begin{align}
+    \mathrm{pH},\quad
+    I,\quad
+    \mathrm{Eh},\quad
+    [\mathrm{Fe^{2+}}],\quad
+    [\mathrm{Fe^{3+}}],\quad
+    [\mathrm{HS^-}],\quad
+    [\mathrm{SO_4^{2-}}],\quad
+    [\mathrm{PO_4}],\quad
+    [\mathrm{Mg^{2+}}],
+\end{align}
+plus mineral availability:
+\begin{equation}
+    S_m(X) \quad \mathrm{reactive\ surface\ area\ of\ mineral\ } X.
+\end{equation}
+
+The relevant mineral classes are:
+\begin{equation}
+    X \in
+    \{\mathrm{clay},\mathrm{FeS},\mathrm{NiS},\mathrm{FeOOH},
+    \mathrm{silica},\mathrm{phosphate\ surface},\mathrm{ice}\}.
+\end{equation}
+
+\subsection{Chemical network inputs}
+
+The reaction network should provide concentrations or activities of:
+\begin{align}
+    &\mathrm{HCN},\ \mathrm{H_2CO},\ \mathrm{NH_3},\ \mathrm{CO},\
+      \mathrm{CO_2},\ \mathrm{H_2},\ \mathrm{H_2S},\ \mathrm{CH_3SH}, \\
+    &\mathrm{formamide},\ \mathrm{formate},\ \mathrm{acetate},\
+      \mathrm{glyoxylate},\ \mathrm{glycolaldehyde},\
+      \mathrm{pyruvate}, \\
+    &\mathrm{glycine},\ \mathrm{alanine},\ \mathrm{aspartate},\
+      \mathrm{glutamate}, \\
+    &\mathrm{thioacetate},\ \mathrm{acetyl\ phosphate},\
+      \mathrm{aminoacyl\ thioesters}, \\
+    &\mathrm{peptide\ oligomers},\ \mathrm{hetero\ oligomers},\
+      \mathrm{amphiphiles}.
+\end{align}
+
+\section{Central Mechanism: Wet-Dry Concentration and Chemical Trapping}
+
+The difficult step is not only producing organics. The difficult step is
+keeping their concentration high enough, for long enough, to build boundaries.
+Therefore protocell formation should be modeled as a transient environmental
+cycle, not as a simple average-abundance threshold.
+
+The core sequence is:
+\begin{equation}
+    \mathrm{wet/dry\ cycle}
+    \rightarrow
+    \mathrm{concentration\ pulse}
+    \rightarrow
+    \mathrm{amphiphile\ synthesis/assembly}
+    \rightarrow
+    \mathrm{boundary\ closure}
+    \rightarrow
+    \mathrm{chemical\ trapping}
+    \rightarrow
+    \mathrm{outside\ dilution}.
+\end{equation}
+
+\subsection{Water-depth controlled concentration}
+
+Let $h(t)$ be the local water depth in a pond, pore, film, or wet mineral
+surface. If the number of molecules $n_i$ is approximately conserved during
+drying and the wetted area is $A_{\mathrm{pond}}$, then
+\begin{equation}
+    c_i(t)
+    =
+    \frac{n_i(t)}
+    {A_{\mathrm{pond}}h(t)}.
+\end{equation}
+
+If chemistry is slow compared with the drying concentration step, then
+\begin{equation}
+    c_i(t) \propto \frac{1}{h(t)}.
+\end{equation}
+
+This is important because many prebiotic reactions are second order or higher.
+For example, if an amphiphile precursor $L$ forms by
+\begin{equation}
+    A+B\rightarrow L,
+\end{equation}
+then
+\begin{equation}
+    \frac{dc_L}{dt}
+    =
+    k_L(T,\mathrm{pH})c_Ac_B
+    -
+    k_{\mathrm{loss}}c_L.
+\end{equation}
+
+If drying increases both $c_A$ and $c_B$ by a factor $\Gamma$, the production
+term increases as $\Gamma^2$.
+
+\subsection{Explicit wet-dry concentration term}
+
+A minimal local environmental equation is:
+\begin{equation}
+    \frac{dc_i^{\mathrm{ext}}}{dt}
+    =
+    R_i^{\mathrm{env}}(\mathbf{c},T,\mathrm{pH})
+    +
+    S_i^{\mathrm{geo}}
+    -
+    k_{\mathrm{wash}}W(t)c_i^{\mathrm{ext}}
+    -
+    \frac{c_i^{\mathrm{ext}}}{h}
+    \frac{dh}{dt}.
+\end{equation}
+
+The last term is the concentration/dilution term. During drying,
+$dh/dt<0$, so the term is positive. During rehydration, $dh/dt>0$, so the
+term is negative.
+
+A simple periodic water depth can be:
+\begin{equation}
+    h(t)
+    =
+    h_0
+    +
+    \Delta h
+    \cos\left(\frac{2\pi t}{\tau_{\mathrm{cyc}}}\right),
+\end{equation}
+with clipping if needed to avoid negative water depth.
+
+The concentration factor relative to a reference depth $h_0$ is:
+\begin{equation}
+    \Gamma(t) =
+    \frac{h_0}{h(t)}.
+\end{equation}
+
+\subsection{Assembly exposure}
+
+The relevant condition is not merely instantaneous threshold crossing. The
+system must remain above threshold long enough for assembly.
+
+Let $c_L$ be the total concentration of membrane-forming amphiphiles:
+\begin{equation}
+    c_L(r,t) =
+    \sum_{\ell} w_\ell c_{L_\ell}(r,t).
+\end{equation}
+
+Define the accumulated amphiphile assembly exposure:
+\begin{equation}
+    Q_L(r,t)
+    =
+    \int_0^t
+    dt'
+    \max\left[
+    0,\,
+    \frac{c_L(r,t')-c_L^{\mathrm{crit}}}
+    {c_L^{\mathrm{crit}}}
+    \right].
+\end{equation}
+
+Vesicle formation is allowed when:
+\begin{equation}
+    Q_L(r,t) > Q_L^{\mathrm{crit}}.
+\end{equation}
+
+Equivalently, if the concentration is above threshold over a dry interval
+$\Delta t_{\mathrm{asm}}$:
+\begin{equation}
+    \Delta t_{\mathrm{asm}}
+    =
+    \int dt\,
+    \Theta\left[c_L(t)-c_L^{\mathrm{crit}}\right],
+\end{equation}
+then assembly requires:
+\begin{equation}
+    \Delta t_{\mathrm{asm}} \gtrsim \tau_{\mathrm{asm}}.
+\end{equation}
+
+\subsection{Boundary closure traps the chemical state}
+
+If a vesicle forms at $t=t_{\mathrm{form}}$, its initial contents should be
+sampled from the environmental concentration at that time:
+\begin{equation}
+    X_i^k(t_{\mathrm{form}})
+    \sim
+    \mathrm{Poisson}
+    \left[
+    c_i^{\mathrm{ext}}(r_k,t_{\mathrm{form}})V_k^0
+    \right].
+\end{equation}
+
+This is the chemical memory of the dry phase. After rehydration, $h(t)$ rises
+and $c_i^{\mathrm{ext}}$ decreases, but the internal contents do not instantly
+dilute because a boundary exists.
+
+\subsection{Leakage after rehydration}
+
+For a vesicle, passive exchange is:
+\begin{equation}
+    J_i^k =
+    A_k P_i
+    \left[
+    c_i^{\mathrm{ext}}(r_k,t)
+    -
+    c_i^{k,\mathrm{int}}(t)
+    \right].
+\end{equation}
+
+After rehydration,
+\begin{equation}
+    c_i^{\mathrm{ext}} < c_i^{k,\mathrm{int}},
+\end{equation}
+so $J_i^k<0$ and molecules leak out.
+
+The leakage timescale is approximately:
+\begin{equation}
+    \tau_{i,\mathrm{leak}}
+    =
+    \frac{V_k}{A_kP_i}.
+\end{equation}
+
+For a spherical vesicle,
+\begin{align}
+    V_k &= \frac{4}{3}\pi R_k^3, \\
+    A_k &= 4\pi R_k^2,
+\end{align}
+so
+\begin{equation}
+    \tau_{i,\mathrm{leak}}
+    =
+    \frac{R_k}{3P_i}.
+\end{equation}
+
+The trapped enrichment survives if:
+\begin{equation}
+    \tau_{i,\mathrm{leak}}
+    >
+    \tau_{\mathrm{wet}},
+\end{equation}
+or, more generally,
+\begin{equation}
+    \tau_{i,\mathrm{leak}}
+    >
+    \tau_{\mathrm{react,int}}.
+\end{equation}
+
+\subsection{Central timescale window}
+
+The wet-dry mechanism works only inside a timescale window:
+\begin{equation}
+    \tau_{\mathrm{synth},L},\,
+    \tau_{\mathrm{asm}}
+    <
+    \tau_{\mathrm{dry}}
+    <
+    \tau_{\mathrm{leak}}.
+\end{equation}
+
+If the dry phase is too short, amphiphiles do not form or assemble. If the wet
+phase is too long relative to leakage, the trapped chemical memory is erased.
+
+\section{Compartment Classes}
+
+Pores, coacervates, and amphiphile vesicles must be treated as different
+objects. They are all compartments, but they have different boundary physics.
+
+\subsection{Generic compartment}
+
+Define a generic compartment $k$ as:
+\begin{equation}
+    \mathcal{C}_k(t)
+    =
+    \left[
+    \Omega_k(t),
+    \partial\Omega_k(t),
+    r_k(t),
+    V_k(t),
+    \{X_i^k(t)\},
+    B_k
+    \right].
+\end{equation}
+
+Here $\Omega_k$ is the interior region, $\partial\Omega_k$ is the boundary,
+$r_k$ is the position, $V_k$ is the volume, $X_i^k$ is the molecule number of
+species $i$, and $B_k$ is the boundary rule.
+
+\subsection{Mineral pore compartment}
+
+A pore is a fixed environmental compartment. It is not a free protocell.
+
+\begin{equation}
+    \mathcal{C}_j^{\mathrm{pore}}
+    =
+    \left[
+    \Omega_j^{\mathrm{pore}},
+    \partial\Omega_j^{\mathrm{mineral}},
+    V_j,
+    \{c_i^j(t)\},
+    \{S_i^{\mathrm{wall}}\},
+    \{K_{jm}^{(i)}\}
+    \right].
+\end{equation}
+
+The pore equation is:
+\begin{equation}
+    \frac{dc_i^j}{dt}
+    =
+    R_i^{\mathrm{aq}}(\mathbf{c}^j;T_j,\mathrm{pH}_j,\mathrm{redox}_j)
+    +
+    S_i^{\mathrm{wall}}
+    +
+    \sum_m K_{jm}^{(i)}(c_i^m-c_i^j)
+    +
+    S_i^{\mathrm{geo}}
+    -
+    \frac{c_i^j}{h_j}\frac{dh_j}{dt}.
+\end{equation}
+
+The boundary rule is:
+\begin{equation}
+    \partial\Omega_j^{\mathrm{pore}} =
+    \mathrm{mineral\ wall}.
+\end{equation}
+
+Pores are initial geometry. They do not divide and they are not born from the
+chemistry.
+
+\subsection{Coacervate droplet compartment}
+
+A coacervate is a mobile liquid-liquid phase separated droplet. It is a weak
+protocell candidate, but it is not a membrane-bounded protocell.
+
+\begin{equation}
+    \mathcal{C}_k^{\mathrm{coa}}
+    =
+    \left[
+    r_k,
+    R_k,
+    V_k,
+    \phi_k,
+    \{X_i^k\},
+    \{K_i^k\},
+    \{\tau_{i,\mathrm{part}}^k\}
+    \right].
+\end{equation}
+
+Here $\phi_k$ is the dense-phase volume fraction, $K_i^k$ is the partition
+coefficient, and $\tau_{i,\mathrm{part}}^k$ is the exchange/partitioning time.
+
+The boundary rule is:
+\begin{equation}
+    \partial\Omega_k^{\mathrm{coa}}
+    =
+    \mathrm{liquid-liquid\ interface}.
+\end{equation}
+
+The partition coefficient is:
+\begin{equation}
+    K_i^k =
+    \frac{c_i^{k,\mathrm{in}}}{c_i^{\mathrm{ext}}}.
+\end{equation}
+
+If $K_i^k>1$, species $i$ is enriched inside the coacervate. If $K_i^k<1$,
+it is excluded.
+
+Define a local phase-separation score:
+\begin{equation}
+    \Phi_{\mathrm{coa}}(r,t)
+    =
+    \sum_{a\in A}
+    \sum_{b\in B}
+    \alpha_{ab}c_a(r,t)c_b(r,t),
+\end{equation}
+where $A$ and $B$ are phase-separating species classes, for example oppositely
+charged oligomers.
+
+Coacervate formation is allowed when:
+\begin{equation}
+    \Phi_{\mathrm{coa}}(r,t) >
+    \Phi_{\mathrm{coa}}^{\mathrm{crit}}.
+\end{equation}
+
+At formation:
+\begin{equation}
+    X_i^k(t_{\mathrm{form}})
+    \sim
+    \mathrm{Poisson}
+    \left[
+    K_i^k c_i^{\mathrm{ext}}(r_k,t_{\mathrm{form}})V_k
+    \right].
+\end{equation}
+
+After formation:
+\begin{equation}
+    \frac{dc_i^{k,\mathrm{in}}}{dt}
+    =
+    R_i^k(\mathbf{c}^k;T,\mathrm{pH},\mathrm{redox})
+    +
+    \frac{
+    K_i^k c_i^{\mathrm{ext}}(r_k,t)
+    -
+    c_i^{k,\mathrm{in}}
+    }
+    {\tau_{i,\mathrm{part}}^k}.
+\end{equation}
+
+A coacervate retains memory of a dry phase only if:
+\begin{equation}
+    \tau_{i,\mathrm{part}}^k >
+    \tau_{\mathrm{wet}}.
+\end{equation}
+
+\subsection{Amphiphile vesicle protocell}
+
+An amphiphile vesicle is the clean object to call a protocell. It is a mobile
+membrane-bounded compartment with finite permeability.
+
+\begin{equation}
+    \mathcal{P}_k^{\mathrm{ves}}
+    =
+    \left[
+    r_k,
+    R_k,
+    V_k,
+    A_k,
+    N_L^k,
+    \{X_i^k\},
+    \{P_i^k\}
+    \right].
+\end{equation}
+
+The boundary rule is:
+\begin{equation}
+    \partial\Omega_k^{\mathrm{ves}}
+    =
+    \mathrm{amphiphile\ membrane}.
+\end{equation}
+
+The membrane exchange equation is:
+\begin{equation}
+    J_i^k =
+    A_kP_i^k
+    \left[
+    c_i^{\mathrm{ext}}(r_k,t)
+    -
+    c_i^{k,\mathrm{int}}(t)
+    \right],
+\end{equation}
+with
+\begin{equation}
+    c_i^{k,\mathrm{int}} = \frac{X_i^k}{V_k}.
+\end{equation}
+
+For initial radius $R_0$, required amphiphiles are:
+\begin{equation}
+    N_{L,\mathrm{req}} =
+    \frac{4\pi R_0^2}{a_L}
+\end{equation}
+for a monolayer or interface coating, and approximately
+\begin{equation}
+    N_{L,\mathrm{req}} =
+    \frac{8\pi R_0^2}{a_L}
+\end{equation}
+for a bilayer vesicle.
+
+The membrane coverage is:
+\begin{equation}
+    \theta_k =
+    \frac{N_L^k}{N_{L,\mathrm{req}}^k}.
+\end{equation}
+
+The vesicle is stable if:
+\begin{equation}
+    \theta_k \geq \theta_{\min}.
+\end{equation}
+
+If $\theta_k<\theta_{\min}$, the vesicle is leaky or dissolves.
+
+\subsection{Coacervate to vesicle transition}
+
+A coacervate can become amphiphile-stabilized by accumulating amphiphiles at
+its interface:
+\begin{equation}
+    \frac{dN_L^k}{dt}
+    =
+    k_{\mathrm{ads}}A_kc_L^{\mathrm{ext}}
+    -
+    k_{\mathrm{des}}N_L^k
+    +
+    R_L^k.
+\end{equation}
+
+Here $R_L^k$ is internal or interfacial production of amphiphiles. When
+\begin{equation}
+    \theta_k =
+    \frac{N_L^k}{N_{L,\mathrm{req}}^k}
+    \geq 1,
+\end{equation}
+the transition is:
+\begin{equation}
+    \mathcal{C}_k^{\mathrm{coa}}
+    \rightarrow
+    \mathcal{P}_k^{\mathrm{ves}}.
+\end{equation}
+
+\subsection{Comparison}
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+Object & Boundary & Main rule & Interpretation \\
+\midrule
+Pore & mineral wall & exchange + wall catalysis & environmental reactor \\
+Coacervate & liquid-liquid interface & partitioning $K_i$ & weak protocell \\
+Vesicle & amphiphile membrane & permeability $P_i$ & membrane protocell \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Phase 1: Porous Mineral or Ice Compartments}
+
+\subsection{Physical picture}
+
+Before true membranes exist, compartments can be provided by pores, cracks,
+hydrothermal precipitates, pumice-like volcanic rock, clays, or ice eutectic
+channels. These structures do not require amphiphiles. They concentrate
+reactants and keep reaction products near catalytic surfaces.
+
+This phase is important because it gives a physical route to:
+\begin{enumerate}
+    \item local concentration;
+    \item surface catalysis;
+    \item partial isolation;
+    \item reaction-diffusion gradients;
+    \item repeated feeding and flushing.
+\end{enumerate}
+
+\subsection{Pore concentration}
+
+Let a pore have radius $r_p$, length $L_p$, volume $V_p$, and surface area
+$A_p$:
+\begin{align}
+    V_p &= \pi r_p^2 L_p, \\
+    A_p &= 2\pi r_p L_p.
+\end{align}
+
+The surface-to-volume ratio is
+\begin{equation}
+    \frac{A_p}{V_p} = \frac{2}{r_p}.
+\end{equation}
+
+Small pores strongly enhance surface chemistry because $A_p/V_p$ increases as
+$r_p$ decreases.
+
+If a dissolved species $i$ is concentrated by evaporation, freezing, or
+adsorption, write:
+\begin{equation}
+    C_{i,\mathrm{pore}} =
+    \Gamma_{\mathrm{conc}} C_{i,\mathrm{bulk}},
+\end{equation}
+where
+\begin{equation}
+    \Gamma_{\mathrm{conc}}
+    =
+    \Gamma_{\mathrm{wetdry}}
+    \Gamma_{\mathrm{freeze}}
+    \Gamma_{\mathrm{ads}}
+    \Gamma_{\mathrm{flow}}.
+\end{equation}
+
+\subsection{Diffusion and residence time}
+
+For a species with molecular diffusion coefficient $D_i$, the diffusion time
+across a pore of length $L_p$ is
+\begin{equation}
+    t_{\mathrm{diff},i}
+    =
+    \frac{L_p^2}{D_i}.
+\end{equation}
+
+If there is advective flow velocity $u$, the advective residence time is
+\begin{equation}
+    t_{\mathrm{adv}} =
+    \frac{L_p}{u}.
+\end{equation}
+
+The Damkohler number compares reaction and transport:
+\begin{equation}
+    \mathrm{Da}_i =
+    \frac{t_{\mathrm{transport}}}{t_{\mathrm{reaction},i}}.
+\end{equation}
+
+For a first-order reaction with rate constant $k_i$:
+\begin{equation}
+    t_{\mathrm{reaction},i} = \frac{1}{k_i}.
+\end{equation}
+
+Chemistry is efficient inside pores when
+\begin{equation}
+    \mathrm{Da}_i \gtrsim 1.
+\end{equation}
+
+\subsection{Surface-catalyzed rate}
+
+For a mineral-catalyzed reaction
+\begin{equation}
+    A + B \rightarrow C,
+\end{equation}
+use:
+\begin{equation}
+    R_C =
+    k_T f_{\mathrm{pH}} f_I
+    \left(1+\alpha_m S_m\right)
+    C_A C_B.
+\end{equation}
+
+The temperature factor is:
+\begin{equation}
+    k_T = A_0 \exp\left(-\frac{E_a}{RT}\right).
+\end{equation}
+
+The pH window can be represented by:
+\begin{equation}
+    f_{\mathrm{pH}}
+    =
+    \exp\left[-\left(\frac{\mathrm{pH}-\mathrm{pH}_{\mathrm{opt}}}
+    {\sigma_{\mathrm{pH}}}\right)^2\right].
+\end{equation}
+
+\subsection{Pore compartment viability criterion}
+
+A porous compartment is chemically useful if:
+\begin{align}
+    \Gamma_{\mathrm{conc}} &> 1, \\
+    \mathrm{Da}_{\mathrm{key}} &\gtrsim 1, \\
+    S_m(X) &> S_{\mathrm{min}}, \\
+    t_{\mathrm{res}} &> t_{\mathrm{polymerization}}, \\
+    T_{\mathrm{env}} &\in [T_{\mathrm{min}},T_{\mathrm{max}}].
+\end{align}
+
+This gives a computable Boolean:
+\begin{equation}
+    \mathcal{P}_{\mathrm{pore}} =
+    \Theta(\Gamma_{\mathrm{conc}}-1)
+    \Theta(\mathrm{Da}_{\mathrm{key}}-1)
+    \Theta(S_m-S_{\mathrm{min}})
+    \Theta(t_{\mathrm{res}}-t_{\mathrm{poly}}).
+\end{equation}
+
+\section{Phase 2: Solid Compartments and Surface-Bound Networks}
+
+\subsection{Physical picture}
+
+Solid compartments are not closed cells. They are reaction domains where
+molecules are adsorbed on mineral or ice surfaces. Examples include clay
+interlayers, FeS/NiS hydrothermal precipitates, phosphate-rich surfaces, silica
+surfaces, volcanic rock pores, and ice grain boundaries.
+
+This phase can support reaction networks before membranes exist.
+
+\subsection{Adsorption equilibrium}
+
+For adsorption of species $i$ onto a surface $S$:
+\begin{equation}
+    i + S \rightleftharpoons iS.
+\end{equation}
+
+A Langmuir model gives:
+\begin{equation}
+    \theta_i =
+    \frac{K_i C_i}{1+\sum_j K_j C_j},
+\end{equation}
+where $\theta_i$ is fractional surface coverage.
+
+The adsorbed concentration is:
+\begin{equation}
+    C_{i,S} =
+    \theta_i S_{\mathrm{site}},
+\end{equation}
+where $S_{\mathrm{site}}$ is the concentration of reactive surface sites.
+
+\subsection{Surface polymerization}
+
+For monomer addition on a surface:
+\begin{equation}
+    P_nS + M \rightarrow P_{n+1}S,
+\end{equation}
+use:
+\begin{equation}
+    \frac{dC_{P_{n+1},S}}{dt}
+    =
+    k_{\mathrm{surf}}(T,\mathrm{pH},I)
+    C_{P_n,S} C_M
+    -
+    k_{\mathrm{hyd}}(T,\mathrm{pH})
+    C_{P_{n+1},S}.
+\end{equation}
+
+For peptide-like growth:
+\begin{equation}
+    \mathrm{pep}_n + \mathrm{AA}^{*}
+    \rightarrow
+    \mathrm{pep}_{n+1} + \mathrm{leaving\ group},
+\end{equation}
+where $\mathrm{AA}^{*}$ is an activated amino acid such as an aminoacyl
+thioester or aminoacyl phosphate.
+
+\subsection{Surface retention versus loss}
+
+Surface compartments matter only if useful products are retained long enough.
+For adsorbed polymer $P_n$:
+\begin{equation}
+    \frac{dC_{P_n,S}}{dt}
+    =
+    R_{\mathrm{form}}
+    -
+    R_{\mathrm{hyd}}
+    -
+    k_{\mathrm{des}} C_{P_n,S}
+    -
+    k_{\mathrm{flush}} C_{P_n,S}.
+\end{equation}
+
+The retention condition is:
+\begin{equation}
+    k_{\mathrm{form}}
+    >
+    k_{\mathrm{hyd}} + k_{\mathrm{des}} + k_{\mathrm{flush}}.
+\end{equation}
+
+\section{Phase 3: Coacervate Compartments}
+
+\subsection{Physical picture}
+
+Coacervates are liquid-liquid phase separated droplets. They can form from
+oppositely charged polymers, peptides, nucleotides, polyions, or mixed organic
+polymers. They are not lipid membranes, but they can concentrate solutes and
+create chemically distinct microenvironments.
+
+For LIFEORIG, coacervates are useful as an intermediate between surface-bound
+chemistry and amphiphilic vesicles.
+
+\subsection{Phase separation criterion}
+
+Let $\phi$ be the polymer volume fraction and $\chi$ an effective interaction
+parameter. A simple Flory-Huggins free energy density is:
+\begin{equation}
+    \frac{\Delta G_{\mathrm{mix}}}{k_BT}
+    =
+    \frac{\phi}{N}\ln\phi
+    +
+    (1-\phi)\ln(1-\phi)
+    +
+    \chi \phi(1-\phi),
+\end{equation}
+where $N$ is the polymerization degree.
+
+Phase separation is possible when:
+\begin{equation}
+    \frac{\partial^2 \Delta G_{\mathrm{mix}}}{\partial \phi^2} < 0.
+\end{equation}
+
+The spinodal condition is:
+\begin{equation}
+    \frac{1}{N\phi} + \frac{1}{1-\phi} - 2\chi < 0.
+\end{equation}
+
+Therefore a rough threshold is:
+\begin{equation}
+    \chi >
+    \frac{1}{2}
+    \left[
+    \frac{1}{N\phi} + \frac{1}{1-\phi}
+    \right].
+\end{equation}
+
+\subsection{Salt and pH dependence}
+
+Coacervation depends strongly on ionic strength and charge state. Represent
+the effective interaction parameter as:
+\begin{equation}
+    \chi_{\mathrm{eff}}
+    =
+    \chi_0
+    +
+    \chi_{\mathrm{charge}}(\mathrm{pH})
+    -
+    \chi_I I.
+\end{equation}
+
+Polymer charge can be approximated from acid-base groups:
+\begin{equation}
+    q(\mathrm{pH})
+    =
+    \sum_a
+    \frac{-1}{1+10^{pK_{a,a}-\mathrm{pH}}}
+    +
+    \sum_b
+    \frac{+1}{1+10^{\mathrm{pH}-pK_{a,b}}}.
+\end{equation}
+
+Coacervate stability is favored when oppositely charged species coexist:
+\begin{equation}
+    q_1(\mathrm{pH}) q_2(\mathrm{pH}) < 0.
+\end{equation}
+
+\subsection{Partitioning into droplets}
+
+For species $i$, define a partition coefficient:
+\begin{equation}
+    K_i^{\mathrm{coac}}
+    =
+    \frac{C_{i,\mathrm{droplet}}}{C_{i,\mathrm{bulk}}}.
+\end{equation}
+
+Reaction rates inside coacervates use:
+\begin{equation}
+    C_{i,\mathrm{local}} =
+    K_i^{\mathrm{coac}} C_{i,\mathrm{bulk}}.
+\end{equation}
+
+Thus, for a reaction $A+B\rightarrow C$:
+\begin{equation}
+    R_{C,\mathrm{coac}}
+    =
+    k(T,\mathrm{pH},I)
+    K_A^{\mathrm{coac}} K_B^{\mathrm{coac}}
+    C_{A,\mathrm{bulk}} C_{B,\mathrm{bulk}}.
+\end{equation}
+
+\subsection{Droplet growth}
+
+Let $R_d$ be droplet radius. If growth is controlled by uptake of material
+from solution:
+\begin{equation}
+    \frac{dR_d}{dt}
+    =
+    \frac{D}{R_d}
+    \left(
+    \frac{C_{\infty}-C_{\mathrm{eq}}}{\rho_d}
+    \right).
+\end{equation}
+
+Coarsening can be represented by a Lifshitz-Slyozov-like law:
+\begin{equation}
+    R_d^3(t) - R_d^3(0) = K_{\mathrm{LSW}} t.
+\end{equation}
+
+\subsection{Coacervate viability criterion}
+
+Coacervates are viable chemical compartments if:
+\begin{align}
+    \chi_{\mathrm{eff}} &> \chi_{\mathrm{crit}}, \\
+    K_i^{\mathrm{coac}} &> 1
+    \quad \mathrm{for\ key\ feedstocks/catalysts}, \\
+    t_{\mathrm{life,droplet}} &> t_{\mathrm{reaction}}, \\
+    k_{\mathrm{leak}} &< k_{\mathrm{production}}
+    \quad \mathrm{for\ retained\ products}.
+\end{align}
+
+\section{Phase 4: Amphiphilic Vesicles and True Protocells}
+
+\subsection{Physical picture}
+
+An amphiphilic protocell is a compartment bounded by a membrane-like assembly:
+fatty acid vesicles, mixed amphiphile vesicles, lipid-like membranes, or
+related structures. This is closer to a true protocell because it provides
+encapsulation, selective permeability, growth, division, and inheritance of
+internal chemistry.
+
+The key transition is:
+\begin{equation}
+    \mathrm{compartment}
+    +
+    \mathrm{chemical\ network}
+    +
+    \mathrm{growth/division}
+    \rightarrow
+    \mathrm{protocell}.
+\end{equation}
+
+\subsection{Amphiphile production threshold}
+
+Let $C_A$ be total amphiphile concentration. Vesicles require:
+\begin{equation}
+    C_A > \mathrm{CMC},
+\end{equation}
+where CMC is the critical micelle/aggregate concentration.
+
+The CMC depends on temperature, pH, ionic strength, and amphiphile chain
+length:
+\begin{equation}
+    \mathrm{CMC}
+    =
+    \mathrm{CMC}_0
+    \exp\left[
+    \frac{\Delta G_{\mathrm{agg}}(T,\mathrm{pH},I,N_c)}
+    {RT}
+    \right].
+\end{equation}
+
+Here $N_c$ is the hydrocarbon chain length or an equivalent hydrophobicity
+index.
+
+\subsection{Vesicle geometry}
+
+For a spherical vesicle of radius $R_v$:
+\begin{align}
+    V_v &= \frac{4}{3}\pi R_v^3, \\
+    A_v &= 4\pi R_v^2.
+\end{align}
+
+If each amphiphile occupies membrane area $a_0$, the number of amphiphiles in
+one leaflet is:
+\begin{equation}
+    N_{\mathrm{leaflet}} =
+    \frac{4\pi R_v^2}{a_0}.
+\end{equation}
+
+A bilayer vesicle has approximately:
+\begin{equation}
+    N_{\mathrm{amp}} \approx
+    \frac{8\pi R_v^2}{a_0}.
+\end{equation}
+
+\subsection{Encapsulation statistics}
+
+If a solute has concentration $C_i$, the expected number of molecules inside a
+vesicle is:
+\begin{equation}
+    \lambda_i = C_i N_A V_v.
+\end{equation}
+
+The probability that the vesicle contains at least one molecule of $i$ is:
+\begin{equation}
+    P(N_i\geq 1) = 1-\exp(-\lambda_i).
+\end{equation}
+
+For an autocatalytic set requiring species $i=1,\ldots,m$, assuming independent
+encapsulation:
+\begin{equation}
+    P_{\mathrm{set}}
+    =
+    \prod_{i=1}^{m}
+    \left[1-\exp(-C_i N_A V_v)\right].
+\end{equation}
+
+This connects directly to the idea that autocatalysis requires a sufficient
+number of molecules. If $C_i N_A V_v \ll 1$, most vesicles do not contain the
+required species.
+
+\subsection{Membrane permeability}
+
+For solute $i$, membrane flux is:
+\begin{equation}
+    J_i =
+    P_i \left(C_{i,\mathrm{out}}-C_{i,\mathrm{in}}\right),
+\end{equation}
+where $P_i$ is permeability. The concentration change inside a vesicle is:
+\begin{equation}
+    \frac{dC_{i,\mathrm{in}}}{dt}
+    =
+    \frac{A_v}{V_v}
+    P_i
+    \left(C_{i,\mathrm{out}}-C_{i,\mathrm{in}}\right)
+    +
+    R_{i,\mathrm{internal}}.
+\end{equation}
+
+Because
+\begin{equation}
+    \frac{A_v}{V_v} = \frac{3}{R_v},
+\end{equation}
+small vesicles exchange molecules faster than large vesicles.
+
+\subsection{Osmotic pressure}
+
+The osmotic pressure difference is:
+\begin{equation}
+    \Delta \Pi =
+    RT
+    \sum_i
+    \left(
+    C_{i,\mathrm{in}} - C_{i,\mathrm{out}}
+    \right).
+\end{equation}
+
+Membrane tension due to pressure difference can be estimated by Laplace's law:
+\begin{equation}
+    \Delta P =
+    \frac{2\gamma}{R_v},
+\end{equation}
+where $\gamma$ is membrane tension. Vesicle rupture or division can occur when
+$\gamma$ exceeds a critical tension $\gamma_c$.
+
+\subsection{Growth}
+
+If amphiphiles are supplied from the environment, membrane area grows as:
+\begin{equation}
+    \frac{dA_v}{dt}
+    =
+    a_0 J_A A_v,
+\end{equation}
+where $J_A$ is the net amphiphile insertion flux per unit membrane area.
+
+For spherical vesicles:
+\begin{equation}
+    \frac{dR_v}{dt}
+    =
+    \frac{a_0 J_A R_v}{2}.
+\end{equation}
+
+Internal chemistry grows if:
+\begin{equation}
+    \frac{dN_{\mathrm{cat}}}{dt}
+    =
+    R_{\mathrm{cat}} V_v
+    -
+    k_{\mathrm{loss}}N_{\mathrm{cat}}
+    >
+    0.
+\end{equation}
+
+\subsection{Division}
+
+A simple division criterion can be based on surface-to-volume imbalance. If
+membrane area grows faster than volume:
+\begin{equation}
+    \frac{dA_v/A_v}{dt}
+    >
+    \frac{2}{3}
+    \frac{dV_v/V_v}{dt},
+\end{equation}
+the vesicle becomes geometrically unstable.
+
+A phenomenological division rate can be written:
+\begin{equation}
+    k_{\mathrm{div}}
+    =
+    k_0
+    \Theta(A_v-A_{\mathrm{crit}})
+    \Theta(\gamma-\gamma_{\mathrm{crit}}).
+\end{equation}
+
+\section{Autocatalysis and Catalysis Probability}
+
+\subsection{Molecule-number criterion}
+
+For a catalytic polymer species $P$, the expected copy number in a compartment
+of volume $V_c$ is:
+\begin{equation}
+    \lambda_P = C_P N_A V_c.
+\end{equation}
+
+The probability that the compartment contains at least $N_{\mathrm{min}}$
+copies is:
+\begin{equation}
+    P(N_P \geq N_{\mathrm{min}})
+    =
+    1 -
+    \sum_{n=0}^{N_{\mathrm{min}}-1}
+    \frac{\lambda_P^n e^{-\lambda_P}}{n!}.
+\end{equation}
+
+\subsection{Catalysis probability}
+
+Let a polymer of length $n$ have probability
+\begin{equation}
+    p_{\mathrm{cat}}(n,c)
+\end{equation}
+of catalyzing reaction class $c$. A first parameterization is:
+\begin{equation}
+    p_{\mathrm{cat}}(n,c)
+    =
+    p_{0,c}
+    \left[
+    1-\exp\left(-\frac{n-n_{\min,c}}{n_{0,c}}\right)
+    \right]
+    \Theta(n-n_{\min,c}).
+\end{equation}
+
+The effective catalyzed rate for reaction $r$ is:
+\begin{equation}
+    R_r =
+    R_{r,0}
+    \left[
+    1 +
+    \sum_P
+    \alpha_{rP}
+    p_{\mathrm{cat}}(n_P,c_r)
+    N_P
+    \right].
+\end{equation}
+
+\subsection{Autocatalytic closure criterion}
+
+A reaction set is autocatalytic if there exists a subset $\mathcal{S}$ such
+that:
+\begin{enumerate}
+    \item every reaction in $\mathcal{S}$ is catalyzed by at least one molecule
+    produced by $\mathcal{S}$;
+    \item every reactant can be made from the food set plus products of
+    $\mathcal{S}$.
+\end{enumerate}
+
+Computationally, define a catalysis matrix:
+\begin{equation}
+    K_{ij} =
+    \begin{cases}
+    1, & \mathrm{species\ } i \mathrm{\ catalyzes\ reaction\ } j, \\
+    0, & \mathrm{otherwise}.
+    \end{cases}
+\end{equation}
+
+Define stoichiometry matrix $\nu_{ij}$:
+\begin{equation}
+    \frac{dC_i}{dt}
+    =
+    \sum_j \nu_{ij} R_j(C,T,\mathrm{pH},I).
+\end{equation}
+
+Autocatalytic growth is detected when a positive eigenvalue appears in the
+linearized production operator around the feedstock state:
+\begin{equation}
+    \max \mathrm{Re}\left[\lambda
+    \left(
+    \frac{\partial \dot{C}}{\partial C}
+    \right)\right] > 0.
+\end{equation}
+
+\section{Transitions Between Phases}
+
+\subsection{Pores to coacervates}
+
+The transition from pore chemistry to coacervates requires sufficient polymer
+production and phase separation:
+\begin{align}
+    C_{\mathrm{poly}} &> C_{\mathrm{LLPS}}, \\
+    \chi_{\mathrm{eff}} &> \chi_{\mathrm{crit}}, \\
+    K_i^{\mathrm{coac}} &> 1
+    \quad \mathrm{for\ catalytic\ species}.
+\end{align}
+
+\subsection{Pores or coacervates to amphiphilic vesicles}
+
+The transition to vesicles requires amphiphile production:
+\begin{align}
+    C_A &> \mathrm{CMC}, \\
+    T_{\mathrm{env}} &\in [T_{\mathrm{mem,min}},T_{\mathrm{mem,max}}], \\
+    \mathrm{pH} &\in [\mathrm{pH}_{\mathrm{mem,min}},
+                     \mathrm{pH}_{\mathrm{mem,max}}], \\
+    I &< I_{\mathrm{destabilize}}.
+\end{align}
+
+\subsection{Vesicle to protocell}
+
+A vesicle becomes protocell-like when it couples internal chemistry to
+compartment growth:
+\begin{align}
+    P_{\mathrm{set}} &> P_{\mathrm{min}}, \\
+    \frac{dN_{\mathrm{cat}}}{dt} &> 0, \\
+    \frac{dA_v}{dt} &> 0, \\
+    k_{\mathrm{div}} &> 0, \\
+    \mathrm{heritability} &> h_{\mathrm{min}}.
+\end{align}
+
+Here heritability can be defined operationally as the correlation between
+parent and daughter catalytic composition:
+\begin{equation}
+    h =
+    \mathrm{corr}
+    \left(
+    \mathbf{N}_{\mathrm{cat,parent}},
+    \mathbf{N}_{\mathrm{cat,daughter}}
+    \right).
+\end{equation}
+
+\section{Minimal Dynamical Model}
+
+For each compartment type $c$, evolve:
+\begin{align}
+    \frac{dC_i^{(c)}}{dt}
+    &=
+    \sum_j \nu_{ij} R_j^{(c)}
+    +
+    \frac{A_c}{V_c}
+    P_i^{(c)}
+    \left(C_i^{\mathrm{env}}-C_i^{(c)}\right)
+    -
+    k_{\mathrm{loss},i}^{(c)} C_i^{(c)}, \\
+    \frac{dV_c}{dt}
+    &=
+    G_c(C,T,\mathrm{pH},I,a_w), \\
+    \frac{dN_c}{dt}
+    &=
+    k_{\mathrm{birth}}^{(c)}N_c
+    -
+    k_{\mathrm{death}}^{(c)}N_c.
+\end{align}
+
+For pores, $V_c$ is usually fixed. For coacervates, $V_c$ changes by phase
+separation and coarsening. For vesicles, $V_c$ and membrane area evolve through
+amphiphile uptake, osmotic pressure, and division.
+
+\section{Implementation Pathway}
+
+\subsection{Step 1: define a ProtocellEnvironmentState}
+
+The state should contain:
+\begin{align}
+    T,\ P,\ \mathrm{pH},\ I,\ a_w,\ F_{\mathrm{UV}},
+    \Phi_{\mathrm{wetdry}},\ \Phi_{\mathrm{freeze}},
+    S_m(X),\ C_i.
+\end{align}
+
+\subsection{Step 2: evaluate compartment availability}
+
+Compute:
+\begin{align}
+    \mathcal{P}_{\mathrm{pore}},\quad
+    \mathcal{P}_{\mathrm{surface}},\quad
+    \mathcal{P}_{\mathrm{coac}},\quad
+    \mathcal{P}_{\mathrm{vesicle}}.
+\end{align}
+
+These are not final probabilities at first. They can start as Boolean
+viability flags.
+
+\subsection{Step 3: run chemistry inside each viable compartment}
+
+For each viable compartment:
+\begin{equation}
+    \frac{d\mathbf{C}^{(c)}}{dt}
+    =
+    \mathbf{S}\mathbf{R}^{(c)}
+    +
+    \mathbf{F}_{\mathrm{exchange}}^{(c)}
+    -
+    \mathbf{L}^{(c)}.
+\end{equation}
+
+\subsection{Step 4: test autocatalytic threshold}
+
+Track:
+\begin{align}
+    N_{\mathrm{polymer}},\quad
+    P_{\mathrm{set}},\quad
+    p_{\mathrm{cat}},\quad
+    \max \mathrm{Re}(\lambda).
+\end{align}
+
+The first computational success condition is not ``life''. It is:
+\begin{equation}
+    \mathrm{persistent\ compartmentalized\ autocatalytic\ chemistry}.
+\end{equation}
+
+\section{Reference Starting Points}
+
+The following literature is useful for model construction:
+\begin{itemize}
+    \item Deamer and Dworkin: chemistry and physics of amphiphilic
+    compartments and prebiotic membranes.
+    \item Szostak and collaborators: fatty-acid vesicles, protocell growth,
+    membrane permeability, and encapsulation.
+    \item Hanczyc, Fujikawa, and Szostak: experimental growth and division of
+    fatty-acid vesicles.
+    \item Monnard and Deamer: membrane self-assembly under prebiotic
+    conditions.
+    \item Budin and Szostak: physical effects of membrane composition and
+    competition between protocells.
+    \item Koga, Williams, Perriman, and Mann: protocell models based on
+    coacervates and phase-separated droplets.
+    \item Dora Tang and collaborators: coacervates, protocell droplets, and
+    biochemical compartmentalization.
+    \item Martin, Russell, and collaborators: alkaline hydrothermal vents,
+    mineral compartments, and geochemical energy gradients.
+    \item Kauffman: autocatalytic sets and collective autocatalysis.
+    \item Hordijk and Steel: RAF theory for autocatalytic reaction networks.
+\end{itemize}
+
+\section{Working Interpretation}
+
+The sequence to test in LIFEORIG should be:
+\begin{equation}
+    \mathrm{pores/surfaces}
+    \rightarrow
+    \mathrm{polymer\ enrichment}
+    \rightarrow
+    \mathrm{coacervate\ or\ vesicle\ compartment}
+    \rightarrow
+    \mathrm{autocatalytic\ chemistry}
+    \rightarrow
+    \mathrm{growth/division}.
+\end{equation}
+
+For surface volcanic environments, wet/dry pore and vesicle pathways are
+probably most relevant. For hydrothermal vents, mineral pore and surface-bound
+networks are the natural first compartment. For icy ocean worlds, eutectic ice
+channels and hydrothermal pore compartments may be more plausible than surface
+pond vesicles, unless there is local exposure, brine cycling, or impact/thermal
+processing.
+
+\end{document}

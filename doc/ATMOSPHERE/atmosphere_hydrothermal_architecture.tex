@@ -1,0 +1,454 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue
+}
+
+\lstdefinestyle{code}{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible
+}
+\lstset{style=code}
+
+\title{Atmosphere, Surface Water, and Hydrothermal Environment Architecture}
+\author{LIFEORIG working notes}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+This note summarizes the current architecture discussion for connecting
+planetary parameters, stellar forcing, atmospheric disequilibrium chemistry,
+surface water availability, and possible hydrothermal vent environments.
+
+The main design principle is:
+
+\begin{quote}
+The physical solver should use physical parameters and computed states. World
+labels such as Earth-like, super-Earth, mini-Neptune, ocean world, or Titan-like
+should be assigned only after the solver produces its result.
+\end{quote}
+
+\section{Relevant Code Paths}
+
+\begin{description}[leftmargin=3.7cm]
+  \item[Input parser] \texttt{src/input\_data/read\_input.py}
+  \item[Chemistry input/result data] \texttt{src/chemical\_env/chem\_env\_data.py}
+  \item[Chemistry dispatcher] \texttt{src/chemical\_env/chemical\_environment.py}
+  \item[Atmosphere solver driver] \texttt{src/atmosphere\_solver/atm\_struct\_driver.py}
+  \item[Planet data] \texttt{src/planet\_params/planetary\_params.py}
+  \item[Stellar data] \texttt{src/stellar\_params/stellar\_data.py}
+  \item[Black-body radiation] \texttt{src/stellar\_params/black\_body\_radiation.py}
+  \item[Stellar spectrum plot] \texttt{src/utilities/plot\_stellar\_spectrum.py}
+  \item[Volcanic-rock water model] \texttt{src/environment/volcanic\_rocks/water\_level.py}
+  \item[pH estimator] \texttt{src/environment/pH\_estimate.py}
+  \item[Atmosphere test runner] \texttt{TEST\_SCRIPTS/run\_atmdyn\_solver.sh}
+  \item[Titan test runner] \texttt{TEST\_SCRIPTS/run\_titan.sh}
+\end{description}
+
+\section{Input Files and Modes}
+
+\subsection{Atmospheric disequilibrium input}
+
+The script
+
+\begin{lstlisting}
+TEST_SCRIPTS/run_atmdyn_solver.sh
+\end{lstlisting}
+
+writes a full \texttt{input.json} into:
+
+\begin{lstlisting}
+TESTS/ATMOSPHERE/input.json
+\end{lstlisting}
+
+The relevant chemistry mode is:
+
+\begin{lstlisting}
+"exo_chemistry": {
+    "mode": "layered_disequilibrium",
+    "atomic_abundances": {
+        "H": 1.0,
+        "He": 0.1,
+        "C": 1e-4,
+        "O": 5e-3,
+        "N": 1e-5
+    }
+}
+\end{lstlisting}
+
+The stellar input currently contains:
+
+\begin{lstlisting}
+"stellar_data": {
+    "spectral_class": "G2V",
+    "star_temperature": { "value": 5778, "units": "K" },
+    "star_radius": { "value": 6.957e8, "units": "m" }
+}
+\end{lstlisting}
+
+The stellar radius is given in meters because Pint did not recognize
+\texttt{solar\_radius} in the input. The value \texttt{6.957e8 m} is the nominal
+solar radius.
+
+\section{Current Architecture}
+
+\subsection{Input parsing}
+
+\texttt{read\_input.py} parses:
+
+\begin{itemize}
+  \item planetary parameters into \texttt{PlanetaryEnvironmentParams};
+  \item stellar parameters into \texttt{StellarParams};
+  \item local environment parameters into \texttt{local\_env\_data};
+  \item chemistry input into \texttt{ChemEnvInput}.
+\end{itemize}
+
+The summaries should belong to their data objects. Therefore
+\texttt{PlanetaryEnvironmentParams} and \texttt{StellarParams} expose summary
+methods, and \texttt{read\_input.py} only calls those methods.
+
+\subsection{Chemistry dispatcher}
+
+\texttt{SimulateChemEnv} dispatches chemistry modes:
+
+\begin{lstlisting}
+if mode == "local_equilibrium":
+    run EasyChem
+if mode == "layered_disequilibrium":
+    run AtmosphSolver
+\end{lstlisting}
+
+The desired separation is:
+
+\begin{itemize}
+  \item \texttt{ChemEnvInput} remains chemistry-oriented.
+  \item Stellar data is needed by the atmospheric solver, not by local
+        equilibrium chemistry.
+  \item \texttt{AtmosphSolver} consumes the stellar object when computing
+        radiation.
+\end{itemize}
+
+\section{Stellar Black-Body Radiation}
+
+The black-body spectral radiance is implemented in:
+
+\begin{lstlisting}
+src/stellar_params/black_body_radiation.py
+\end{lstlisting}
+
+The function is:
+
+\begin{lstlisting}
+blackbody_B_lambda(wavelength, temperature)
+\end{lstlisting}
+
+It returns Planck spectral radiance:
+
+\[
+B_{\lambda}(T) =
+\frac{2hc^2}{\lambda^5}
+\frac{1}{\exp\left(\frac{hc}{\lambda k_B T}\right)-1}
+\]
+
+with units:
+
+\[
+\mathrm{W \, m^{-3} \, sr^{-1}}.
+\]
+
+\subsection{Stellar flux at the planet}
+
+In \texttt{AtmosphSolver}, the stellar intensity is evaluated over a wavelength
+grid:
+
+\begin{lstlisting}
+self.wavelength_grid = Q_(np.linspace(100.0, 1000.0, 1000), "nanometer")
+self.stellar_B_lambda = self.stellar_data.B_lambda(self.wavelength_grid)
+\end{lstlisting}
+
+The range \(100-1000\) nm covers UV, visible, and near-infrared. It is a good
+first range for a Sun-like star, but it does not include the full infrared.
+
+The base spectral flux at orbital distance is:
+
+\[
+F_{0,\lambda}
+= \Omega_\star B_\lambda(T_\star)
+\left(\frac{R_\star}{a}\right)^2,
+\]
+
+where the solid angle factor cancels the steradian in \(B_\lambda\). In code,
+this is represented by multiplying by a solid-angle quantity:
+
+\begin{lstlisting}
+stellar_disk_solid_angle = Q_(np.pi, "steradian")
+self.F0 = (
+    stellar_disk_solid_angle
+    * self.stellar_B_lambda
+    * (self.stellar_data.radius / self.planet_data.orbital_distance) ** 2
+).to("W / AU**2 / m")
+\end{lstlisting}
+
+The intended unit for \texttt{F0} is:
+
+\[
+\mathrm{W \, AU^{-2} \, m^{-1}},
+\]
+
+because it has been integrated over solid angle.
+
+\section{Atmospheric Solver Output}
+
+The atmosphere solver should eventually produce a structured atmospheric result,
+including:
+
+\begin{itemize}
+  \item wavelength grid and stellar forcing;
+  \item atmospheric layers;
+  \item pressure and temperature profile;
+  \item chemistry per atmospheric layer;
+  \item surface temperature and pressure;
+  \item surface partial pressures, especially \(p_{\mathrm{H_2O}}\);
+  \item surface water phase and water availability.
+\end{itemize}
+
+The solver should be independent of labels such as ``Earth-like'' or ``ocean
+world''. Those labels are diagnostics assigned after the physical state is
+computed.
+
+\section{World Classification}
+
+After the atmosphere dynamics is solved, world type can be assigned from final
+computed quantities:
+
+\begin{itemize}
+  \item planet mass and radius;
+  \item bulk density or inferred volatile envelope;
+  \item surface temperature and pressure;
+  \item atmospheric composition;
+  \item water partial pressure;
+  \item liquid/ice/vapor water state;
+  \item estimated surface water coverage.
+\end{itemize}
+
+The classifier should not control the solver. Instead:
+
+\begin{lstlisting}
+solver output -> classifier -> label
+\end{lstlisting}
+
+Example labels:
+
+\begin{itemize}
+  \item dry rocky world;
+  \item wet rocky world;
+  \item Earth-like;
+  \item super-Earth;
+  \item water world;
+  \item ice world;
+  \item steam world;
+  \item mini-Neptune;
+  \item Titan-like methane world.
+\end{itemize}
+
+\section{Surface Water and Volcanic Rocks}
+
+The volcanic-rock water model is in:
+
+\begin{lstlisting}
+src/environment/volcanic_rocks/water_level.py
+\end{lstlisting}
+
+The intended split is:
+
+\begin{itemize}
+  \item the atmosphere solver computes surface atmospheric/surface water state;
+  \item \texttt{water\_level.py} maps that state into local volcanic-rock water
+        availability.
+\end{itemize}
+
+At present, \texttt{water\_level.py} estimates a water factor from atmospheric
+\(\mathrm{H_2O}\) partial pressure:
+
+\begin{lstlisting}
+derive_atmospheric_h2o_water_factor(...)
+\end{lstlisting}
+
+This is a downstream consumer. It should not solve the atmosphere.
+
+\section{pH Estimation}
+
+The pH estimator lives in:
+
+\begin{lstlisting}
+src/environment/pH_estimate.py
+\end{lstlisting}
+
+Its purpose is to estimate water pH from chemistry if liquid water is available,
+including volcanic-rock settings and later hydrothermal settings.
+
+The current first-order logic is:
+
+\begin{itemize}
+  \item consume partial pressures from a \texttt{ChemEnvResult};
+  \item dissolve acid/base gases with Henry-law approximations;
+  \item estimate acid/base contributions to \([\mathrm{H^+}]\) or
+        \([\mathrm{OH^-}]\);
+  \item return a \texttt{pHResult}.
+\end{itemize}
+
+Current species include:
+
+\begin{itemize}
+  \item \(\mathrm{CO_2}\), acid;
+  \item \(\mathrm{NH_3}\), base;
+  \item \(\mathrm{H_2S}\), acid.
+\end{itemize}
+
+\section{Aqueous/Ocean Chemistry Backend}
+
+For ocean or hydrothermal chemistry, the suitable backend is not EasyChem.
+EasyChem is for gas-phase atmospheric equilibrium.
+
+The practical aqueous/geochemical backend should be PHREEQC, likely through
+\texttt{phreeqpy}, or later Reaktoro if a heavier backend is needed.
+
+The backend input should include:
+
+\begin{itemize}
+  \item temperature;
+  \item pressure if needed;
+  \item pH guess;
+  \item redox state, \(pe\) or \(Eh\);
+  \item dissolved totals or species concentrations;
+  \item gas partial pressures for gas-water exchange;
+  \item minerals and phases for water-rock interaction.
+\end{itemize}
+
+The planned coupling is iterative:
+
+\begin{enumerate}
+  \item atmosphere solver computes surface chemistry;
+  \item pH estimator gives an initial pH guess;
+  \item aqueous backend computes consistent aqueous speciation and pH;
+  \item updated aqueous chemistry feeds back into the environment model;
+  \item repeat until pH and composition converge.
+\end{enumerate}
+
+\section{Hydrothermal Vent Model}
+
+Hydrothermal vents should be modeled as a gradient between two reservoirs.
+
+\subsection{Ambient ocean reservoir}
+
+Inputs come from atmosphere/surface/ocean coupling:
+
+\begin{itemize}
+  \item \(T_{\mathrm{ocean}}\);
+  \item \(P_{\mathrm{ocean}}\);
+  \item \(pH_{\mathrm{ocean}}\);
+  \item dissolved species;
+  \item redox state;
+  \item gas exchange with the atmosphere.
+\end{itemize}
+
+\subsection{Vent reservoir}
+
+Inputs come from geophysics and water-rock interaction assumptions:
+
+\begin{itemize}
+  \item \(T_{\mathrm{vent}}\);
+  \item \(P_{\mathrm{vent}}\);
+  \item \(pH_{\mathrm{vent}}\);
+  \item reduced species such as \(\mathrm{H_2}\), \(\mathrm{CH_4}\),
+        \(\mathrm{H_2S}\);
+  \item metal and mineral chemistry such as Fe, Mg, Si, sulfides;
+  \item rock/mineral phases;
+  \item flow rate and water-rock ratio.
+\end{itemize}
+
+\subsection{Gradients}
+
+The vent can be approximated as a one-dimensional reactive channel:
+
+\[
+T(x) = T_{\mathrm{ocean}} +
+\left(T_{\mathrm{vent}} - T_{\mathrm{ocean}}\right)
+\exp(-x/L_T),
+\]
+
+\[
+pH(x) = pH_{\mathrm{ocean}} +
+\left(pH_{\mathrm{vent}} - pH_{\mathrm{ocean}}\right)
+\exp(-x/L_{pH}),
+\]
+
+\[
+C_i(x) = C_{i,\mathrm{ocean}} +
+\left(C_{i,\mathrm{vent}} - C_{i,\mathrm{ocean}}\right)
+\exp(-x/L_i).
+\]
+
+The crucial physical contrasts are:
+
+\begin{itemize}
+  \item \(T_{\mathrm{vent}} - T_{\mathrm{ocean}}\), mostly geophysics;
+  \item \(pH_{\mathrm{vent}} - pH_{\mathrm{ocean}}\), mostly composition and
+        water-rock chemistry;
+  \item redox contrast between reduced vent fluid and ambient ocean.
+\end{itemize}
+
+\section{Titan Methane Pool Notes}
+
+The Titan local environment should represent a methane pool, not water.
+The pool should have:
+
+\begin{itemize}
+  \item methane solvent data;
+  \item a time-dependent methane level;
+  \item a spatial pool profile function stored in local environment data.
+\end{itemize}
+
+The current profile function lives in:
+
+\begin{lstlisting}
+src/environment/pool_spatial_profile.py
+\end{lstlisting}
+
+The plotting utility for this profile is:
+
+\begin{lstlisting}
+src/utilities/plot_titan_pool_profile.py
+\end{lstlisting}
+
+\section{Near-Term Implementation Order}
+
+Recommended order:
+
+\begin{enumerate}
+  \item Finish the atmosphere solver structure: layers, stellar forcing, pressure
+        and temperature profile.
+  \item Produce a clear surface state from the atmosphere solver.
+  \item Use \texttt{pH\_estimate.py} to estimate pH when water is present.
+  \item Feed atmosphere-derived water state into
+        \texttt{volcanic\_rocks/water\_level.py}.
+  \item Add an aqueous chemistry backend driver, likely PHREEQC.
+  \item Add hydrothermal vent inputs as ocean and vent reservoirs.
+  \item Add a classifier that labels the final world type after solving.
+\end{enumerate}
+
+\end{document}

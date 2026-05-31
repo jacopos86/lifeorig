@@ -1,0 +1,337 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs,longtable,array}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\newcommand{\ch}[1]{\mbox{\texttt{#1}}}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\title{Environment-Specific Prebiotic Reaction Networks for LIFEORIG}
+\author{LIFEORIG working model specification}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+The previous \texttt{PREBIOTIC} reference file,
+\texttt{prebiotic\_polymer\_autocatalytic\_network\_v2.txt}, is best treated
+as a master scaffold, not as a single universal chemistry.  Early Earth
+settings differ too strongly in energy source, phase structure, pH, pressure,
+mineralogy, transport, and concentration mechanism for one reaction list to be
+used without environmental filtering.  I therefore created three sibling
+environment-specific networks:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Environment & File & Number of reactions \\
+\midrule
+Hydrothermal vent &
+\texttt{reference\_reactions/HYDRO\_VENT/hydro\_vent\_reaction\_network\_v1.txt} &
+165 \\
+Surface pond &
+\texttt{reference\_reactions/SURFACE\_POND/surface\_pond\_reaction\_network\_v1.txt} &
+175 \\
+Volcanic rock &
+\texttt{reference\_reactions/VOLCANIC\_ROCK\_ENV/volcanic\_rock\_reaction\_network\_v1.txt} &
+170 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+These are not validated kinetic mechanisms.  They are literature-guided,
+explicit, environment-conditioned hypothesis networks for simulation and
+comparison.  Each line stores a reaction or lumped pathway, catalyst/control,
+rate-law template, role, references, and confidence flag.
+
+\section{Core Modeling Decision}
+
+The correct comparison is not
+\begin{quote}
+one generic prebiotic network under different temperatures.
+\end{quote}
+
+The correct comparison is
+\begin{quote}
+a shared reaction library filtered into environment-specific active networks,
+with different food sets, catalysts, kinetic modifiers, and loss terms.
+\end{quote}
+
+The overlap is chemically meaningful.  For example, \ch{HCN}, formamide,
+glycolonitrile, aminoacetonitrile, glycine, phosphate species, and short
+peptides can appear in more than one setting.  But the way they are produced,
+stabilized, destroyed, and concentrated is environment-specific.
+
+\section{Environment Distinctions}
+
+\begin{longtable}{p{0.22\linewidth}p{0.24\linewidth}p{0.24\linewidth}p{0.22\linewidth}}
+\toprule
+Feature & Hydrothermal vent & Surface pond & Volcanic rock environment \\
+\midrule
+Dominant energy &
+Redox disequilibrium, thermal gradients, pH gradients, fluid flow &
+UV, evaporation, freezing/eutectic concentration, wet-dry cycles &
+Volcanic heat, UV, gas deposition, wet-dry films, gas-rock redox \\
+Dominant phase &
+High-pressure aqueous pore/fluid system &
+Shallow aqueous surface, air-water and ice-water interfaces &
+Thin films on basalt, glass, ash, clay, sulfides, and pores \\
+Primary catalysts &
+\ch{FeS}, \ch{NiS}, magnetite, brucite, silica, pore barriers &
+UV, sulfite/sulfide photoredox, clay, borate, phosphate minerals &
+Basaltic glass, olivine alteration products, clay, \ch{FeS}, \ch{NiS},
+magnetite, ash surfaces \\
+Concentration mechanism &
+Pore retention, adsorption, vent-ocean mixing, ice-interface HCN input &
+Evaporation, freezing, surface enrichment, sediment adsorption &
+Evaporating rock films, pore trapping, ash/glass adsorption, thermal cycling \\
+Major losses &
+Advection/dilution, hydrolysis, thermal degradation, oxidant mixing &
+Photolysis, volatilization, washout, tar formation, precipitation &
+Volatilization, runoff, thermal degradation, fouling, hydrolysis \\
+\bottomrule
+\end{longtable}
+
+\section{Hydrothermal Vent Network}
+
+The hydrothermal network emphasizes PHREEQC-controlled geochemistry and a
+separate organic kinetic layer.  Acid-base equilibria, carbonate/sulfide/
+phosphate speciation, mineral saturation, and precipitation should mostly be
+handled by PHREEQC.  The organic layer then uses PHREEQC outputs as activities,
+pH, ionic strength, redox state, and mineral surface availability.
+
+The vent network has these main modules:
+\begin{itemize}
+\item geochemical speciation and precipitation: carbonate, sulfide, ammonia,
+phosphate, \ch{FeS}, \ch{NiS}, magnetite, brucite, silica;
+\item serpentinization and water-rock redox: \ch{H2} generation, methanation,
+magnetite/brucite formation;
+\item C1 fixation and sulfur carbonyl chemistry: formate, CO, COS,
+formamide, thioformyl intermediates;
+\item thioester and acetyl-phosphate activation: thioacetate,
+acetyl phosphate, acyl transfer, hydrolysis losses;
+\item central carboxylate and reductive amination chemistry: glyoxylate,
+pyruvate, oxaloacetate, succinate, amino acids;
+\item peptide, lipid, mineral-surface, transport, and degradation modules;
+\item a warm HCN/ice-interface subnetwork from Das, Ghule, and Vanka, included
+only as a boundary/interface branch rather than as the core vent chemistry.
+\end{itemize}
+
+Important examples include:
+\begin{verbatim}
+CO2 + H2 -> HCOO- + H+
+CO2 + HS- + H+ -> COS + H2O
+CO + CH3SH -> CH3COSR
+CH3COSR + Pi -> acetyl_phosphate + RSH
+glyoxylate + NH3 + H2 -> glycine + H2O
+\end{verbatim}
+
+\section{Surface Pond Network}
+
+The surface pond network is the strongest home for HCN, UV, photoredox,
+wet-dry, and freezing chemistry.  It should be used for shallow ponds,
+lakeshores, tidal lagoons, ice/eutectic brines, and evaporating surface pools.
+Unlike vents, it explicitly includes UV photolysis and atmospheric deposition as
+first-class feedstock processes.
+
+Its main modules are:
+\begin{itemize}
+\item atmospheric delivery of \ch{HCN}, \ch{H2CO}, \ch{NH3}, \ch{SO2},
+\ch{H2S}, metals, phosphate, and meteoritic organics;
+\item UV and sulfite/sulfide photoredox chemistry;
+\item HCN oligomerization, formamide chemistry, nucleobase precursors;
+\item formose chemistry with borate stabilization;
+\item Strecker and reductive-amination amino-acid chemistry;
+\item phosphate activation and wet-dry peptide/oligonucleotide condensation;
+\item fatty-acid vesicle formation and wet-dry compartment cycling;
+\item thermal aqueous HCN chemistry from Das, Ghule, and Vanka.
+\end{itemize}
+
+The Das--Ghule--Vanka paper is especially relevant here because it argues that
+\ch{HCN} and water alone can generate key RNA/protein precursors under
+approximately 80--100 \(^\circ\)C thermal aqueous conditions, with water or
+ammonia acting as proton shuttles and without requiring metal catalysts.
+Reactions added from that subnetwork include:
+\begin{verbatim}
+HCN + H2O -> formamide
+formamide + H2O -> formic_acid + NH3
+formic_acid -> CO + H2O
+HCN + H2O -> formaldimine
+formaldimine + HCN -> aminoacetonitrile
+aminoacetonitrile + 2H2O -> glycine + NH3
+urea -> cyanamide + H2O
+formamide + glycolonitrile -> amino_oxazole_derivative + H2O
+\end{verbatim}
+
+\section{Volcanic Rock Network}
+
+The volcanic rock network is not simply a dry version of the surface pond.  It
+is centered on rock films, ash beds, basaltic glass, volcanic gases, fumarolic
+inputs, heat pulses, and mineral surfaces.  It includes some HCN and wet-dry
+chemistry, but the boundary conditions are gas-rock-film and thermal cycling,
+not open pond photochemistry alone.
+
+Its main modules are:
+\begin{itemize}
+\item volcanic gas input: \ch{CO2}, CO, \ch{H2}, \ch{H2S}, \ch{SO2}, COS,
+\ch{HCN}, \ch{H2CO}, \ch{NH3}, NOx;
+\item basaltic glass, olivine, ash, clay, apatite, carbonate, and sulfide
+weathering;
+\item sulfur-carbonyl and Fe/Ni sulfide surface chemistry;
+\item C1/C2 reduction and carboxylate formation in thin films;
+\item HCN/nitrile, formose, Strecker, and thermal HCN-water branches;
+\item dry heat, wet-dry, mineral-surface peptide and nucleotide polymerization;
+\item fatty-acid film rehydration, vesicle formation, and pore transport/loss.
+\end{itemize}
+
+Volcanic rock settings therefore bridge atmospheric/surface chemistry and
+mineral redox chemistry.  They can receive atmospheric HCN and formaldehyde,
+but also offer \ch{FeS}/\ch{NiS}, magnetite, basalt glass, phosphate minerals,
+and dry thermal activation.
+
+\section{How To Use These Networks}
+
+For computation, the recommended path is:
+\begin{enumerate}
+\item Treat each file as an environment-specific candidate network.
+\item Parse reaction IDs, modules, reactants, products, controls, references,
+and confidence flags.
+\item Build a food set from the environment solver: atmosphere, hydrology,
+PHREEQC, rock weathering, gas fluxes, UV, and mineral availability.
+\item Activate reactions only when required feedstocks and environmental
+controls exist.
+\item Use PHREEQC for geochemical equilibria and mineral saturation where
+flagged; use custom kinetics for organic nonequilibrium pathways.
+\item Compare networks by reachable products, autocatalytic closure,
+feedstock cost, robustness to losses, and overlap with extant metabolic motifs.
+\end{enumerate}
+
+\section{Immediate Caveats}
+
+These networks are intentionally large, but they should not be mistaken for
+rate-validated mechanisms.  The confidence flags are important.  High-confidence
+entries are generally speciation, hydrolysis, adsorption, precipitation, or
+well-established feedstock transformations.  Medium-confidence entries are
+plausible prebiotic transformations with literature support but uncertain
+environmental yield.  Low-confidence entries are useful hypothesis links,
+coarse-grained pathways, or autocatalytic/protocell test rules.
+
+\section{References}
+
+\begin{thebibliography}{99}
+
+\bibitem{miller1953}
+S. L. Miller,
+A production of amino acids under possible primitive Earth conditions,
+\emph{Science}, 1953, 117, 528--529.
+
+\bibitem{ferris1984}
+J. P. Ferris and W. J. Hagan,
+HCN and chemical evolution: the possible role of cyano compounds in prebiotic synthesis,
+\emph{Tetrahedron}, 1984, 40, 1093--1120.
+
+\bibitem{powner2009}
+M. W. Powner, B. Gerland, and J. D. Sutherland,
+Synthesis of activated pyrimidine ribonucleotides in prebiotically plausible conditions,
+\emph{Nature}, 2009, 459, 239--242.
+
+\bibitem{ritson2012}
+D. Ritson and J. D. Sutherland,
+Prebiotic synthesis of simple sugars by photoredox systems chemistry,
+\emph{Nature Chemistry}, 2012, 4, 895--899.
+
+\bibitem{patel2015}
+B. H. Patel, C. Percivalle, D. J. Ritson, C. D. Duffy, and J. D. Sutherland,
+Common origins of RNA, protein and lipid precursors in a cyanosulfidic protometabolism,
+\emph{Nature Chemistry}, 2015, 7, 301--307.
+
+\bibitem{das2019}
+T. Das, S. Ghule, and K. Vanka,
+Insights into the origin of life: did it begin from HCN and H2O?,
+\emph{ACS Central Science}, 2019, 5, 1532--1540.
+\url{https://doi.org/10.1021/acscentsci.9b00520}
+
+\bibitem{fabian2014}
+B. Fabian, M. Szori, and P. Jedlovszky,
+Floating patches of HCN at the surface of their aqueous solutions,
+\emph{Journal of Physical Chemistry C}, 2014, 118, 21469--21482.
+
+\bibitem{szori2014}
+M. Szori and P. Jedlovszky,
+Adsorption of HCN at the surface of ice,
+\emph{Journal of Physical Chemistry C}, 2014, 118, 3599--3609.
+
+\bibitem{martinRussell2007}
+W. Martin and M. J. Russell,
+On the origin of biochemistry at an alkaline hydrothermal vent,
+\emph{Philosophical Transactions of the Royal Society B}, 2007, 362, 1887--1925.
+
+\bibitem{sojo2016}
+V. Sojo, B. Herschy, A. Whicher, E. Camprubi, and N. Lane,
+The origin of life in alkaline hydrothermal vents,
+\emph{Astrobiology}, 2016, 16, 181--197.
+
+\bibitem{herschy2014}
+B. Herschy et al.,
+An origin-of-life reactor to simulate alkaline hydrothermal vents,
+\emph{Journal of Molecular Evolution}, 2014, 79, 213--227.
+
+\bibitem{huber1997}
+C. Huber and G. Wachtershauser,
+Activated acetic acid by carbon fixation on (Fe,Ni)S under primordial conditions,
+\emph{Science}, 1997, 276, 245--247.
+
+\bibitem{cody2000}
+G. D. Cody et al.,
+Primordial carbonylated iron-sulfur compounds and the synthesis of pyruvate,
+\emph{Science}, 2000, 289, 1337--1340.
+
+\bibitem{whicher2018}
+A. Whicher et al.,
+Acetyl phosphate as a primordial energy currency at the origin of life,
+\emph{Origins of Life and Evolution of Biospheres}, 2018, 48, 159--179.
+
+\bibitem{mccollom2007}
+T. M. McCollom and J. S. Seewald,
+Abiotic synthesis of organic compounds in deep-sea hydrothermal environments,
+\emph{Chemical Reviews}, 2007, 107, 382--401.
+
+\bibitem{deamer2017}
+D. W. Deamer,
+The role of lipid membranes in life's origin,
+\emph{Life}, 2017, 7, 5.
+
+\bibitem{damer2020}
+B. Damer and D. Deamer,
+The hot spring hypothesis for an origin of life,
+\emph{Astrobiology}, 2020, 20, 429--452.
+
+\bibitem{ferris1996}
+J. P. Ferris, A. R. Hill, R. Liu, and L. E. Orgel,
+Synthesis of long prebiotic oligomers on mineral surfaces,
+\emph{Nature}, 1996, 381, 59--61.
+
+\bibitem{ricardo2004}
+A. Ricardo, M. A. Carrigan, A. N. Olcott, and S. A. Benner,
+Borate minerals stabilize ribose,
+\emph{Science}, 2004, 303, 196.
+
+\bibitem{parkhurst2013}
+D. L. Parkhurst and C. A. J. Appelo,
+Description of input and examples for PHREEQC version 3,
+U.S. Geological Survey Techniques and Methods, 2013.
+\url{https://water.usgs.gov/water-resources/software/PHREEQC/}
+
+\end{thebibliography}
+
+\end{document}
