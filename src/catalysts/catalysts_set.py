@@ -1,5 +1,6 @@
 import numpy as np
-from src.input.read_input import p
+from src.input_data.read_input import p
+from src.utilities.logging_module import log
 from scipy.stats import truncnorm
 import pytest
 
@@ -37,6 +38,56 @@ def set_inital_catalyst_set(X_set, rates_params):
             catalyst_set.append(i)
     '''
     return rr_ACFset_dict, rr_extset_dict
+
+def build_catalyst_set(X_set, catalyst_params, normalize=True):
+    """
+    Select catalyst molecules from X_set based on a length distribution.
+
+    Parameters
+    ----------
+    X_set : list[Molecule]
+        set of all molecules
+    catalyst_params : dict
+        {
+            "distribution": "gaussian",
+            "center": float,
+            "std": float
+        }
+    normalize : bool
+        whether to normalize probabilities
+
+    Returns
+    -------
+    Y set: set of all possible catalysts
+    """
+    dist_type = catalyst_params.get("distribution", "gaussian")
+    lengths = np.array([len(mol) for mol in X_set])
+    # --- compute weights ---
+    if dist_type == "gaussian":
+        center = catalyst_params.get("center")
+        L0 = lengths[center]
+        std = catalyst_params.get("std")
+        weights = np.exp(- (lengths - L0)**2 / (2 * std**2))
+    else:
+        log.error(f"Unknown distribution: {dist_type}")
+    # --- normalize ---
+    if normalize:
+        weights = weights / weights.sum()
+    # --- sample exactly n catalysts ---
+    indices = np.random.choice(
+        len(X_set),
+        size=catalyst_params.get("set_size"),
+        replace=False,
+        p=weights
+    )
+    catalyst_set = [X_set[i] for i in indices]
+    log.info("\n")
+    log.info("\t CATALYST SET: \n")
+    for X in X_set:
+        if X in catalyst_set:
+            log.info(f"\t {X.show_sequence()}")
+    log.info("\t " + p.sep)
+    return catalyst_set
 
 #
 #  set catalysts prob. distr.
