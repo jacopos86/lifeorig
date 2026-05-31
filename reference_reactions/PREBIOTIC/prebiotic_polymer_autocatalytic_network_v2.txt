@@ -1,0 +1,771 @@
+# Prebiotic polymer/autocatalytic reaction network v2
+# Purpose:
+#   Rule-based, environment-coupled network for testing whether planetary
+#   feedstocks can generate catalytic polymers and autocatalytic closure.
+#
+# Status:
+#   Hypothesis network. It is not a validated kinetic mechanism.
+#   It is designed to be computationally useful: each reaction/rule has
+#   reactants, products, catalysts, conditions, and an environment-dependent
+#   rate law template.
+#
+# Environmental variables expected from atmosphere/geochemistry:
+#   T                 temperature [K]
+#   P                 pressure [Pa]
+#   pH                aqueous pH from PHREEQC
+#   I                 ionic strength from PHREEQC
+#   UV                local UV photon/photolysis intensity
+#   redox             redox proxy, e.g. H2/CO2, Fe2+/Fe3+, HS-/SO4
+#   aw                water activity or wet/dry concentration factor
+#   S_mineral[X]      reactive surface area for mineral X
+#   C[X]              concentration/activity of species X
+#
+# General rate-law templates:
+#   Arrhenius:
+#       k_T = A * exp(-Ea / (R*T))
+#
+#   pH window:
+#       f_pH = exp(-((pH - pH_opt)/sigma_pH)^2)
+#
+#   acid/base catalysis:
+#       f_acid_base = 1 + aH * 10^(-pH) + aOH * 10^(pH-14)
+#
+#   mineral catalysis:
+#       f_min = 1 + alpha_min * S_mineral[mineral]
+#
+#   polymer catalysis:
+#       f_poly = 1 + alpha_poly(N, sequence_class) * C[polymer]
+#
+#   wet/dry concentration:
+#       f_wetdry = aw_factor or cycle_factor
+#
+#   photolysis:
+#       rate = J_i(T,P,z) * C[i]
+#
+#   generic catalyzed mass action:
+#       rate = k_T * f_pH * f_I * f_condition * product(C[reactants])
+#            * (1 + sum_j alpha_j * C[catalyst_j])
+#
+# Species classes:
+#   FEEDSTOCKS:
+#       HCN, H2CO, NH3, CO, CO2, H2, H2S, HS-, CH3SH, phosphate, H2O
+#
+#   SMALL ORGANICS:
+#       formamide, formate, acetate, glyoxylate, glycolaldehyde, glyceraldehyde,
+#       pyruvate, oxaloacetate, succinate, malate, fumarate, alpha_ketoglutarate
+#
+#   AMINO ACID PRECURSORS:
+#       glycinonitrile, alaninonitrile, aspartate_nitrile
+#
+#   AMINO ACIDS:
+#       glycine, alanine, aspartate, glutamate
+#
+#   ENERGY / ACTIVATED SPECIES:
+#       thioacetate, acetyl_phosphate, aminoacyl_thioester[AA],
+#       aminoacyl_phosphate[AA]
+#
+#   POLYMERS:
+#       pep[sequence]               peptide oligomer
+#       hcn_oligo[n]                HCN oligomer
+#       formose_oligo[n]            sugar/formaldehyde oligomer
+#       hetero_oligo[n]             mixed N/O/C organic oligomer
+#
+#   MINERALS / SURFACES:
+#       FeS, NiS, FeOOH, clay, phosphate_surface, mineral_polymer_complex
+#
+# Condition sets:
+#   K01_ATMOS_PHOTOLYSIS:
+#       gas/aerosol/surface interface; UV present; uses atmospheric UV attenuation.
+#
+#   K02_HCN_POND:
+#       concentrated HCN/NH3/H2CO in surface pond/eutectic/drying environment;
+#       T=273-350 K; pH neutral-alkaline; wet/dry or freezing concentration.
+#
+#   K03_FORMOSE_ALKALINE:
+#       H2CO-rich pond; pH alkaline; divalent ions/minerals; T=273-350 K.
+#
+#   K04_STRECKER_AQUEOUS:
+#       aldehydes + HCN + NH3; moderate pH; T=273-373 K.
+#
+#   K05_THIOESTER_HYDROTHERMAL:
+#       CO/CO2 + H2/HS-/CH3SH + FeS/NiS; reducing; T=300-650 K.
+#
+#   K06_WET_DRY_POLYMERIZATION:
+#       surface pond / volcanic rock / drying mineral surface; T=280-380 K.
+#
+#   K07_HYDROTHERMAL_CARBOXYLATE:
+#       ocean-rock interface; high P; FeS/NiS; CO2/CO/H2; T=350-650 K.
+#
+#   K08_POLYMER_CATALYSIS_TEST:
+#       kinetic box for autocatalytic threshold tests; polymer catalysts active
+#       with probability p_cat(N, class).
+#
+###############################################################################
+# MODULE A: ATMOSPHERIC / SURFACE FEEDSTOCK PRODUCTION
+###############################################################################
+
+R001
+section: feedstock_photolysis
+condition: K01_ATMOS_PHOTOLYSIS
+reactants: CH4
+products: CH3; H
+catalysts: hnu
+rate_law: rate = J_CH4 * C[CH4]
+dependencies: UV; tau_UV; atmosphere_composition
+role: radical carbon source
+
+R002
+section: feedstock_photolysis
+condition: K01_ATMOS_PHOTOLYSIS
+reactants: NH3
+products: NH2; H
+catalysts: hnu
+rate_law: rate = J_NH3 * C[NH3]
+dependencies: UV; tau_UV
+role: reduced nitrogen radical source
+
+R003
+section: feedstock_photolysis
+condition: K01_ATMOS_PHOTOLYSIS
+reactants: H2O
+products: OH; H
+catalysts: hnu
+rate_law: rate = J_H2O * C[H2O]
+dependencies: UV; tau_UV
+role: radical/redox source
+
+R004
+section: feedstock_photolysis
+condition: K01_ATMOS_PHOTOLYSIS
+reactants: CO2
+products: CO; O
+catalysts: hnu
+rate_law: rate = J_CO2 * C[CO2]
+dependencies: UV; tau_UV
+role: CO source
+
+R005
+section: hydrothermal_feedstock
+condition: K05_THIOESTER_HYDROTHERMAL
+reactants: CO2; H2
+products: CO; H2O
+catalysts: FeS; NiS
+rate_law: Arrhenius * f_min(FeS,NiS) * C[CO2] * C[H2]
+dependencies: T; P; pH; redox; S_mineral[FeS]; S_mineral[NiS]
+role: CO feedstock from CO2 reduction
+
+R006
+section: hydrothermal_feedstock
+condition: K07_HYDROTHERMAL_CARBOXYLATE
+reactants: CO2; H2
+products: formate
+catalysts: FeS; NiS
+rate_law: Arrhenius * f_min(FeS,NiS) * f_pH * C[CO2] * C[H2]
+dependencies: T; P; pH; redox
+role: C1 carboxylate entry
+
+R007
+section: hydrothermal_feedstock
+condition: K05_THIOESTER_HYDROTHERMAL
+reactants: CO; H2S
+products: HCSH
+catalysts: FeS; NiS
+rate_law: Arrhenius * f_min(FeS,NiS) * C[CO] * C[H2S]
+dependencies: T; P; pH; HS-; redox
+role: thiocarbonyl precursor
+
+R008
+section: hydrothermal_feedstock
+condition: K05_THIOESTER_HYDROTHERMAL
+reactants: CO; NH3
+products: formamide
+catalysts: FeS; NiS
+rate_law: Arrhenius * f_min(FeS,NiS) * C[CO] * C[NH3]
+dependencies: T; P; pH
+role: formamide source
+
+###############################################################################
+# MODULE B: HCN OLIGOMERIZATION AND NITRILE CHEMISTRY
+###############################################################################
+
+R020
+section: HCN_oligomerization
+condition: K02_HCN_POND
+reactants: HCN; HCN
+products: hcn_oligo[2]
+catalysts: base_sites; clay
+rate_law: Arrhenius * f_pH_alkaline * f_wetdry * C[HCN]^2 * f_min(clay)
+dependencies: T; pH; aw; S_mineral[clay]
+role: HCN dimer seed
+
+R021
+section: HCN_oligomerization
+condition: K02_HCN_POND
+reactants: hcn_oligo[n]; HCN
+products: hcn_oligo[n+1]
+catalysts: base_sites; clay; hcn_oligo[n]
+rate_law: Arrhenius * f_pH_alkaline * f_wetdry * C[hcn_oligo[n]] * C[HCN] * f_poly(hcn_oligo[n])
+dependencies: T; pH; aw; n; C[hcn_oligo[n]]
+role: HCN polymer growth with possible self-enhancement
+
+R022
+section: HCN_oligomerization
+condition: K02_HCN_POND
+reactants: hcn_oligo[4]
+products: diaminomaleonitrile
+catalysts: UV; mineral_surface
+rate_law: Arrhenius * f_UV * f_min * C[hcn_oligo[4]]
+dependencies: UV; T; mineral_surface
+role: DAMN-like HCN tetramer product
+
+R023
+section: HCN_oligomerization
+condition: K02_HCN_POND
+reactants: diaminomaleonitrile; hnu
+products: diaminofumaronitrile
+catalysts: UV
+rate_law: J_DAMN * C[diaminomaleonitrile]
+dependencies: UV; tau_UV
+role: photoisomerization to activated nitrile
+
+R024
+section: HCN_oligomerization
+condition: K02_HCN_POND
+reactants: diaminomaleonitrile; HCN
+products: aminoimidazole_carbonitrile
+catalysts: UV; clay
+rate_law: Arrhenius * f_UV * f_min(clay) * C[diaminomaleonitrile] * C[HCN]
+dependencies: UV; T; pH; clay
+role: heterocycle precursor
+
+R025
+section: HCN_oligomerization
+condition: K02_HCN_POND
+reactants: aminoimidazole_carbonitrile; HCN
+products: adenine
+catalysts: UV; heat; clay
+rate_law: Arrhenius * f_UV * f_min(clay) * C[aminoimidazole_carbonitrile] * C[HCN]
+dependencies: UV; T; pH; clay
+role: nucleobase-like product
+
+R026
+section: HCN_hydrolysis
+condition: K02_HCN_POND
+reactants: hcn_oligo[2]; H2O
+products: aminoacetamide
+catalysts: acid_sites; base_sites
+rate_law: Arrhenius * f_acid_base * C[hcn_oligo[2]] * C[H2O]
+dependencies: T; pH; aw
+role: amino acid precursor
+
+R027
+section: HCN_hydrolysis
+condition: K02_HCN_POND
+reactants: aminoacetamide; H2O
+products: glycine; NH3
+catalysts: acid_sites; base_sites
+rate_law: Arrhenius * f_acid_base * C[aminoacetamide] * C[H2O]
+dependencies: T; pH
+role: glycine production from HCN chemistry
+
+###############################################################################
+# MODULE C: FORMALDEHYDE / FORMOSE POLYMERIZATION
+###############################################################################
+
+R040
+section: formose
+condition: K03_FORMOSE_ALKALINE
+reactants: H2CO; H2CO
+products: glycolaldehyde
+catalysts: base_sites; Ca2+; clay
+rate_law: Arrhenius * f_pH_alkaline * f_I * f_min(clay) * C[H2CO]^2
+dependencies: T; pH; I; Ca2+; clay
+role: formose seed
+
+R041
+section: formose
+condition: K03_FORMOSE_ALKALINE
+reactants: glycolaldehyde; H2CO
+products: glyceraldehyde
+catalysts: base_sites; Ca2+; clay
+rate_law: Arrhenius * f_pH_alkaline * C[glycolaldehyde] * C[H2CO]
+dependencies: T; pH; I
+role: sugar growth
+
+R042
+section: formose
+condition: K03_FORMOSE_ALKALINE
+reactants: glyceraldehyde
+products: dihydroxyacetone
+catalysts: base_sites
+rate_law: Arrhenius * f_pH_alkaline * C[glyceraldehyde]
+dependencies: T; pH
+role: sugar isomer pool
+
+R043
+section: formose
+condition: K03_FORMOSE_ALKALINE
+reactants: glycolaldehyde; glycolaldehyde
+products: tetrose
+catalysts: base_sites; clay
+rate_law: Arrhenius * f_pH_alkaline * f_min(clay) * C[glycolaldehyde]^2
+dependencies: T; pH; clay
+role: oligomer growth
+
+R044
+section: formose
+condition: K03_FORMOSE_ALKALINE
+reactants: tetrose
+products: glycolaldehyde; glycolaldehyde
+catalysts: base_sites
+rate_law: Arrhenius * f_pH_alkaline * C[tetrose]
+dependencies: T; pH
+role: regenerates formose catalyst
+
+R045
+section: formose
+condition: K03_FORMOSE_ALKALINE
+reactants: H2CO; glycolaldehyde
+products: glycolaldehyde; glycolaldehyde
+catalysts: base_sites; Ca2+; clay
+rate_law: Arrhenius * f_pH_alkaline * f_min(clay) * C[H2CO] * C[glycolaldehyde]
+dependencies: T; pH; I; clay
+role: explicit formose autocatalytic step
+
+R046
+section: formose_polymer
+condition: K03_FORMOSE_ALKALINE
+reactants: formose_oligo[n]; H2CO
+products: formose_oligo[n+1]
+catalysts: base_sites; clay; formose_oligo[n]
+rate_law: Arrhenius * f_pH_alkaline * f_wetdry * C[formose_oligo[n]] * C[H2CO] * f_poly(formose_oligo[n])
+dependencies: T; pH; aw; n
+role: polymer growth with self-enhancement
+
+###############################################################################
+# MODULE D: STRECKER AND AMINO ACID PRODUCTION
+###############################################################################
+
+R060
+section: Strecker
+condition: K04_STRECKER_AQUEOUS
+reactants: H2CO; HCN; NH3
+products: glycinonitrile; H2O
+catalysts: acid_sites; base_sites; clay; pep[n>=2]
+rate_law: Arrhenius * f_acid_base * C[H2CO] * C[HCN] * C[NH3] * (1 + alpha_pep*C[pep[n>=2]])
+dependencies: T; pH; I; peptide_concentration
+role: glycine precursor
+
+R061
+section: Strecker
+condition: K04_STRECKER_AQUEOUS
+reactants: glycinonitrile; H2O; H2O
+products: glycine; NH3
+catalysts: acid_sites; base_sites; pep[n>=2]
+rate_law: Arrhenius * f_acid_base * C[glycinonitrile] * C[H2O]^2 * (1 + alpha_pep*C[pep[n>=2]])
+dependencies: T; pH; peptide_concentration
+role: glycine production
+
+R062
+section: Strecker
+condition: K04_STRECKER_AQUEOUS
+reactants: CH3CHO; HCN; NH3
+products: alaninonitrile; H2O
+catalysts: acid_sites; base_sites; clay; pep[n>=2]
+rate_law: Arrhenius * f_acid_base * C[CH3CHO] * C[HCN] * C[NH3] * (1 + alpha_pep*C[pep[n>=2]])
+dependencies: T; pH; I; peptide_concentration
+role: alanine precursor
+
+R063
+section: Strecker
+condition: K04_STRECKER_AQUEOUS
+reactants: alaninonitrile; H2O; H2O
+products: alanine; NH3
+catalysts: acid_sites; base_sites; pep[n>=2]
+rate_law: Arrhenius * f_acid_base * C[alaninonitrile] * C[H2O]^2 * (1 + alpha_pep*C[pep[n>=2]])
+dependencies: T; pH; peptide_concentration
+role: alanine production
+
+R064
+section: reductive_amination
+condition: K07_HYDROTHERMAL_CARBOXYLATE
+reactants: pyruvate; NH3; H2
+products: alanine; H2O
+catalysts: FeS; NiS
+rate_law: Arrhenius * f_min(FeS,NiS) * f_redox * C[pyruvate] * C[NH3] * C[H2]
+dependencies: T; P; pH; redox; S_mineral
+role: hydrothermal amino acid source
+
+R065
+section: reductive_amination
+condition: K07_HYDROTHERMAL_CARBOXYLATE
+reactants: glyoxylate; NH3; H2
+products: glycine; H2O
+catalysts: FeS; NiS
+rate_law: Arrhenius * f_min(FeS,NiS) * f_redox * C[glyoxylate] * C[NH3] * C[H2]
+dependencies: T; P; pH; redox
+role: hydrothermal glycine source
+
+###############################################################################
+# MODULE E: CARBOXYLATE AND ACETYL/THIOESTER CORE
+###############################################################################
+
+R080
+section: carboxylate_core
+condition: K07_HYDROTHERMAL_CARBOXYLATE
+reactants: CO2; H2
+products: formate
+catalysts: FeS; NiS
+rate_law: Arrhenius * f_min(FeS,NiS) * f_redox * C[CO2] * C[H2]
+dependencies: T; P; pH; redox
+role: C1 fixation
+
+R081
+section: carboxylate_core
+condition: K07_HYDROTHERMAL_CARBOXYLATE
+reactants: formate; CO
+products: glyoxylate
+catalysts: FeS; NiS
+rate_law: Arrhenius * f_min(FeS,NiS) * C[formate] * C[CO]
+dependencies: T; P; pH; CO
+role: C2 carboxylate source
+
+R082
+section: carboxylate_core
+condition: K07_HYDROTHERMAL_CARBOXYLATE
+reactants: glyoxylate; acetate
+products: malate
+catalysts: FeS; NiS; clay
+rate_law: Arrhenius * f_min * C[glyoxylate] * C[acetate]
+dependencies: T; P; pH; mineral_surface
+role: C4 carboxylate growth
+
+R083
+section: carboxylate_core
+condition: K07_HYDROTHERMAL_CARBOXYLATE
+reactants: malate
+products: fumarate; H2O
+catalysts: mineral_surface
+rate_law: Arrhenius * f_min * C[malate]
+dependencies: T; P; pH
+role: rTCA-like dehydration
+
+R084
+section: carboxylate_core
+condition: K07_HYDROTHERMAL_CARBOXYLATE
+reactants: fumarate; H2
+products: succinate
+catalysts: FeS; NiS
+rate_law: Arrhenius * f_min(FeS,NiS) * f_redox * C[fumarate] * C[H2]
+dependencies: T; P; redox
+role: reduced C4 product
+
+R085
+section: acetyl_thioester
+condition: K05_THIOESTER_HYDROTHERMAL
+reactants: CO; CH3SH
+products: thioacetate
+catalysts: NiS; FeS
+rate_law: Arrhenius * f_min(NiS,FeS) * C[CO] * C[CH3SH]
+dependencies: T; P; pH; redox; S_mineral
+role: acetyl-thioester analogue
+
+R086
+section: acetyl_thioester
+condition: K05_THIOESTER_HYDROTHERMAL
+reactants: acetate; HS-; acetyl_phosphate
+products: thioacetate; acetate; phosphate
+catalysts: FeS; NiS; pep[n>=2]
+rate_law: Arrhenius * f_min * C[acetate] * C[HS-] * C[acetyl_phosphate] * (1 + alpha_pep*C[pep[n>=2]])
+dependencies: T; P; pH; HS-; peptide_concentration
+role: activated thioester regeneration
+
+R087
+section: acetyl_phosphate
+condition: K05_THIOESTER_HYDROTHERMAL
+reactants: thioacetate; phosphate
+products: acetyl_phosphate; HS-
+catalysts: mineral_surface; Mg2+; pep[n>=2]
+rate_law: Arrhenius * f_pH * f_min * C[thioacetate] * C[phosphate] * (1 + alpha_pep*C[pep[n>=2]])
+dependencies: T; P; pH; Mg2+; phosphate
+role: energy currency production
+
+###############################################################################
+# MODULE F: ACTIVATED AMINO ACIDS AND PEPTIDE POLYMERIZATION
+###############################################################################
+
+R100
+section: amino_acid_activation
+condition: K06_WET_DRY_POLYMERIZATION
+reactants: AA; thioacetate
+products: aminoacyl_thioester[AA]; acetate
+catalysts: clay; mineral_surface; pep[n>=2]
+rate_law: Arrhenius * f_wetdry * f_min(clay) * C[AA] * C[thioacetate] * (1 + alpha_pep*C[pep[n>=2]])
+dependencies: T; pH; aw; mineral_surface; peptide_concentration
+role: generic amino acid activation
+
+R101
+section: amino_acid_activation
+condition: K06_WET_DRY_POLYMERIZATION
+reactants: AA; acetyl_phosphate
+products: aminoacyl_phosphate[AA]; acetate
+catalysts: Mg2+; phosphate_surface; pep[n>=2]
+rate_law: Arrhenius * f_wetdry * f_pH * C[AA] * C[acetyl_phosphate] * (1 + alpha_pep*C[pep[n>=2]])
+dependencies: T; pH; Mg2+; phosphate; peptide_concentration
+role: generic phosphate activation
+
+R102
+section: peptide_polymerization
+condition: K06_WET_DRY_POLYMERIZATION
+reactants: aminoacyl_thioester[AA1]; AA2
+products: pep[AA1-AA2]; HS-
+catalysts: clay; mineral_surface
+rate_law: Arrhenius * f_wetdry * f_min(clay) * C[aminoacyl_thioester[AA1]] * C[AA2]
+dependencies: T; pH; aw; mineral_surface
+role: dipeptide formation
+
+R103
+section: peptide_polymerization
+condition: K06_WET_DRY_POLYMERIZATION
+reactants: aminoacyl_phosphate[AA1]; AA2
+products: pep[AA1-AA2]; phosphate
+catalysts: Mg2+; clay
+rate_law: Arrhenius * f_wetdry * f_pH * C[aminoacyl_phosphate[AA1]] * C[AA2]
+dependencies: T; pH; aw; Mg2+
+role: dipeptide formation
+
+R104
+section: peptide_polymerization
+condition: K06_WET_DRY_POLYMERIZATION
+reactants: pep[seq_n]; aminoacyl_thioester[AA]
+products: pep[seq_n-AA]; HS-
+catalysts: clay; pep[seq_n]; mineral_surface
+rate_law: Arrhenius * f_wetdry * C[pep[seq_n]] * C[aminoacyl_thioester[AA]] * (1 + alpha_self(n)*C[pep[seq_n]])
+dependencies: T; pH; aw; n; peptide_concentration
+role: peptide chain elongation with possible self-enhancement
+
+R105
+section: peptide_polymerization
+condition: K06_WET_DRY_POLYMERIZATION
+reactants: pep[seq_n]; H2O
+products: pep[seq_i]; pep[seq_j]
+catalysts: acid_sites; base_sites
+rate_law: Arrhenius * f_acid_base * C[pep[seq_n]] * C[H2O]
+dependencies: T; pH; aw; n
+role: peptide hydrolysis and recycling
+
+R106
+section: peptide_polymerization
+condition: K08_POLYMER_CATALYSIS_TEST
+reactants: pep[seq_n]; mineral_surface
+products: pep_mineral_complex[seq_n]
+catalysts: FeS; NiS; clay
+rate_law: Arrhenius * f_min * C[pep[seq_n]] * C[mineral_surface]
+dependencies: T; pH; mineral_surface; n
+role: formation of polymer-mineral catalyst
+
+R107
+section: peptide_polymerization
+condition: K08_POLYMER_CATALYSIS_TEST
+reactants: aminoacyl_thioester[AA1]; AA2; pep_mineral_complex[seq_n]
+products: pep[AA1-AA2]; HS-; pep_mineral_complex[seq_n]
+catalysts: pep_mineral_complex[seq_n]
+rate_law: Arrhenius * C[aminoacyl_thioester[AA1]] * C[AA2] * C[pep_mineral_complex[seq_n]] * p_cat(n,seq_class)
+dependencies: T; pH; n; catalysis_probability
+role: explicit polymer-catalyzed peptide formation
+
+###############################################################################
+# MODULE G: MIXED ORGANIC POLYMERIZATION
+###############################################################################
+
+R120
+section: heteropolymer_growth
+condition: K06_WET_DRY_POLYMERIZATION
+reactants: hcn_oligo[n]; glycolaldehyde
+products: hetero_oligo[n+1]
+catalysts: clay; UV
+rate_law: Arrhenius * f_wetdry * f_min(clay) * C[hcn_oligo[n]] * C[glycolaldehyde]
+dependencies: T; pH; aw; UV; n
+role: mixed nitrile/sugar oligomer growth
+
+R121
+section: heteropolymer_growth
+condition: K06_WET_DRY_POLYMERIZATION
+reactants: hetero_oligo[n]; glycine
+products: hetero_oligo[n+1]
+catalysts: thioacetate; clay
+rate_law: Arrhenius * f_wetdry * C[hetero_oligo[n]] * C[glycine] * C[thioacetate]
+dependencies: T; pH; aw; thioester
+role: mixed organic polymer growth
+
+R122
+section: heteropolymer_growth
+condition: K08_POLYMER_CATALYSIS_TEST
+reactants: hetero_oligo[n]; mineral_surface
+products: hetero_mineral_complex[n]
+catalysts: FeS; NiS; clay
+rate_law: Arrhenius * f_min * C[hetero_oligo[n]] * C[mineral_surface]
+dependencies: T; pH; n; mineral_surface
+role: mixed polymer catalyst formation
+
+R123
+section: heteropolymer_catalysis
+condition: K08_POLYMER_CATALYSIS_TEST
+reactants: CO; CH3SH; hetero_mineral_complex[n]
+products: thioacetate; hetero_mineral_complex[n]
+catalysts: hetero_mineral_complex[n]
+rate_law: Arrhenius * C[CO] * C[CH3SH] * C[hetero_mineral_complex[n]] * p_cat(n,hetero)
+dependencies: T; P; pH; n; catalysis_probability
+role: polymer-mineral catalysis of energy species
+
+R124
+section: heteropolymer_catalysis
+condition: K08_POLYMER_CATALYSIS_TEST
+reactants: H2CO; HCN; NH3; hetero_mineral_complex[n]
+products: glycinonitrile; H2O; hetero_mineral_complex[n]
+catalysts: hetero_mineral_complex[n]
+rate_law: Arrhenius * C[H2CO] * C[HCN] * C[NH3] * C[hetero_mineral_complex[n]] * p_cat(n,hetero)
+dependencies: T; pH; n; catalysis_probability
+role: polymer-mineral catalysis of amino-acid precursor
+
+###############################################################################
+# MODULE H: EXPLICIT AUTOCATALYTIC CLOSURE TESTS
+###############################################################################
+
+R140
+section: autocatalytic_closure
+condition: K08_POLYMER_CATALYSIS_TEST
+reactants: glycine; glycine; thioacetate; pep[gly-gly]
+products: pep[gly-gly]; acetate; H2S; pep[gly-gly]
+catalysts: pep[gly-gly]
+rate_law: Arrhenius * C[glycine]^2 * C[thioacetate] * C[pep[gly-gly]] * p_cat(2,peptide)
+dependencies: T; pH; aw; catalysis_probability
+role: product-catalyzed production of same dipeptide
+
+R141
+section: autocatalytic_closure
+condition: K08_POLYMER_CATALYSIS_TEST
+reactants: glycine; alanine; thioacetate; pep[gly-ala]
+products: pep[gly-ala]; acetate; H2S; pep[gly-ala]
+catalysts: pep[gly-ala]
+rate_law: Arrhenius * C[glycine] * C[alanine] * C[thioacetate] * C[pep[gly-ala]] * p_cat(2,peptide)
+dependencies: T; pH; aw; catalysis_probability
+role: product-catalyzed production of same mixed dipeptide
+
+R142
+section: autocatalytic_closure
+condition: K08_POLYMER_CATALYSIS_TEST
+reactants: CO; CH3SH; pep_mineral_complex[seq_n]
+products: thioacetate; pep_mineral_complex[seq_n]
+catalysts: pep_mineral_complex[seq_n]
+rate_law: Arrhenius * C[CO] * C[CH3SH] * C[pep_mineral_complex[seq_n]] * p_cat(n,peptide_mineral)
+dependencies: T; P; pH; redox; n; catalysis_probability
+role: polymer catalyst regenerates activated acetyl species
+
+R143
+section: autocatalytic_closure
+condition: K08_POLYMER_CATALYSIS_TEST
+reactants: H2CO; HCN; NH3; pep_mineral_complex[seq_n]
+products: glycinonitrile; H2O; pep_mineral_complex[seq_n]
+catalysts: pep_mineral_complex[seq_n]
+rate_law: Arrhenius * C[H2CO] * C[HCN] * C[NH3] * C[pep_mineral_complex[seq_n]] * p_cat(n,peptide_mineral)
+dependencies: T; pH; n; catalysis_probability
+role: polymer catalyst generates amino acid precursor
+
+R144
+section: autocatalytic_closure
+condition: K08_POLYMER_CATALYSIS_TEST
+reactants: glycinonitrile; H2O; H2O; pep_mineral_complex[seq_n]
+products: glycine; NH3; pep_mineral_complex[seq_n]
+catalysts: pep_mineral_complex[seq_n]
+rate_law: Arrhenius * f_acid_base * C[glycinonitrile] * C[H2O]^2 * C[pep_mineral_complex[seq_n]] * p_cat(n,peptide_mineral)
+dependencies: T; pH; n; catalysis_probability
+role: polymer catalyst converts precursor to amino acid
+
+R145
+section: autocatalytic_closure
+condition: K08_POLYMER_CATALYSIS_TEST
+reactants: pep[seq_n]; thioacetate; AA
+products: pep[seq_n-AA]; acetate; H2S
+catalysts: pep[seq_n]; clay
+rate_law: Arrhenius * f_wetdry * C[pep[seq_n]] * C[thioacetate] * C[AA] * p_cat(n,peptide)
+dependencies: T; pH; aw; n; catalysis_probability
+role: self-enhanced peptide elongation
+
+###############################################################################
+# MODULE I: LOSS, DILUTION, AND DEGRADATION
+###############################################################################
+
+R160
+section: loss
+condition: any_aqueous
+reactants: HCN
+products: formamide
+catalysts: H2O; acid_sites; base_sites
+rate_law: Arrhenius * f_acid_base * C[HCN] * C[H2O]
+dependencies: T; pH; aw
+role: HCN loss/recycling
+
+R161
+section: loss
+condition: any_aqueous
+reactants: glycinonitrile; H2O
+products: degradation_products
+catalysts: acid_sites; base_sites
+rate_law: Arrhenius * f_acid_base * C[glycinonitrile] * C[H2O]
+dependencies: T; pH
+role: precursor loss channel
+
+R162
+section: loss
+condition: any_aqueous
+reactants: pep[seq_n]; H2O
+products: pep[seq_i]; pep[seq_j]
+catalysts: acid_sites; base_sites
+rate_law: Arrhenius * f_acid_base * C[pep[seq_n]] * C[H2O]
+dependencies: T; pH; n
+role: peptide hydrolysis
+
+R163
+section: loss
+condition: any_aqueous
+reactants: thioacetate; H2O
+products: acetate; H2S
+catalysts: acid_sites; base_sites
+rate_law: Arrhenius * f_acid_base * C[thioacetate] * C[H2O]
+dependencies: T; pH
+role: thioester hydrolysis
+
+R164
+section: loss
+condition: open_system
+reactants: species[X]
+products: sink[X]
+catalysts: none
+rate_law: dilution_rate * C[species[X]]
+dependencies: hydrology; flow_rate; compartment_volume
+role: open-system dilution/loss
+
+###############################################################################
+# Implementation notes
+###############################################################################
+# 1. Rules with AA, pep[seq_n], hcn_oligo[n], formose_oligo[n], or hetero_oligo[n]
+#    are generative rules. Expand them into concrete reactions for the selected
+#    alphabet and maximum polymer length.
+#
+# 2. Catalysis probability must be computed from catalyst class and size:
+#       p_cat = p0_class * size_factor(n) * environment_factor(T,pH,I,mineral)
+#
+# 3. Autocatalysis should be measured from the generated network topology:
+#       - food set supplied by atmosphere/geochemistry
+#       - reactions enabled by catalysts produced inside the network
+#       - growth condition: production flux of catalyst class exceeds loss flux
+#
+# 4. The network should be filtered by environment:
+#       surface_pond      -> K02, K03, K04, K06, K08
+#       hydrothermal_vent -> K05, K07, K08
+#       volcanic_rock     -> K02, K04, K06, K08
+#
+# 5. Rate constants are not assigned here. This file defines the symbolic
+#    reaction/rule structure and the environmental dependencies needed for
+#    rate construction.

@@ -1,0 +1,208 @@
+# Surface pond reaction network v1
+# Purpose:
+#   Environment-specific reference network for shallow prebiotic surface ponds,
+#   lakeshores, evaporating pools, ice/eutectic ponds, and UV-irradiated wet-dry
+#   settings on early Earth-like rocky planets.
+#
+# Scope:
+#   This network is distinct from hydrothermal vent and volcanic rock networks.
+#   It emphasizes atmospheric delivery, UV photochemistry, HCN concentration,
+#   formamide/nitrile chemistry, formose and Strecker pathways, wet-dry
+#   polymerization, phosphate activation, amphiphile self-assembly, and
+#   photochemical/evaporative losses.
+#
+# Status:
+#   Literature-guided hypothesis network for comparative simulations.
+#   Some entries are lumped effective reactions or rule templates.
+#
+# Columns:
+#   ID | MODULE | REACTION | CATALYST_OR_CONTROL | RATE_TEMPLATE | ROLE | REFS | CONFIDENCE
+#
+# Environmental variables:
+#   T, pH, ionic_strength, UV_flux(lambda), wet_dry_cycle_phase,
+#   evaporation_factor, freezing_factor, water_activity, rainfall/dilution,
+#   mineral_SA[clay,borate,phosphate,carbonate,FeS], atmospheric_flux[HCN,H2CO],
+#   dissolved concentrations and activities.
+#
+# Reference keys:
+#   SP01 Sutherland2016; SP02 Patel2015; SP03 RitsonSutherland2012;
+#   SP04 Powner2009; SP05 Xu2020; SP06 Orgel2004; SP07 Miller1953;
+#   SP08 Cleaves2008; SP09 Benner2004; SP10 Ricardo2004; SP11 Deamer2017;
+#   SP12 DamerDeamer2020; SP13 FrenkelPinter2019; SP14 Lahav1978;
+#   SP15 Bada2013; SP16 ParkhurstAppelo2013; SP17 DasGhuleVanka2019.
+
+SP001 | atmospheric_delivery | HCN(g) -> HCN(aq) | gas_exchange | Henry_law_flux | HCN pond input | SP01,SP02 | high
+SP002 | atmospheric_delivery | H2CO(g) -> H2CO(aq) | gas_exchange | Henry_law_flux | formaldehyde input | SP01,SP02 | high
+SP003 | atmospheric_delivery | NH3(g) -> NH3(aq) | gas_exchange/pH | Henry_law_flux*f_pH | ammonia input | SP07,SP08 | high
+SP004 | atmospheric_delivery | SO2(g) + H2O -> HSO3- + H+ | gas_exchange | Henry_law_flux*hydration | sulfite input | SP02 | medium
+SP005 | atmospheric_delivery | H2S(g) -> H2S(aq) | gas_exchange | Henry_law_flux | sulfide input | SP02 | medium
+SP006 | atmospheric_delivery | CO2(g) + H2O <=> HCO3- + H+ | carbonate_buffer | equilibrium_activity | pH/carbon source | SP16 | high
+SP007 | atmospheric_delivery | rain + solutes -> diluted_pond | hydrology | dilution_rate | rain dilution | SP12 | high
+SP008 | atmospheric_delivery | evaporation + solutes -> concentrated_pond | hydrology | evap_concentration_rate | concentration driver | SP12 | high
+SP009 | atmospheric_delivery | freezing + solutes -> eutectic_brine | freezing | freeze_concentration_rate | eutectic concentration | SP06 | medium
+SP010 | atmospheric_delivery | dust_phosphate -> dissolved_phosphate | dissolution | mineral_dissolution_rate | phosphate supply | SP01,SP16 | medium
+SP011 | atmospheric_delivery | meteoritic_organics -> amino_acid_pool | delivery | impact_delivery_flux | exogenous organics | SP15 | medium
+SP012 | atmospheric_delivery | volcanic_aerosol_metals -> Fe2+ + Ni2+ + Mn2+ | deposition/dissolution | deposition_flux | metal catalyst supply | SP02,SP16 | medium
+SP013 | photochemistry | CH4 + hnu -> CH3 + H | UV | photolysis_J_CH4 | radical carbon source | SP01,SP08 | medium
+SP014 | photochemistry | NH3 + hnu -> NH2 + H | UV | photolysis_J_NH3 | reduced nitrogen radicals | SP01,SP08 | medium
+SP015 | photochemistry | H2O + hnu -> OH + H | UV | photolysis_J_H2O | radical/redox source | SP01 | medium
+SP016 | photochemistry | CO2 + hnu -> CO + O | UV | photolysis_J_CO2 | CO source | SP01,SP08 | medium
+SP017 | photochemistry | HCN + hnu -> CN + H | UV | photolysis_J_HCN | cyanide radical source/loss | SP01,SP06 | medium
+SP018 | photochemistry | H2CO + hnu -> H + HCO | UV | photolysis_J_H2CO | aldehyde photolysis | SP01 | medium
+SP019 | photochemistry | H2CO + hnu -> CO + H2 | UV | photolysis_J_H2CO | CO source/loss | SP01 | medium
+SP020 | photochemistry | SO3-- + hnu -> SO3_radical + e_aq | UV/sulfite | photoredox_rate | photoreductant source | SP02 | medium
+SP021 | photochemistry | HSO3- + hnu -> SO3_radical + H | UV/sulfite | photoredox_rate | sulfur radical source | SP02 | medium
+SP022 | photochemistry | HS- + hnu -> HS_radical + e_aq | UV/sulfide | photoredox_rate | reducing electron source | SP02 | medium
+SP023 | photochemistry | Fe2+ + hnu -> Fe3+ + e_aq | UV/Fe | photoredox_rate | hydrated electron source | SP02 | medium
+SP024 | photochemistry | e_aq + HCN -> HCN_reduced_radical | UV/electron | diffusion_limited | reductive cyanide chemistry | SP02 | medium
+SP025 | photochemistry | e_aq + H2CO -> hydroxymethyl_radical | UV/electron | diffusion_limited | sugar precursor radical | SP02 | medium
+SP026 | photochemistry | CN + H2CO -> glycolonitrile_radical | UV/radical | radical_addition | C-C/N precursor | SP01,SP02 | low
+SP027 | photochemistry | organic_intermediate + hnu -> photoproduct_pool | UV | photolysis_J_i | photochemical diversification | SP01 | medium
+SP028 | photochemistry | nucleotide_precursor + hnu -> selected_isomer | UV | photochemical_selection_rate | photochemical selection | SP03,SP04 | medium
+SP029 | photochemistry | reduced_intermediate + oxidant -> degraded_pool | UV_oxidation | redox_rate | oxidative photoloss | SP01 | medium
+SP030 | HCN_concentration | HCN <=> H+ + CN- | acid_base | equilibrium_activity | cyanide speciation | SP16 | high
+SP031 | HCN_concentration | HCN + HCN -> iminoacetonitrile | base/mineral | Arrhenius*f_pH*f_conc | HCN dimer | SP06 | medium
+SP032 | HCN_concentration | iminoacetonitrile + HCN -> aminomalononitrile | base/mineral | mass_action*f_pH*f_conc | HCN trimer path | SP06 | medium
+SP033 | HCN_concentration | aminomalononitrile + HCN -> diaminomaleonitrile | base/mineral | mass_action*f_pH*f_conc | HCN tetramer/DAMN | SP06 | medium
+SP034 | HCN_concentration | diaminomaleonitrile + hnu -> diaminofumaronitrile | UV | photochemistry_rate | photoisomerization | SP06 | medium
+SP035 | HCN_concentration | diaminomaleonitrile + HCN -> aminoimidazole_carbonitrile | heat/UV/mineral | mass_action*f_UV | nucleobase precursor | SP06 | medium
+SP036 | HCN_concentration | aminoimidazole_carbonitrile + HCN -> adenine | heat/UV | lumped_rate | adenine formation | SP06 | low
+SP037 | HCN_concentration | HCN + H2O -> formamide | acid/base/mineral | acid_base_rate | formamide source | SP06 | medium
+SP038 | HCN_concentration | formamide + HCN -> formamidine_carbonitrile | acid/base | mass_action*f_pH | N-rich precursor | SP06 | low
+SP039 | HCN_concentration | aminomalononitrile + H2O -> aminoacetamide + NH3 + CO | hydrolysis | acid_base_rate | glycine precursor | SP06 | medium
+SP040 | HCN_concentration | aminoacetamide + H2O -> glycine + NH3 | hydrolysis | acid_base_rate | glycine source | SP06 | high
+SP041 | HCN_concentration | diaminomaleonitrile + 4 H2O -> aspartate_precursor + 2 NH3 | hydrolysis | acid_base_rate | amino acid precursor | SP06 | low
+SP042 | HCN_concentration | HCN + H2S -> thioformamide | sulfide | mass_action*f_pH | sulfur-nitrile branch | SP02,SP06 | low
+SP043 | HCN_concentration | HCN + HS- -> thiocyanate + H2 | sulfur/redox | effective_rate | thiocyanate sink | SP02 | medium
+SP044 | HCN_concentration | thiocyanate + hnu -> CN_radical + sulfur_products | UV | photolysis_rate | cyanide recycling | SP02 | low
+SP045 | HCN_concentration | HCN_polymer_n + HCN -> HCN_polymer_n+1 | concentrated_HCN | polymer_growth_rate | HCN polymerization | SP06 | medium
+SP046 | HCN_concentration | HCN_polymer_n + H2O -> amino_amide_pool | hydrolysis | hydrolysis_rate | polymer hydrolysis products | SP06 | medium
+SP047 | formamide_nucleobases | formamide -> HCN + H2O | heat/mineral | Arrhenius*f_min | HCN regeneration | SP06 | medium
+SP048 | formamide_nucleobases | formamide + formamide -> urea + H2 | heat/mineral | condensation_rate | urea source | SP06 | low
+SP049 | formamide_nucleobases | formamide + phosphate -> phosphorylated_formamide | phosphate/mineral | mass_action*f_dry | activated amide | SP01,SP06 | low
+SP050 | formamide_nucleobases | formamide + HCN -> aminoimidazole_precursor | heat/UV | lumped_rate | nucleobase precursor | SP06 | low
+SP051 | formamide_nucleobases | aminoimidazole_precursor + formamide -> adenine | heat/mineral | lumped_rate | adenine branch | SP06 | low
+SP052 | formamide_nucleobases | urea + cyanoacetylene -> cytosine_precursor | aqueous/drying | mass_action*f_conc | pyrimidine branch | SP01,SP04 | medium
+SP053 | formamide_nucleobases | cytosine_precursor + H2O -> cytosine | hydrolysis | acid_base_rate | cytosine formation | SP04 | medium
+SP054 | formamide_nucleobases | cytosine + H2O -> uracil + NH3 | hydrolysis | acid_base_rate | uracil formation/loss | SP04 | medium
+SP055 | formamide_nucleobases | cyanoacetylene + glycolaldehyde -> pyrimidine_intermediate | aqueous | mass_action*f_pH | pyrimidine precursor | SP04 | medium
+SP056 | formamide_nucleobases | pyrimidine_intermediate + phosphate -> activated_pyrimidine | phosphate/UV | mass_action*f_UV | activated nucleobase precursor | SP04 | medium
+SP057 | formose_sugars | H2CO + H2CO -> glycolaldehyde | base/mineral | mass_action*f_pH*f_conc | formose seed | SP09,SP10 | medium
+SP058 | formose_sugars | glycolaldehyde + H2CO -> glyceraldehyde | base/mineral | mass_action*f_pH | triose formation | SP09,SP10 | medium
+SP059 | formose_sugars | glyceraldehyde <=> dihydroxyacetone | base | isomerization_rate | triose isomerization | SP09,SP10 | high
+SP060 | formose_sugars | glycolaldehyde + glycolaldehyde -> tetrose | base/mineral | aldol_rate | tetrose formation | SP09,SP10 | medium
+SP061 | formose_sugars | glyceraldehyde + glycolaldehyde -> pentose_pool | base/mineral | aldol_rate | pentose formation | SP09,SP10 | medium
+SP062 | formose_sugars | pentose_pool + borate -> borate_pentose_complex | borate | equilibrium_complexation | sugar stabilization | SP09,SP10 | high
+SP063 | formose_sugars | ribose + borate -> ribose_borate_complex | borate | equilibrium_complexation | ribose stabilization | SP09,SP10 | high
+SP064 | formose_sugars | pentose_pool -> tar_pool | base/heat | degradation_rate | formose tar sink | SP09 | high
+SP065 | formose_sugars | glycolaldehyde + HCN -> glycolonitrile | aqueous | mass_action*f_pH | nitrile sugar branch | SP01,SP04 | medium
+SP066 | formose_sugars | glyceraldehyde + HCN -> glyceronitrile_pool | aqueous | mass_action*f_pH | nitrile sugar branch | SP01 | medium
+SP067 | formose_sugars | glycolaldehyde + phosphate -> glycolaldehyde_phosphate | phosphate/drying | mass_action*f_dry | phosphorylated sugar | SP04 | medium
+SP068 | formose_sugars | glyceraldehyde + phosphate -> glyceraldehyde_phosphate | phosphate/drying | mass_action*f_dry | phosphorylated triose | SP04 | medium
+SP069 | formose_sugars | glyceraldehyde_phosphate -> pyruvaldehyde_phosphate | base | rearrangement_rate | sugar phosphate rearrangement | SP04 | low
+SP070 | formose_sugars | H2CO + glycolaldehyde -> 2 glycolaldehyde | base/mineral | autocatalytic_effective | formose autocatalysis proxy | SP09 | medium
+SP071 | Strecker_amino_acids | H2CO + NH3 + HCN -> aminoacetonitrile + H2O | aqueous | mass_action*f_pH | glycine nitrile | SP07,SP08 | high
+SP072 | Strecker_amino_acids | aminoacetonitrile + 2 H2O -> glycine + NH3 | hydrolysis | acid_base_rate | glycine formation | SP07,SP08 | high
+SP073 | Strecker_amino_acids | acetaldehyde + NH3 + HCN -> alanine_nitrile + H2O | aqueous | mass_action*f_pH | alanine nitrile | SP07,SP08 | high
+SP074 | Strecker_amino_acids | alanine_nitrile + 2 H2O -> alanine + NH3 | hydrolysis | acid_base_rate | alanine formation | SP07,SP08 | high
+SP075 | Strecker_amino_acids | glyoxylate + NH3 + HCN -> aspartate_nitrile | aqueous | mass_action*f_pH | acidic amino acid precursor | SP08 | medium
+SP076 | Strecker_amino_acids | aspartate_nitrile + 2 H2O -> aspartate + NH3 | hydrolysis | acid_base_rate | aspartate formation | SP08 | medium
+SP077 | Strecker_amino_acids | pyruvate + NH3 + HCN -> alanine_nitrile + CO2_equiv | aqueous | mass_action*f_pH | keto-acid aminonitrile branch | SP08 | low
+SP078 | Strecker_amino_acids | H2CO + NH3 -> imine_C1 + H2O | acid/base | equilibrium_or_rate | imine precursor | SP08 | medium
+SP079 | Strecker_amino_acids | imine_C1 + HCN -> aminoacetonitrile | acid/base | mass_action*f_pH | Strecker addition | SP08 | high
+SP080 | Strecker_amino_acids | amino_acid + UV -> degraded_amine_acid_pool | UV/oxidants | photolysis_rate | amino acid photoloss | SP15 | medium
+SP081 | carboxylates_redox | CO + OH- -> formate | base/metal | effective_rate | formate source | SP02 | low
+SP082 | carboxylates_redox | H2CO + OH- -> formate + H2 | base | Cannizzaro_rate | aldehyde loss/formate | SP09 | medium
+SP083 | carboxylates_redox | glycolaldehyde + oxidant -> glyoxylate + 2 H | UV/metal | oxidation_rate | glyoxylate source | SP02 | medium
+SP084 | carboxylates_redox | glyceraldehyde + oxidant -> glycerate + 2 H | UV/metal | oxidation_rate | organic acid source | SP02 | medium
+SP085 | carboxylates_redox | glyoxylate + acetate -> malate | base/mineral | aldol_like_rate | C4 acid formation | SP08 | low
+SP086 | carboxylates_redox | pyruvate + NH3 + reductant -> alanine + H2O | Fe2+/sulfite | redox_rate | reductive amination | SP02 | low
+SP087 | carboxylates_redox | glyoxylate + NH3 + reductant -> glycine + H2O | Fe2+/sulfite | redox_rate | reductive amination | SP02 | low
+SP088 | carboxylates_redox | organic_acid + Ca++ -> Ca_organic_salt | PHREEQC | equilibrium_precipitation | retention/sink | SP16 | medium
+SP089 | carboxylates_redox | organic_acid + clay -> organic_acid_adsorbed | adsorption | Langmuir | mineral retention | SP13 | medium
+SP090 | phosphate_activation | apatite + H+ -> phosphate + Ca++ | dissolution | dissolution_rate | phosphate supply | SP16 | medium
+SP091 | phosphate_activation | phosphate + Ca++ -> Ca_phosphate_solid | PHREEQC | saturation_limited | phosphate sink | SP16 | high
+SP092 | phosphate_activation | phosphate + Mg++ -> Mg_phosphate_solid | PHREEQC | saturation_limited | phosphate sink | SP16 | high
+SP093 | phosphate_activation | phosphate + urea -> carbamoyl_phosphate | drying/heat | condensation_rate*f_dry | activated phosphate | SP01 | low
+SP094 | phosphate_activation | carbamoyl_phosphate + H2O -> phosphate + NH3 + CO2 | hydrolysis | hydrolysis_rate | activation loss | SP01 | medium
+SP095 | phosphate_activation | phosphate + nucleoside -> nucleotide + H2O | drying/mineral | condensation_rate*f_dry | nucleotide formation proxy | SP04 | low
+SP096 | phosphate_activation | nucleotide + phosphate -> nucleotide_diphosphate + H2O | drying/mineral | condensation_rate*f_dry | activated nucleotide proxy | SP04 | low
+SP097 | phosphate_activation | acetyl_phosphate + amino_acid -> aminoacyl_phosphate + acetate | Mg/mineral | mass_action*f_pH | amino acid activation | SP01 | medium
+SP098 | phosphate_activation | aminoacyl_phosphate + amino_acid -> peptide2 + Pi | mineral/drying | mass_action*f_dry | peptide formation | SP01,SP14 | medium
+SP099 | phosphate_activation | pyrophosphate + H2O -> 2 phosphate | hydrolysis | hydrolysis_rate | phosphate energy loss | SP01 | medium
+SP100 | phosphate_activation | 2 phosphate + dry_heat -> pyrophosphate + H2O | drying/mineral | condensation_rate*f_dry | condensed phosphate source | SP01 | low
+SP101 | wet_dry_polymer | amino_acid + amino_acid -> peptide2 + H2O | drying/clay | condensation_rate*f_dry*f_min | peptide dimer | SP11,SP12,SP14 | medium
+SP102 | wet_dry_polymer | peptide_n + amino_acid -> peptide_n+1 + H2O | drying/clay | condensation_rate*f_dry*f_min | peptide growth | SP11,SP12,SP14 | medium
+SP103 | wet_dry_polymer | peptide_n + H2O -> peptide_n-1 + amino_acid | wet_phase | hydrolysis_rate | peptide hydrolysis | SP11,SP12 | high
+SP104 | wet_dry_polymer | amino_acid + clay -> amino_acid_adsorbed | clay | Langmuir | concentration on clay | SP13,SP14 | high
+SP105 | wet_dry_polymer | amino_acid_adsorbed + amino_acid_adsorbed -> peptide2_adsorbed + H2O | clay/drying | surface_condensation | surface peptide formation | SP13,SP14 | medium
+SP106 | wet_dry_polymer | peptide2_adsorbed -> peptide2 | wet_phase | desorption_rate | product release | SP13 | medium
+SP107 | wet_dry_polymer | nucleotide + nucleotide -> dinucleotide + H2O | drying/mineral | condensation_rate*f_dry | RNA oligomer proxy | SP04,SP11 | low
+SP108 | wet_dry_polymer | oligonucleotide_n + nucleotide -> oligonucleotide_n+1 + H2O | drying/mineral | condensation_rate*f_dry | RNA growth proxy | SP04,SP11 | low
+SP109 | wet_dry_polymer | oligonucleotide_n + H2O -> oligonucleotide_n-1 + nucleotide | hydrolysis | hydrolysis_rate | RNA hydrolysis | SP04 | medium
+SP110 | wet_dry_polymer | lipid + peptide_n -> lipid_peptide_complex | drying/interface | association_rate | compartment stabilization | SP11,SP12 | low
+SP111 | lipid_compartments | fatty_acid_precursor -> fatty_acid_Cn | hydrolysis/oxidation | effective_rate | amphiphile production | SP11,SP15 | medium
+SP112 | lipid_compartments | fatty_acid_Cn + H+ <=> protonated_fatty_acid_Cn | pH | equilibrium_activity | membrane active species | SP16 | high
+SP113 | lipid_compartments | fatty_acid_Cn + Mg++ -> Mg_fatty_acid_solid | PHREEQC | saturation_limited | membrane inhibitor | SP11,SP16 | medium
+SP114 | lipid_compartments | fatty_acid_Cn + Ca++ -> Ca_fatty_acid_solid | PHREEQC | saturation_limited | membrane inhibitor | SP11,SP16 | medium
+SP115 | lipid_compartments | fatty_acid_Cn -> micelle | self_assembly | CMC_threshold | micelle formation | SP11 | high
+SP116 | lipid_compartments | micelle + fatty_acid_Cn -> vesicle | self_assembly | threshold_rate*f_pH*f_I | vesicle growth | SP11,SP12 | high
+SP117 | lipid_compartments | vesicle + solute_pool -> loaded_vesicle | wet_dry_rehydration | encapsulation_rate | solute encapsulation | SP11,SP12 | medium
+SP118 | lipid_compartments | loaded_vesicle + dry_phase -> concentrated_loaded_vesicle | evaporation | concentration_rate | internal concentration | SP12 | medium
+SP119 | lipid_compartments | vesicle + divalent_cations -> disrupted_vesicle | Mg/Ca/high_I | disruption_rate | membrane loss | SP11 | medium
+SP120 | lipid_compartments | vesicle + wet_dry_cycle -> daughter_vesicles | shear/rehydration | division_effective_rate | protocell-like division | SP11,SP12 | medium
+SP121 | mineral_interfaces | clay + organic_pool -> organic_clay_complex | adsorption | Langmuir | retention/concentration | SP13 | high
+SP122 | mineral_interfaces | organic_clay_complex + UV -> photoproduct_clay_complex | UV/clay | surface_photolysis | surface photochemistry | SP13 | medium
+SP123 | mineral_interfaces | carbonate_surface + amino_acid -> amino_acid_carbonate_complex | adsorption | Langmuir | retention | SP13,SP16 | medium
+SP124 | mineral_interfaces | borate + glycolaldehyde -> borate_glycolaldehyde_complex | borate | equilibrium_complexation | sugar stabilization | SP09,SP10 | high
+SP125 | mineral_interfaces | Fe2+ + phosphate -> Fe_phosphate_solid | PHREEQC | saturation_limited | phosphate sink | SP16 | high
+SP126 | mineral_interfaces | Fe2+ + HS- -> FeS(s) + H+ | PHREEQC | saturation_limited | sulfide surface formation | SP16 | medium
+SP127 | mineral_interfaces | FeS_surface + CO + HS- -> thioformate_surface | FeS | surface_rate | hydrothermal-like microchemistry in ponds | SP02 | low
+SP128 | mineral_interfaces | thioformate_surface + H2O -> formate + FeS_surface + H2S | FeS | surface_turnover | formate release | SP02 | low
+SP129 | network_closure | peptide_n + reaction_X -> peptide_n + enhanced_reaction_X | peptide_catalyst | p_cat*rate_X | polymer catalysis test | SP11,SP12 | low
+SP130 | network_closure | oligonucleotide_n + template_monomer -> oligonucleotide_n+1 | template | template_rate*f_dry | informational polymer test | SP04,SP11 | low
+SP131 | network_closure | lipid_vesicle + peptide_n -> stabilized_loaded_vesicle | interface | association_rate | protocell stabilization | SP11,SP12 | medium
+SP132 | network_closure | stabilized_loaded_vesicle + wet_dry_cycle -> daughter_loaded_vesicles | rehydration/shear | division_rate | protocell proliferation proxy | SP11,SP12 | medium
+SP133 | network_closure | catalyst_polymer + feedstock -> catalyst_polymer + product | stochastic_polymer | p_cat*mass_action | autocatalysis threshold rule | SP01,SP11 | low
+SP134 | losses | HCN(aq) -> HCN(g) | volatilization | gas_exchange_loss | HCN evaporation | SP12 | high
+SP135 | losses | NH3(aq) -> NH3(g) | volatilization/pH | gas_exchange_loss*f_pH | ammonia loss | SP12 | high
+SP136 | losses | H2CO(aq) -> H2CO(g) | volatilization | gas_exchange_loss | formaldehyde loss | SP12 | high
+SP137 | losses | organic_pool + UV -> CO2 + NH3 + refractory_residue | UV | photodegradation_rate | UV destruction/tar | SP01 | medium
+SP138 | losses | sugar_pool -> tar_pool | base/heat | degradation_rate | sugar tar sink | SP09 | high
+SP139 | losses | amino_acid + oxidant -> degraded_organic_pool | oxidants/UV | redox_rate | amino acid oxidation | SP15 | medium
+SP140 | losses | vesicle -> fatty_acid_loss | dilution/high_pH/high_I | disruption_rate | compartment loss | SP11 | medium
+SP141 | losses | species_pool -> outflow_sink | overflow/rain | hydrology_loss | washout | SP12 | high
+SP142 | losses | concentrated_pond + flood -> diluted_pond + exported_solutes | hydrology | flood_loss_rate | episodic reset | SP12 | high
+SP143 | losses | adsorbed_organic + sedimentation -> buried_organic | settling | sedimentation_rate | burial/retention | SP13 | medium
+SP144 | losses | refractory_residue + UV + oxidant -> CO2 + inorganic_N | UV/oxidants | slow_oxidation | long-term destruction | SP01 | low
+SP145 | losses | phosphate + sediment -> buried_phosphate | precipitation/sorption | sink_rate | phosphate depletion | SP16 | high
+SP146 | losses | metal_catalyst + carbonate -> inactive_carbonate_solid | PHREEQC | saturation_limited | catalyst passivation | SP16 | medium
+SP147 | losses | clay_surface + organic_tar -> fouled_clay_surface | adsorption/polymerization | coverage_rate | catalyst fouling | SP13 | medium
+SP148 | losses | fouled_clay_surface + abrasion -> clay_surface + organic_particles | physical_reworking | first_order | surface renewal | SP12,SP13 | low
+SP149 | losses | eutectic_brine + thaw -> diluted_pond | freeze_thaw | thaw_rate | concentration release | SP06 | medium
+SP150 | losses | dry_residue + rehydration -> concentrated_solution + insoluble_residue | wet_dry | rehydration_rate | cycle restart with residue | SP12 | high
+SP151 | thermal_HCN_water | HCN + H2O -> formamide | water_or_NH3_proton_shuttle | thermal_effective_rate_80_100C | HCN hydrolysis intermediate | SP17 | medium
+SP152 | thermal_HCN_water | formamide + H2O -> formic_acid + NH3 | water_proton_shuttle | thermal_effective_rate | ammonia/formic acid generation | SP17 | medium
+SP153 | thermal_HCN_water | formic_acid -> CO + H2O | thermal_dehydration | Arrhenius | CO source from HCN hydrolysis | SP17 | medium
+SP154 | thermal_HCN_water | formic_acid -> CO2 + H2 | thermal_decomposition | Arrhenius | CO2/H2 source from HCN hydrolysis | SP17 | medium
+SP155 | thermal_HCN_water | HCN + H2O -> isocyanic_acid + H2 | water_proton_shuttle | thermal_effective_rate | isocyanic acid branch | SP17 | low
+SP156 | thermal_HCN_water | isocyanic_acid + NH3 -> urea | water_proton_shuttle | mass_action | urea formation | SP17 | medium
+SP157 | thermal_HCN_water | urea -> cyanamide + H2O | NH3_proton_shuttle/dry_heat | dehydration_rate | cyanamide source | SP17 | medium
+SP158 | thermal_HCN_water | isocyanic_acid + NH3 -> cyanamide + H2O | NH3_proton_shuttle | lumped_dehydration | cyanamide branch | SP17 | low
+SP159 | thermal_HCN_water | HCN + H2O -> formaldimine | water_proton_shuttle | thermal_effective_rate | imine source | SP17 | medium
+SP160 | thermal_HCN_water | formaldimine + H2O -> formaldehyde + NH3 | water_proton_shuttle | hydrolysis_rate | formaldehyde source | SP17 | medium
+SP161 | thermal_HCN_water | formaldehyde + HCN -> glycolonitrile | aqueous_HCN | mass_action*f_pH | cyanohydrin/sugar precursor | SP17 | high
+SP162 | thermal_HCN_water | formaldimine + HCN -> aminoacetonitrile | aqueous_HCN | mass_action*f_pH | Strecker glycine precursor | SP17 | high
+SP163 | thermal_HCN_water | aminoacetonitrile + H2O -> aminoacetamide | hydrolysis | acid_base_rate | glycine amide intermediate | SP17 | medium
+SP164 | thermal_HCN_water | aminoacetamide + H2O -> glycine + NH3 | hydrolysis | acid_base_rate | glycine formation | SP17 | high
+SP165 | thermal_HCN_water | aminoacetonitrile + 2 H2O -> glycine + NH3 | hydrolysis | lumped_acid_base_rate | one-pot glycine route | SP17 | high
+SP166 | thermal_HCN_water | CO + formaldimine + H2O -> glycine | thermal_trimolecular | effective_rate | alternate glycine route from CO/imine | SP17 | low
+SP167 | thermal_HCN_water | HCN + H2O -> hydroxymethylene_carbene + NH | thermal_low_valent | effective_rate | carbene precursor | SP17 | low
+SP168 | thermal_HCN_water | hydroxymethylene_carbene + hydroxymethylene_carbene -> glycolaldehyde | thermal_dimerization | bimolecular_rate | sugar precursor without metal catalyst | SP17 | medium
+SP169 | thermal_HCN_water | glycolaldehyde + HCN -> glycolonitrile_derivative | aqueous_HCN | mass_action*f_pH | nitrile sugar branch | SP17 | medium
+SP170 | thermal_HCN_water | formamide + glycolonitrile -> amino_oxazole_derivative + H2O | thermal_cyclocondensation | cyclization_rate | oxazole precursor branch | SP17 | medium
+SP171 | thermal_HCN_water | amino_oxazole_derivative -> oxazole_derivative_pool | tautomerization | first_order | RNA precursor heterocycle pool | SP17 | medium
+SP172 | thermal_HCN_water | HCN_bulk -> HCN_surface_patch | air_water_interface | partitioning_rate | HCN surface concentration | SP17 | medium
+SP173 | thermal_HCN_water | HCN_surface_patch + evaporation -> concentrated_HCN_film | evaporation | concentration_rate | enhanced HCN chemistry | SP17 | high
+SP174 | thermal_HCN_water | HCN_ice_interface -> concentrated_HCN_brine | freezing | partitioning_rate | eutectic/ice HCN concentration | SP17 | medium
+SP175 | thermal_HCN_water | thermal_HCN_precursor_pool + evaporation -> concentrated_precursor_pool | warm_little_pond | evaporation_rate | concentration after one-pot formation | SP17 | high

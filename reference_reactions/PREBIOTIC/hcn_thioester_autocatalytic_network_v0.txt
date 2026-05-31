@@ -1,0 +1,136 @@
+# Prebiotic HCN/thioester/autocatalytic candidate reaction network v0
+# Purpose: tentative network for testing autocatalytic thresholds from planetary feedstocks.
+# Status: hypothesis-level scaffold, not a validated kinetic mechanism.
+# Intended inputs from environment: HCN, NH3, H2O, CO, CO2, H2, CH4, H2S/HS-, phosphate, FeS/NiS, aldehydes.
+# Target families: amino acids, aminonitriles, carboxylates, thioesters, acetyl-phosphate/acetyl-CoA analogues, short peptides.
+# Columns: ID | SECTION | TYPE | REACTION | CATALYST_HINT | AUTOCATALYTIC_ROLE | SOURCE_HINT
+#
+# CATALYST LIBRARY
+# C01 | UV | stellar UV / lightning UV; required for photolysis and photoisomerization.
+# C02 | FeS | iron sulfide surface; C1 reduction, CO activation, thioester chemistry.
+# C03 | NiS | nickel sulfide surface; acetyl/thioester formation and CO insertion.
+# C04 | FeS/NiS | mixed sulfide surface; hydrothermal redox and carbonylation catalyst.
+# C05 | clay | wet-dry concentration, adsorption, peptide/aldol condensation surface.
+# C06 | base/mineral | alkaline solution or mineral base sites; HCN oligomerization/formose chemistry.
+# C07 | acid/base | general aqueous acid/base catalysis; nitrile hydrolysis and peptide hydrolysis.
+# C08 | phosphate/Mg2+ | phosphate activation and phosphoryl transfer chemistry.
+# C09 | thiol/HS-/H2S | sulfur nucleophile and thioester precursor chemistry.
+# C10 | short_peptide_pool | emergent peptide catalysts; explicit autocatalytic closure.
+# C11 | mineral_peptide_complex | adsorbed peptide-mineral catalytic surface.
+#
+# CONDITION SETS
+# K01_photolysis_atmosphere | gas/upper aqueous interface | UV present | dry or aerosol/pond interface | controlled by atmosphere UV optical depth.
+# K02_hydrothermal_reducing | aqueous | 350-650 K | high pressure | FeS/NiS, H2, CO/CO2, HS- present.
+# K03_surface_pond_neutral_alkaline | aqueous | 273-373 K | surface pressure | pH neutral-alkaline, wet-dry possible.
+# K04_HCN_concentrated | aqueous/eutectic/drying | 273-350 K | HCN concentrated | pH neutral-alkaline, UV optional.
+# K05_formose_alkaline | aqueous | 273-350 K | formaldehyde concentrated | pH alkaline, divalent cations/minerals.
+# K06_strecker_pond | aqueous | 273-373 K | HCN + NH3 + aldehydes | pH moderate, hydrolysis available.
+# K07_thioester_hydrothermal | aqueous | 300-650 K | CO + thiols + FeS/NiS | reducing, sulfide-rich.
+# K08_wet_dry_peptide | surface pond/volcanic rock | 280-370 K | wet-dry cycling | clay/mineral concentration.
+# K09_mineral_precipitation | aqueous | 273-650 K | Fe2+/Ni2+ + HS- | redox-active mineral formation.
+# K10_autocatalytic_test | abstract kinetic box | environment supplied feedstocks | catalytic probability parameter active.
+#
+# SECTION -> DEFAULT CONDITION SETS
+# feedstock_activation      -> K01_photolysis_atmosphere or K02_hydrothermal_reducing
+# HCN_core                  -> K04_HCN_concentrated
+# formaldehyde_formose      -> K05_formose_alkaline
+# strecker_amino_acids      -> K06_strecker_pond
+# carboxylate_core          -> K02_hydrothermal_reducing
+# thioester_energy          -> K07_thioester_hydrothermal
+# peptide_catalysis         -> K08_wet_dry_peptide
+# mineral_redox_catalysis   -> K09_mineral_precipitation
+# autocatalytic_closure     -> K10_autocatalytic_test
+
+R001 | feedstock_activation | photochemical | CH4 + hnu -> CH3 + H | UV | radical carbon source | atmospheric_photolysis
+R002 | feedstock_activation | photochemical | NH3 + hnu -> NH2 + H | UV | reduced nitrogen radicals | atmospheric_photolysis
+R003 | feedstock_activation | photochemical | H2O + hnu -> OH + H | UV | radical/redox source | atmospheric_photolysis
+R004 | feedstock_activation | photochemical | CO2 + hnu -> CO + O | UV | CO source | atmospheric_photolysis
+R005 | feedstock_activation | thermal/redox | CO2 + H2 -> CO + H2O | FeS/NiS | CO source for carbonyl chemistry | water_gas_shift_like
+R006 | feedstock_activation | thermal/redox | CO2 + H2 -> HCOO- + H+ | FeS/NiS | formate feedstock | hydrothermal_reduction
+R007 | feedstock_activation | thermal/redox | CO + H2O -> HCOO- + H+ | FeS/NiS | formate feedstock | hydrothermal_carbonylation
+R008 | feedstock_activation | thermal/redox | CO + H2 + HS- -> HCS- + H2O | FeS/NiS | thioformate precursor | hydrothermal_thiocarbonyl
+R009 | feedstock_activation | condensation | CO + NH3 -> HCONH2 | FeS/NiS | formamide pool | hydrothermal_carbonylation
+R010 | feedstock_activation | condensation | HCN + H2O -> HCONH2 | mineral_surface | formamide pool | HCN_hydrolysis
+
+R011 | HCN_core | oligomerization | HCN + HCN -> iminoacetonitrile | base/mineral | aminonitrile seed | HCN_chemistry
+R012 | HCN_core | addition | iminoacetonitrile + HCN -> aminomalononitrile | base/mineral | HCN oligomer growth | HCN_chemistry
+R013 | HCN_core | addition | aminomalononitrile + HCN -> diaminomaleonitrile | base/mineral | DAMN pool | HCN_chemistry
+R014 | HCN_core | photoisomerization | diaminomaleonitrile + hnu -> diaminofumaronitrile | UV | activated HCN tetramer | HCN_chemistry
+R015 | HCN_core | hydrolysis | aminomalononitrile + 2 H2O -> aminoacetamide + NH3 + CO | acid/base | amino-acid precursor | HCN_hydrolysis
+R016 | HCN_core | hydrolysis | aminoacetamide + H2O -> glycine + NH3 | acid/base | amino acid product | Strecker_related
+R017 | HCN_core | hydrolysis | diaminomaleonitrile + 4 H2O -> aspartate_precursor + 2 NH3 | acid/base | amino acid precursor | HCN_hydrolysis
+R018 | HCN_core | cyclization | diaminomaleonitrile + HCN -> aminoimidazole_carbonitrile | UV/mineral | nucleobase precursor | HCN_oligomerization
+R019 | HCN_core | cyclization | aminoimidazole_carbonitrile + HCN -> adenine | UV/heat | nucleobase product | Oró_like
+R020 | HCN_core | degradation | HCN + H2O -> formamide | acid/base | formamide replenishment | HCN_hydrolysis
+
+R021 | formaldehyde_formose | formation | CO + H2 -> H2CO | FeS/NiS | aldehyde source | hydrothermal_reduction
+R022 | formaldehyde_formose | formation | CH3 + O -> H2CO + H | radical_pool | aldehyde source | atmospheric_chemistry
+R023 | formaldehyde_formose | dimerization | H2CO + H2CO -> glycolaldehyde | base/mineral | formose autocatalyst seed | formose
+R024 | formaldehyde_formose | aldol | glycolaldehyde + H2CO -> glyceraldehyde | base/clay | sugar growth | formose
+R025 | formaldehyde_formose | isomerization | glyceraldehyde -> dihydroxyacetone | base/mineral | sugar pool | formose
+R026 | formaldehyde_formose | retroaldol | tetrose -> glycolaldehyde + glycolaldehyde | base/mineral | regenerates catalyst | formose_autocatalysis
+R027 | formaldehyde_formose | aldol | glycolaldehyde + glycolaldehyde -> tetrose | base/mineral | formose growth | formose
+R028 | formaldehyde_formose | autocatalytic_loop | H2CO + glycolaldehyde -> 2 glycolaldehyde | base/mineral | explicit autocatalytic closure | formose_lumped
+R029 | formaldehyde_formose | oxidation | glycolaldehyde + H2O -> glycolate + 2 H | FeS/NiS | carboxylate feedstock | redox
+R030 | formaldehyde_formose | oxidation | glyceraldehyde + H2O -> glycerate + 2 H | FeS/NiS | carboxylate feedstock | redox
+
+R031 | strecker_amino_acids | Strecker | H2CO + HCN + NH3 -> glycinonitrile + H2O | acid/base | glycine precursor | Strecker
+R032 | strecker_amino_acids | hydrolysis | glycinonitrile + 2 H2O -> glycine + NH3 | acid/base | amino acid product | Strecker
+R033 | strecker_amino_acids | Strecker | CH3CHO + HCN + NH3 -> alaninonitrile + H2O | acid/base | alanine precursor | Strecker
+R034 | strecker_amino_acids | hydrolysis | alaninonitrile + 2 H2O -> alanine + NH3 | acid/base | amino acid product | Strecker
+R035 | strecker_amino_acids | Strecker | glyoxylate + HCN + NH3 -> aspartate_nitrile | acid/base | acidic amino acid precursor | Strecker_variant
+R036 | strecker_amino_acids | hydrolysis | aspartate_nitrile + 2 H2O -> aspartate + NH3 | acid/base | amino acid product | Strecker_variant
+R037 | strecker_amino_acids | transamination | pyruvate + NH3 + H2 -> alanine + H2O | FeS/NiS | amino acid product | reductive_amination
+R038 | strecker_amino_acids | transamination | glyoxylate + NH3 + H2 -> glycine + H2O | FeS/NiS | amino acid product | reductive_amination
+R039 | strecker_amino_acids | transamination | oxaloacetate + NH3 + H2 -> aspartate + H2O | FeS/NiS | amino acid product | reductive_amination
+R040 | strecker_amino_acids | transamination | alpha_ketoglutarate + NH3 + H2 -> glutamate + H2O | FeS/NiS | amino acid product | reductive_amination
+
+R041 | carboxylate_core | reduction | CO2 + H2 -> formate | FeS/NiS | C1 entry | Wood_Ljungdahl_like
+R042 | carboxylate_core | carbonylation | formate + CO -> glyoxylate | FeS/NiS | C2 acid entry | reductive_carbonylation
+R043 | carboxylate_core | reduction | glyoxylate + H2 -> glycolate | FeS/NiS | reduced C2 pool | redox
+R044 | carboxylate_core | condensation | glyoxylate + formate -> malonate | mineral/base | C3 acid pool | carboxylate_growth
+R045 | carboxylate_core | condensation | glyoxylate + acetate -> malate | mineral/base | C4 acid pool | rTCA_like
+R046 | carboxylate_core | dehydration | malate -> fumarate + H2O | mineral/heat | rTCA-like intermediate | rTCA_like
+R047 | carboxylate_core | reduction | fumarate + H2 -> succinate | FeS/NiS | rTCA-like intermediate | rTCA_like
+R048 | carboxylate_core | carbonylation | succinate + CO -> alpha_ketoglutarate | FeS/NiS | amino-acid precursor | rTCA_like
+R049 | carboxylate_core | carboxylation | pyruvate + CO2 + H2 -> malate | FeS/NiS | C3-to-C4 fixation | rTCA_like
+R050 | carboxylate_core | reduction | CO2 + CH3-SH + CO -> thioacetate + H2O | FeS/NiS | acetyl thioester precursor | acetyl_CoA_analogue
+
+R051 | thioester_energy | thiolation | acetate + HS- + energy -> thioacetate + H2O | FeS/NiS/phosphate | activated acetyl pool | thioester_world
+R052 | thioester_energy | carbonylation | CH3-SH + CO -> thioacetate | NiS/FeS | acetyl thioester product | acetyl_CoA_analogue
+R053 | thioester_energy | phosphorylation | thioacetate + phosphate -> acetyl_phosphate + HS- | mineral/phosphate | energy currency | thioester_phosphate
+R054 | thioester_energy | hydrolysis | acetyl_phosphate + H2O -> acetate + phosphate + energy | Mg2+/mineral | drives coupling | acetyl_phosphate
+R055 | thioester_energy | acetyl_transfer | thioacetate + glycine -> N-acetylglycine + HS- | thiol/mineral | acyl transfer chemistry | thioester_world
+R056 | thioester_energy | acetyl_transfer | thioacetate + alanine -> N-acetylalanine + HS- | thiol/mineral | acyl transfer chemistry | thioester_world
+R057 | thioester_energy | ligation_drive | acetyl_phosphate + glycine + alanine -> glycylalanine + acetate + phosphate | mineral | peptide formation | activation
+R058 | thioester_energy | ligation_drive | thioacetate + glycine + glycine -> glycylglycine + acetate + HS- | mineral | peptide formation | thioester_world
+R059 | thioester_energy | regeneration | acetate + H2S + CO -> thioacetate + H2O | FeS/NiS | regenerates activated acetyl | acetyl_loop
+R060 | thioester_energy | autocatalytic_loop | thioacetate + phosphate + acetate -> acetyl_phosphate + thioacetate | mineral | energy-loop placeholder | autocatalytic_energy
+
+R061 | peptide_catalysis | condensation | glycine + glycine -> glycylglycine + H2O | drying/clay | catalyst precursor | peptide_prebiotic
+R062 | peptide_catalysis | condensation | glycine + alanine -> glycylalanine + H2O | drying/clay | catalyst precursor | peptide_prebiotic
+R063 | peptide_catalysis | condensation | alanine + glycine -> alanylglycine + H2O | drying/clay | catalyst precursor | peptide_prebiotic
+R064 | peptide_catalysis | condensation | glycylglycine + glycine -> triglycine + H2O | drying/clay/thioester | short peptide growth | peptide_prebiotic
+R065 | peptide_catalysis | condensation | glycylalanine + glycine -> glycylalanylglycine + H2O | drying/clay/thioester | short peptide growth | peptide_prebiotic
+R066 | peptide_catalysis | catalysis | glycylglycine + R031 -> glycinonitrile_enhanced | glycylglycine | autocatalytic amino-acid production | catalytic_closure
+R067 | peptide_catalysis | catalysis | glycylalanine + R051 -> thioacetate_enhanced | glycylalanine | autocatalytic energy activation | catalytic_closure
+R068 | peptide_catalysis | catalysis | triglycine + R057 -> peptide_ligation_enhanced | triglycine | peptide autocatalysis | catalytic_closure
+R069 | peptide_catalysis | degradation | glycylglycine + H2O -> glycine + glycine | acid/base | loss/recycling | hydrolysis
+R070 | peptide_catalysis | degradation | glycylalanine + H2O -> glycine + alanine | acid/base | loss/recycling | hydrolysis
+
+R071 | mineral_redox_catalysis | precipitation | Fe2+ + HS- -> FeS + H+ | ocean_geochemistry | catalyst formation | mineral_surface
+R072 | mineral_redox_catalysis | precipitation | Ni2+ + HS- -> NiS + H+ | ocean_geochemistry | catalyst formation | mineral_surface
+R073 | mineral_redox_catalysis | surface_activation | FeS + CO + HS- -> FeS-CO-SH_complex | FeS | carbonyl activation | mineral_surface
+R074 | mineral_redox_catalysis | surface_activation | NiS + CO + CH3-SH -> NiS-acetyl_complex | NiS | acetyl activation | mineral_surface
+R075 | mineral_redox_catalysis | product_release | NiS-acetyl_complex + HS- -> thioacetate + NiS | NiS | catalytic turnover | acetyl_loop
+R076 | mineral_redox_catalysis | product_release | FeS-CO-SH_complex + H2O -> formate + FeS + HS- | FeS | catalytic turnover | C1_fixation
+R077 | mineral_redox_catalysis | redox | FeS + H2O -> FeOOH + H2S + e- | mineral/redox | redox disequilibrium | geochemical_coupling
+R078 | mineral_redox_catalysis | redox | FeOOH + H2S -> FeS + H2O | mineral/redox | regenerates FeS | geochemical_coupling
+
+R079 | autocatalytic_closure | catalyzed_Strecker | H2CO + HCN + NH3 + glycylglycine -> glycinonitrile + H2O + glycylglycine | glycylglycine | peptide-catalyzed glycine precursor production | explicit_closure
+R080 | autocatalytic_closure | catalyzed_hydrolysis | glycinonitrile + 2 H2O + glycylglycine -> glycine + NH3 + glycylglycine | glycylglycine | peptide-catalyzed amino acid production | explicit_closure
+R081 | autocatalytic_closure | catalyzed_activation | acetate + HS- + acetyl_phosphate + glycylalanine -> thioacetate + phosphate + glycylalanine | glycylalanine | peptide-catalyzed thioester regeneration | explicit_closure
+R082 | autocatalytic_closure | catalyzed_ligation | glycine + glycine + thioacetate + glycylglycine -> glycylglycine + acetate + H2S + glycylglycine | glycylglycine | product-catalyzed production of same peptide | explicit_autocatalysis
+R083 | autocatalytic_closure | catalyzed_ligation | glycine + alanine + thioacetate + glycylalanine -> glycylalanine + acetate + H2S + glycylalanine | glycylalanine | product-catalyzed production of same peptide | explicit_autocatalysis
+R084 | autocatalytic_closure | surface_complexation | glycylglycine + FeS -> glycylglycine_FeS_complex | FeS | peptide-mineral catalyst formation | surface_autocatalysis
+R085 | autocatalytic_closure | surface_catalyzed_carbonylation | CO + CH3-SH + glycylglycine_FeS_complex -> thioacetate + glycylglycine_FeS_complex | glycylglycine_FeS_complex | peptide-mineral complex regenerates activated acetyl species | explicit_RAF_closure

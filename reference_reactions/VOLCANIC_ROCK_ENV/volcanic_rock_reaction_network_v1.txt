@@ -1,0 +1,203 @@
+# Volcanic rock environment reaction network v1
+# Purpose:
+#   Environment-specific reference network for subaerial volcanic fields,
+#   basaltic glass, ash beds, lava tubes, fumarolic margins, hot-spring edges,
+#   and porous volcanic-rock films exposed to wet-dry, gas-rock, and thermal
+#   cycling.
+#
+# Scope:
+#   This network is distinct from hydrothermal vent and surface pond networks.
+#   It emphasizes volcanic gas deposition, basalt/glass dissolution, mineral
+#   surface catalysis, sulfur/iron redox, dry-down concentration on rock pores,
+#   thermal activation, phosphate release/trapping, peptide/lipid condensation,
+#   and intermittent aqueous transport.
+#
+# Status:
+#   Literature-guided hypothesis network for comparative simulations.
+#   Several entries are effective/lumped processes designed for network studies.
+#
+# Columns:
+#   ID | MODULE | REACTION | CATALYST_OR_CONTROL | RATE_TEMPLATE | ROLE | REFS | CONFIDENCE
+#
+# Environmental variables:
+#   T_surface, T_pore, pH_film, water_activity, wet_dry_cycle_phase, gas_flux,
+#   UV_flux, redox_state, mineral_SA[basalt_glass,olivine,pyroxene,magnetite,
+#   FeS,NiS,clay,apatite], film_thickness, evaporation_rate, rainfall_rate.
+#
+# Reference keys:
+#   VR01 Wachtershauser1988; VR02 HuberWachtershauser1998; VR03 Cody2000;
+#   VR04 RussellHall1997; VR05 Hazen2001; VR06 Cleaves2008; VR07 Deamer2017;
+#   VR08 DamerDeamer2020; VR09 Lahav1978; VR10 Ferris1996; VR11 Barge2015;
+#   VR12 Benner2004; VR13 ParkhurstAppelo2013; VR14 McCollomSeewald2007;
+#   VR15 RanjanSasselov2017; VR16 Patel2015; VR17 DasGhuleVanka2019.
+
+VR001 | volcanic_gas_input | CO2(g) -> CO2(aq/film) | gas_exchange | Henry_law_flux*film_area | carbon source | VR13,VR15 | high
+VR002 | volcanic_gas_input | CO(g) -> CO(aq/film) | gas_exchange | Henry_law_flux*film_area | carbonyl source | VR15,VR16 | high
+VR003 | volcanic_gas_input | H2(g) -> H2(aq/film) | gas_exchange | Henry_law_flux*film_area | reductant source | VR14,VR15 | high
+VR004 | volcanic_gas_input | H2S(g) -> H2S(aq/film) | gas_exchange | Henry_law_flux*film_area | sulfide source | VR13,VR15 | high
+VR005 | volcanic_gas_input | SO2(g) + H2O -> HSO3- + H+ | hydration | gas_hydration_rate | sulfite/acidity source | VR16 | high
+VR006 | volcanic_gas_input | SO2(g) + OH- -> HSO3- | film_pH | mass_transfer_rate | sulfite source | VR16 | medium
+VR007 | volcanic_gas_input | COS(g) -> COS(aq/film) | gas_exchange | Henry_law_flux | activated carbonyl input | VR02,VR16 | medium
+VR008 | volcanic_gas_input | HCN(g) -> HCN(aq/film) | gas_exchange | Henry_law_flux | nitrile input | VR06,VR16 | high
+VR009 | volcanic_gas_input | H2CO(g) -> H2CO(aq/film) | gas_exchange | Henry_law_flux | aldehyde input | VR06,VR16 | high
+VR010 | volcanic_gas_input | NH3(g) -> NH3(aq/film) | gas_exchange/pH | Henry_law_flux*f_pH | nitrogen input | VR06,VR16 | medium
+VR011 | volcanic_gas_input | NO(g) + oxidants -> NO2- | film_redox | gas_film_redox_rate | nitrite source | VR06 | medium
+VR012 | volcanic_gas_input | NO2(g) + H2O -> NO2- + NO3- + H+ | gas_hydrolysis | mass_transfer_rate | fixed nitrogen source | VR06 | medium
+VR013 | volcanic_gas_input | ash_leachate -> Fe2+ + Mg2+ + Ca2+ + phosphate | dissolution | leaching_rate | catalytic ions/nutrients | VR13 | high
+VR014 | volcanic_gas_input | volcanic_glass + H+ -> dissolved_silica + cations | basalt_glass | dissolution_rate | pore-water chemistry | VR13 | high
+VR015 | volcanic_gas_input | rainfall + gas_film -> acidic_film | hydrology | wetting_rate | reactive acidic wet phase | VR08 | high
+VR016 | volcanic_gas_input | evaporation + gas_film -> concentrated_residue | hydrology | evaporation_rate | dry-down concentration | VR08 | high
+VR017 | volcanic_gas_input | thermal_gradient + pore_film -> convective_pore_flow | rock_heat | transport_rate | advective exchange | VR08,VR14 | medium
+VR018 | photothermal | CH4 + hnu -> CH3 + H | UV | photolysis_J_CH4 | radical source | VR06,VR15 | medium
+VR019 | photothermal | NH3 + hnu -> NH2 + H | UV | photolysis_J_NH3 | nitrogen radical source | VR06 | medium
+VR020 | photothermal | H2S + hnu -> HS_radical + H | UV | photolysis_J_H2S | sulfur radical source | VR16 | medium
+VR021 | photothermal | SO3-- + hnu -> SO3_radical + e_aq | UV/sulfite | photoredox_rate | hydrated electron source | VR16 | medium
+VR022 | photothermal | Fe2+ + hnu -> Fe3+ + e_aq | UV/Fe | photoredox_rate | photoreductant source | VR16 | medium
+VR023 | photothermal | HCN + hnu -> CN + H | UV | photolysis_J_HCN | cyanide radical source/loss | VR06 | medium
+VR024 | photothermal | H2CO + hnu -> HCO + H | UV | photolysis_J_H2CO | aldehyde radical source | VR06 | medium
+VR025 | photothermal | organic_film + heat -> pyrolysis_products | thermal_pulse | Arrhenius | volcanic heat alteration | VR03 | medium
+VR026 | photothermal | amino_acid + heat -> amine + CO2 | dry_heat | Arrhenius | amino acid decarboxylation | VR09 | medium
+VR027 | photothermal | peptide_n + heat -> diketopiperazine_pool | dry_heat | Arrhenius | peptide thermal rearrangement | VR09 | low
+VR028 | photothermal | dry_organic_residue + UV -> photoproduct_residue | UV/dry_phase | photolysis_rate | surface photoproducts | VR06 | medium
+VR029 | photothermal | dry_organic_residue + heat -> refractory_carbon | thermal | pyrolysis_rate | organic loss/tar | VR03 | medium
+VR030 | mineral_weathering | olivine + H2O + CO2 -> serpentine_like_surface + carbonate + H2 | basaltic_weathering | weathering_rate | reductant/mineral generation | VR14 | medium
+VR031 | mineral_weathering | FeO_silicate + H2O -> magnetite + H2 | rock_water | weathering_rate | H2 source | VR14 | medium
+VR032 | mineral_weathering | basalt_glass + H2O -> clay + dissolved_silica + cations | alteration | weathering_rate | clay surface generation | VR13 | high
+VR033 | mineral_weathering | apatite + H+ -> Ca2+ + phosphate | dissolution | dissolution_rate | phosphate release | VR13 | high
+VR034 | mineral_weathering | phosphate + Ca2+ -> Ca_phosphate_solid | PHREEQC | saturation_limited | phosphate sink | VR13 | high
+VR035 | mineral_weathering | phosphate + Fe3+ -> Fe_phosphate_solid | PHREEQC | saturation_limited | phosphate sink | VR13 | high
+VR036 | mineral_weathering | Fe2+ + HS- -> FeS(s) + H+ | PHREEQC/mineral | saturation_limited | FeS catalytic surface | VR01,VR13 | high
+VR037 | mineral_weathering | Ni2+ + HS- -> NiS(s) + H+ | PHREEQC/mineral | saturation_limited | NiS catalytic surface | VR01,VR13 | medium
+VR038 | mineral_weathering | FeS + S0 -> FeS2 | sulfide_redox | surface_rate | pyrite formation | VR01,VR13 | medium
+VR039 | mineral_weathering | magnetite + H2S -> FeS + Fe_oxide + H2O | redox | surface_redox_rate | FeS regeneration | VR14 | low
+VR040 | mineral_weathering | clay + amino_acid -> amino_acid_clay_complex | adsorption | Langmuir | organic retention | VR10 | high
+VR041 | mineral_weathering | basalt_glass + amino_acid -> amino_acid_glass_complex | adsorption | Langmuir | retention on glass | VR05 | medium
+VR042 | mineral_weathering | silica_surface + organics -> organics_silica_complex | adsorption | Langmuir | retention/concentration | VR05 | medium
+VR043 | mineral_weathering | carbonate_surface + organics -> organics_carbonate_complex | adsorption | Langmuir | retention | VR13 | medium
+VR044 | mineral_weathering | metal_ion + organic_ligand -> metal_organic_complex | complexation | equilibrium_activity | catalysis/retention | VR13 | medium
+VR045 | sulfur_carbonyl | CO + H2S -> COS + H2 | FeS/NiS | Arrhenius*f_min | COS formation | VR02 | medium
+VR046 | sulfur_carbonyl | CO2 + HS- + H+ -> COS + H2O | sulfide | mass_action*f_pH | COS formation | VR02 | medium
+VR047 | sulfur_carbonyl | COS + H2O -> CO2 + H2S | hydrolysis | acid_base_rate | COS loss | VR02 | high
+VR048 | sulfur_carbonyl | COS + NH3 -> thiocarbamate | aqueous_film | mass_action*f_pH | activated N-C-S pool | VR02 | medium
+VR049 | sulfur_carbonyl | COS + amino_acid -> aminoacyl_thiocarbamate | aqueous_film | mass_action*f_pH | amino acid activation | VR02 | medium
+VR050 | sulfur_carbonyl | aminoacyl_thiocarbamate + amino_acid -> peptide2 + COS_products | drying/mineral | condensation_rate | COS-driven peptide bond | VR02,VR09 | medium
+VR051 | sulfur_carbonyl | CO + CH3SH -> thioacetate | FeS/NiS | surface_carbonylation | thioester source | VR01,VR02 | medium
+VR052 | sulfur_carbonyl | thioacetate + H2O -> acetate + HS- + H+ | hydrolysis | hydrolysis_rate | thioester loss | VR02 | high
+VR053 | sulfur_carbonyl | thioacetate + phosphate -> acetyl_phosphate + HS- | mineral/phosphate | mass_action*f_dry | acetyl phosphate formation | VR02 | medium
+VR054 | sulfur_carbonyl | acetyl_phosphate + H2O -> acetate + phosphate | hydrolysis | hydrolysis_rate | energy loss | VR02 | high
+VR055 | sulfur_carbonyl | FeS_surface + CO -> FeS_CO_complex | FeS | Langmuir*surface_rate | carbonyl activation | VR01,VR03 | medium
+VR056 | sulfur_carbonyl | FeS_CO_complex + HS- -> FeS_COSH_complex | FeS | surface_mass_action | thiocarboxyl surface pool | VR01,VR03 | medium
+VR057 | sulfur_carbonyl | FeS_COSH_complex + H2O -> formate + H2S + FeS_surface | FeS | surface_turnover | formate release | VR01,VR03 | low
+VR058 | sulfur_carbonyl | NiS_surface + CO + CH3SH -> NiS_acetyl_complex | NiS | surface_carbonylation | acetyl complex | VR01,VR03 | medium
+VR059 | sulfur_carbonyl | NiS_acetyl_complex + HS- -> thioacetate + NiS_surface | NiS | surface_turnover | thioacetate release | VR01,VR03 | medium
+VR060 | C1_C2_reduction | CO2 + H2 -> formate + H+ | FeS/NiS/magnetite | Arrhenius*f_min*f_redox | formate source | VR01,VR14 | medium
+VR061 | C1_C2_reduction | CO2 + H2 -> CO + H2O | Fe/Ni | Arrhenius*f_min | CO source | VR14 | medium
+VR062 | C1_C2_reduction | CO + H2O <=> CO2 + H2 | FeS/magnetite | reversible_Arrhenius | water-gas-shift | VR14 | medium
+VR063 | C1_C2_reduction | formate + H+ <=> formic_acid | pH | equilibrium_activity | neutral formic acid | VR13 | high
+VR064 | C1_C2_reduction | formate + CO -> glyoxylate | FeS/NiS | surface_carbonylation | C2 acid entry | VR01,VR03 | low
+VR065 | C1_C2_reduction | glyoxylate + H2 -> glycolate | FeS/NiS | Arrhenius*f_redox | reduced C2 sink | VR01 | medium
+VR066 | C1_C2_reduction | CO + H2 -> H2CO | Fe/Ni/mineral | Arrhenius*f_min | aldehyde source | VR14 | low
+VR067 | C1_C2_reduction | H2CO + H2 -> methanol | Fe/Ni | Arrhenius*f_redox | C1 reduction sink | VR14 | medium
+VR068 | C1_C2_reduction | methanol + CO -> acetate | metal_sulfide | effective_surface_rate | acetate source proxy | VR03 | low
+VR069 | C1_C2_reduction | acetate + CO2 + H2 -> pyruvate + H2O | FeS/NiS | Arrhenius*f_redox | C3 precursor | VR01 | low
+VR070 | C1_C2_reduction | pyruvate + CO2 + H2 -> oxaloacetate | FeS/NiS | Arrhenius*f_redox | C4 precursor | VR01 | low
+VR071 | HCN_nitriles | HCN <=> H+ + CN- | acid_base | equilibrium_activity | cyanide speciation | VR13 | high
+VR072 | HCN_nitriles | HCN + HCN -> iminoacetonitrile | dry_down/base_sites | mass_action*f_dry*f_pH | HCN dimer | VR06 | medium
+VR073 | HCN_nitriles | iminoacetonitrile + HCN -> aminomalononitrile | dry_down/mineral | mass_action*f_dry | HCN trimer | VR06 | medium
+VR074 | HCN_nitriles | aminomalononitrile + HCN -> diaminomaleonitrile | dry_down/mineral | mass_action*f_dry | DAMN formation | VR06 | medium
+VR075 | HCN_nitriles | diaminomaleonitrile + hnu -> diaminofumaronitrile | UV | photochemistry_rate | HCN tetramer photoisomer | VR06 | medium
+VR076 | HCN_nitriles | diaminomaleonitrile + HCN -> aminoimidazole_carbonitrile | UV/heat/mineral | mass_action*f_UV*f_heat | nucleobase precursor | VR06 | medium
+VR077 | HCN_nitriles | aminoimidazole_carbonitrile + HCN -> adenine | heat/dry_down | lumped_rate | adenine branch | VR06 | low
+VR078 | HCN_nitriles | HCN + H2O -> formamide | acid/base/mineral | hydrolysis_rate | formamide source | VR06 | medium
+VR079 | HCN_nitriles | formamide + heat/mineral -> HCN + H2O | dry_heat | Arrhenius*f_min | HCN regeneration | VR06 | medium
+VR080 | HCN_nitriles | aminomalononitrile + H2O -> aminoacetamide + NH3 + CO | hydrolysis | acid_base_rate | glycine precursor | VR06 | medium
+VR081 | HCN_nitriles | aminoacetamide + H2O -> glycine + NH3 | hydrolysis | acid_base_rate | glycine formation | VR06 | high
+VR082 | HCN_nitriles | HCN + HS- -> thiocyanate + H2 | sulfur | mass_action*f_pH | cyanide sulfur sink | VR16 | medium
+VR083 | HCN_nitriles | thiocyanate + hnu -> cyanide_recycled + sulfur_products | UV | photolysis_rate | cyanide recycling | VR16 | low
+VR084 | HCN_nitriles | HCN_polymer_n + H2O -> amino_amide_pool | hydrolysis | hydrolysis_rate | polymer hydrolysis | VR06 | medium
+VR085 | aldehyde_sugar | H2CO + H2CO -> glycolaldehyde | base_sites/mineral | mass_action*f_pH*f_dry | formose seed | VR12 | medium
+VR086 | aldehyde_sugar | glycolaldehyde + H2CO -> glyceraldehyde | base_sites/mineral | mass_action*f_pH | triose formation | VR12 | medium
+VR087 | aldehyde_sugar | glyceraldehyde <=> dihydroxyacetone | base_sites | isomerization_rate | triose isomerization | VR12 | high
+VR088 | aldehyde_sugar | glycolaldehyde + glycolaldehyde -> tetrose | base_sites | aldol_rate | tetrose formation | VR12 | medium
+VR089 | aldehyde_sugar | glyceraldehyde + glycolaldehyde -> pentose_pool | base_sites | aldol_rate | pentose pool | VR12 | medium
+VR090 | aldehyde_sugar | pentose_pool + borate -> borate_pentose_complex | borate/mineral | complexation | sugar stabilization | VR12 | high
+VR091 | aldehyde_sugar | glycolaldehyde + HCN -> glycolonitrile | aqueous_film | mass_action*f_pH | nitrile sugar branch | VR06 | medium
+VR092 | aldehyde_sugar | glycolonitrile + 2 H2O -> glycolate + NH3 | hydrolysis | acid_base_rate | glycolate formation | VR06 | high
+VR093 | aldehyde_sugar | glyceraldehyde + phosphate -> glyceraldehyde_phosphate | drying/phosphate | condensation_rate*f_dry | sugar phosphate | VR06 | medium
+VR094 | aldehyde_sugar | glycolaldehyde + phosphate -> glycolaldehyde_phosphate | drying/phosphate | condensation_rate*f_dry | sugar phosphate | VR06 | medium
+VR095 | aldehyde_sugar | sugar_pool -> tar_pool | heat/base | degradation_rate | sugar tar sink | VR12 | high
+VR096 | Strecker_amination | H2CO + NH3 + HCN -> aminoacetonitrile + H2O | aqueous_film | mass_action*f_pH | glycine nitrile | VR06 | high
+VR097 | Strecker_amination | aminoacetonitrile + 2 H2O -> glycine + NH3 | hydrolysis | acid_base_rate | glycine source | VR06 | high
+VR098 | Strecker_amination | acetaldehyde + NH3 + HCN -> alanine_nitrile + H2O | aqueous_film | mass_action*f_pH | alanine nitrile | VR06 | high
+VR099 | Strecker_amination | alanine_nitrile + 2 H2O -> alanine + NH3 | hydrolysis | acid_base_rate | alanine source | VR06 | high
+VR100 | Strecker_amination | glyoxylate + NH3 + HCN -> aspartate_nitrile | aqueous_film | mass_action*f_pH | acidic amino acid precursor | VR06 | medium
+VR101 | Strecker_amination | aspartate_nitrile + 2 H2O -> aspartate + NH3 | hydrolysis | acid_base_rate | aspartate source | VR06 | medium
+VR102 | Strecker_amination | glyoxylate + NH3 + H2 -> glycine + H2O | FeS/NiS | Arrhenius*f_redox | reductive amination | VR01 | medium
+VR103 | Strecker_amination | pyruvate + NH3 + H2 -> alanine + H2O | FeS/NiS | Arrhenius*f_redox | reductive amination | VR01 | medium
+VR104 | Strecker_amination | oxaloacetate + NH3 + H2 -> aspartate + H2O | FeS/NiS | Arrhenius*f_redox | reductive amination | VR01 | medium
+VR105 | phosphate_energy | phosphate + dry_heat -> condensed_phosphate + H2O | mineral/dry_heat | condensation_rate*f_dry | polyphosphate proxy | VR08 | low
+VR106 | phosphate_energy | condensed_phosphate + H2O -> phosphate | hydrolysis | hydrolysis_rate | phosphate energy loss | VR08 | medium
+VR107 | phosphate_energy | thioacetate + phosphate -> acetyl_phosphate + HS- | FeS/phosphate/dry | mass_action*f_dry | acetyl phosphate source | VR02 | medium
+VR108 | phosphate_energy | acetyl_phosphate + amino_acid -> aminoacyl_phosphate + acetate | Mg/mineral | mass_action*f_pH | amino acid activation | VR02 | medium
+VR109 | phosphate_energy | carbamoyl_phosphate + amino_acid -> aminoacyl_phosphate + carbamate | phosphate/mineral | mass_action*f_dry | amino acid activation proxy | VR08 | low
+VR110 | phosphate_energy | phosphate + nucleoside -> nucleotide + H2O | dry_heat/mineral | condensation_rate*f_dry | nucleotide formation proxy | VR06 | low
+VR111 | phosphate_energy | nucleotide + phosphate -> nucleotide_diphosphate + H2O | dry_heat/mineral | condensation_rate*f_dry | nucleotide activation proxy | VR06 | low
+VR112 | phosphate_energy | acetyl_phosphate + H2O -> acetate + phosphate | hydrolysis | hydrolysis_rate | acetyl phosphate loss | VR02 | high
+VR113 | wet_dry_peptides | amino_acid + amino_acid -> peptide2 + H2O | dry_heat/clay/basalt | condensation_rate*f_dry*f_min | peptide dimerization | VR07,VR08,VR09 | medium
+VR114 | wet_dry_peptides | peptide_n + amino_acid -> peptide_n+1 + H2O | dry_heat/clay/basalt | condensation_rate*f_dry*f_min | peptide growth | VR07,VR08,VR09 | medium
+VR115 | wet_dry_peptides | aminoacyl_phosphate + amino_acid -> peptide2 + phosphate | mineral_surface | mass_action*f_dry | activated peptide formation | VR02,VR08 | medium
+VR116 | wet_dry_peptides | peptide_n + H2O -> peptide_n-1 + amino_acid | wet_phase/heat | hydrolysis_rate | peptide loss | VR07 | high
+VR117 | wet_dry_peptides | amino_acid_clay_complex + amino_acid -> peptide2_clay_complex + H2O | clay/dry | surface_condensation | clay peptide formation | VR10 | medium
+VR118 | wet_dry_peptides | peptide2_clay_complex -> peptide2 + clay | wet_phase | desorption_rate | peptide release | VR10 | medium
+VR119 | wet_dry_peptides | peptide_n + FeS_surface -> peptide_FeS_complex | adsorption | Langmuir | catalytic complex | VR11 | medium
+VR120 | wet_dry_peptides | peptide_FeS_complex + CO2 + H2 -> peptide_FeS_complex + formate | FeS/peptide | catalyzed_surface_rate | emergent catalysis test | VR11 | low
+VR121 | wet_dry_peptides | peptide_n + lipid -> lipid_peptide_complex | interface/drying | association_rate | membrane stabilization | VR07,VR08 | medium
+VR122 | wet_dry_peptides | peptide_n + heat -> degraded_peptide_pool | thermal | Arrhenius | peptide thermal loss | VR09 | medium
+VR123 | nucleotides_polymers | nucleobase + ribose_pool -> nucleoside | drying/mineral | condensation_rate*f_dry | nucleoside proxy | VR06 | low
+VR124 | nucleotides_polymers | nucleoside + phosphate -> nucleotide + H2O | drying/mineral | condensation_rate*f_dry | nucleotide proxy | VR06 | low
+VR125 | nucleotides_polymers | nucleotide + nucleotide -> dinucleotide + H2O | drying/mineral | condensation_rate*f_dry | oligonucleotide start | VR06,VR07 | low
+VR126 | nucleotides_polymers | oligonucleotide_n + nucleotide -> oligonucleotide_n+1 + H2O | drying/mineral | condensation_rate*f_dry | oligonucleotide growth | VR07 | low
+VR127 | nucleotides_polymers | oligonucleotide_n + H2O -> oligonucleotide_n-1 + nucleotide | wet_phase | hydrolysis_rate | oligonucleotide loss | VR07 | medium
+VR128 | nucleotides_polymers | clay + nucleotide -> nucleotide_clay_complex | clay | Langmuir | nucleotide retention | VR10 | medium
+VR129 | nucleotides_polymers | nucleotide_clay_complex + nucleotide -> dinucleotide_clay_complex + H2O | clay/dry | surface_condensation | surface oligomerization | VR10 | medium
+VR130 | nucleotides_polymers | template_oligo + nucleotide -> extended_template | template/mineral | template_rate*f_dry | template polymerization test | VR07 | low
+VR131 | lipid_compartments | CO + H2 -> CH2_star + H2O | Fe/Ni/mineral | Fischer_Tropsch_effective | hydrocarbon chain monomer | VR14 | medium
+VR132 | lipid_compartments | CH2_star + acyl_Cn -> acyl_Cn+1 | Fe/Ni | surface_chain_growth | acyl chain growth | VR14 | medium
+VR133 | lipid_compartments | acyl_Cn + oxidant -> fatty_acid_Cn | oxidizing_film | oxidation_rate | fatty acid source | VR14 | low
+VR134 | lipid_compartments | thioacyl_Cn + H2O -> fatty_acid_Cn + thiol | hydrolysis | hydrolysis_rate | fatty acid release | VR14 | medium
+VR135 | lipid_compartments | fatty_acid_Cn + H+ <=> protonated_fatty_acid_Cn | pH | equilibrium_activity | membrane active species | VR13 | high
+VR136 | lipid_compartments | fatty_acid_Cn -> micelle | self_assembly | CMC_threshold | micelle formation | VR07 | high
+VR137 | lipid_compartments | micelle + fatty_acid_Cn -> vesicle | rehydration | assembly_rate*f_pH*f_I | vesicle formation | VR07,VR08 | high
+VR138 | lipid_compartments | dry_lipid_film + rehydration -> vesicle | wet_dry | rehydration_assembly_rate | wet-dry vesicle formation | VR07,VR08 | high
+VR139 | lipid_compartments | vesicle + solute_pool -> loaded_vesicle | rehydration | encapsulation_rate | encapsulation | VR07,VR08 | medium
+VR140 | lipid_compartments | loaded_vesicle + wet_dry_cycle -> daughter_loaded_vesicles | rehydration/shear | division_rate | protocell-like cycling | VR07,VR08 | medium
+VR141 | lipid_compartments | fatty_acid_Cn + Mg2+ -> Mg_fatty_acid_solid | PHREEQC | saturation_limited | membrane inhibitor | VR13 | medium
+VR142 | lipid_compartments | fatty_acid_Cn + Ca2+ -> Ca_fatty_acid_solid | PHREEQC | saturation_limited | membrane inhibitor | VR13 | medium
+VR143 | transport_losses | pore_film_species -> adjacent_pore_species | diffusion | diffusion_rate | pore exchange | VR08 | high
+VR144 | transport_losses | pore_film_species -> runoff_sink | rainfall/runoff | washout_rate | solute export | VR08 | high
+VR145 | transport_losses | gas_film_species -> atmosphere | volatilization | gas_exchange_loss | volatile loss | VR08 | high
+VR146 | transport_losses | dry_residue + rainfall -> concentrated_solution + insoluble_residue | wetting | rehydration_rate | cycle restart | VR08 | high
+VR147 | transport_losses | organic_pool + basalt_surface -> refractory_coating | adsorption/polymerization | coverage_rate | catalyst fouling | VR05,VR11 | medium
+VR148 | transport_losses | refractory_coating + abrasion -> basalt_surface + particles | physical_reworking | abrasion_rate | surface renewal | VR08 | medium
+VR149 | transport_losses | organic_pool + oxidants + UV -> CO2 + NH4+ + sulfate | UV/redox | oxidation_rate | oxidative destruction | VR06,VR16 | medium
+VR150 | transport_losses | activated_intermediate + H2O -> hydrolyzed_products | wet_phase | hydrolysis_rate | activation loss | VR02,VR07 | high
+VR151 | network_closure | peptide_FeS_complex + thioacetate -> peptide_FeS_complex + acetyl_transfer_products | peptide/mineral | p_cat*surface_rate | emergent catalysis | VR11 | low
+VR152 | network_closure | oligo_n + monomer -> oligo_n+1 | dry_cycle/template | p_cat*condensation_rate | polymer growth rule | VR07,VR10 | low
+VR153 | network_closure | lipid_vesicle + catalytic_polymer -> protocell_candidate | interface | association_threshold | protocell candidate | VR07,VR08 | low
+VR154 | network_closure | protocell_candidate + wet_dry_cycle -> daughter_candidates | wet_dry/shear | division_effective_rate | proliferation proxy | VR07,VR08 | low
+VR155 | network_closure | catalyst_polymer + feedstock -> catalyst_polymer + product | stochastic_polymer | p_cat*mass_action | autocatalysis threshold rule | VR07,VR11 | low
+VR156 | thermal_HCN_films | HCN + H2O -> formamide | warm_pore_film/proton_shuttle | thermal_effective_rate_80_100C | HCN hydrolysis intermediate | VR17 | medium
+VR157 | thermal_HCN_films | formamide + H2O -> formic_acid + NH3 | warm_pore_film | hydrolysis_rate | formic acid/NH3 generation | VR17 | medium
+VR158 | thermal_HCN_films | formic_acid -> CO + H2O | dry_hot_rock | dehydration_rate | CO generation | VR17 | medium
+VR159 | thermal_HCN_films | formic_acid -> CO2 + H2 | hot_rock | decomposition_rate | CO2/H2 generation | VR17 | medium
+VR160 | thermal_HCN_films | HCN + H2O -> formaldimine | warm_pore_film | thermal_effective_rate | imine source | VR17 | medium
+VR161 | thermal_HCN_films | formaldimine + H2O -> formaldehyde + NH3 | water_proton_shuttle | hydrolysis_rate | formaldehyde source | VR17 | medium
+VR162 | thermal_HCN_films | formaldehyde + HCN -> glycolonitrile | aqueous_film | mass_action*f_pH | glycolonitrile source | VR17 | high
+VR163 | thermal_HCN_films | formaldimine + HCN -> aminoacetonitrile | aqueous_film | mass_action*f_pH | glycine precursor | VR17 | high
+VR164 | thermal_HCN_films | aminoacetonitrile + 2 H2O -> glycine + NH3 | wet_phase | hydrolysis_rate | glycine route | VR17 | high
+VR165 | thermal_HCN_films | isocyanic_acid + NH3 -> urea | warm_pore_film | mass_action | urea formation | VR17 | medium
+VR166 | thermal_HCN_films | urea -> cyanamide + H2O | dry_hot_rock/NH3_shuttle | dehydration_rate*f_dry | cyanamide source | VR17 | medium
+VR167 | thermal_HCN_films | formamide + glycolonitrile -> amino_oxazole_derivative + H2O | warm_dry_film | cyclocondensation_rate*f_dry | oxazole precursor branch | VR17 | medium
+VR168 | thermal_HCN_films | hydroxymethylene_carbene + hydroxymethylene_carbene -> glycolaldehyde | hot_film | dimerization_rate | glycolaldehyde via low-valent route | VR17 | medium
+VR169 | thermal_HCN_films | HCN_pore_film -> HCN_enriched_surface_layer | air_water_rock_interface | partitioning_rate | HCN surface concentration | VR17 | medium
+VR170 | thermal_HCN_films | HCN_enriched_surface_layer + dry_down -> concentrated_HCN_residue | evaporation | concentration_rate | accelerated HCN-water chemistry | VR17 | high

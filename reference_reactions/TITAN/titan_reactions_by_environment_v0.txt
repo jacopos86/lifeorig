@@ -1,0 +1,257 @@
+# Titan multi-environment reaction network v0
+# Candidate network organized by environment for simulations.
+# Phases: (g)=gas, (lM)=methane-rich liquid, (lE)=ethane-rich liquid,
+# (sol)=dissolved solute, (s)=solid/evaporite, (aer)=aerosol/tholin surface, (aq)=water/ammonia transient melt.
+# Add rates later: gas k(T), photolysis J(z,lambda), liquid k_liq(T,solvent), surface k_surf(T,photon_flux).
+
+# ============================================================
+# A. ATMOSPHERE: primary photolysis and dissociation
+# ============================================================
+A001 [ATM_UPPER] N2(g) + hv -> N(4S)(g) + N(4S)(g)
+A002 [ATM_UPPER] N2(g) + hv -> N(2D)(g) + N(4S)(g)
+A003 [ATM_UPPER] N2(g) + e- -> N(4S)(g) + N(4S)(g) + e-
+A004 [ATM_UPPER] N2(g) + hv -> N2+(g) + e-
+A005 [ATM_UPPER] CH4(g) + hv -> CH3(g) + H(g)
+A006 [ATM_UPPER] CH4(g) + hv -> CH2(g) + H2(g)
+A007 [ATM_UPPER] CH4(g) + hv -> CH(g) + H2(g) + H(g)
+A008 [ATM_UPPER] CH4(g) + hv -> CH4+(g) + e-
+A009 [ATM_NEUTRAL] C2H6(g) + hv -> C2H5(g) + H(g)
+A010 [ATM_NEUTRAL] C2H6(g) + hv -> CH3(g) + CH3(g)
+A011 [ATM_NEUTRAL] C2H4(g) + hv -> C2H3(g) + H(g)
+A012 [ATM_NEUTRAL] C2H2(g) + hv -> C2H(g) + H(g)
+A013 [ATM_NEUTRAL] C2H2(g) + hv -> C2(g) + H2(g)
+A014 [ATM_NEUTRAL] HCN(g) + hv -> CN(g) + H(g)
+A015 [ATM_NEUTRAL] HC3N(g) + hv -> C3N(g) + H(g)
+A016 [ATM_NEUTRAL] NH3(g) + hv -> NH2(g) + H(g)
+A017 [ATM_NEUTRAL] NH2(g) + hv -> NH(g) + H(g)
+A018 [ATM_NEUTRAL] CO(g) + hv -> C(g) + O(g)
+A019 [ATM_NEUTRAL] CO2(g) + hv -> CO(g) + O(g)
+A020 [ATM_NEUTRAL] C4H2(g) + hv -> C4H(g) + H(g)
+
+# ============================================================
+# B. ATMOSPHERE: H / CHx / hydrocarbon neutral chemistry
+# ============================================================
+B001 [ATM_NEUTRAL] H(g) + H(g) + M -> H2(g) + M
+B002 [ATM_NEUTRAL] H(g) + CH4(g) -> CH3(g) + H2(g)
+B003 [ATM_NEUTRAL] H(g) + CH3(g) + M -> CH4(g) + M
+B004 [ATM_NEUTRAL] H(g) + CH2(g) -> CH(g) + H2(g)
+B005 [ATM_NEUTRAL] H(g) + CH(g) -> C(g) + H2(g)
+B006 [ATM_NEUTRAL] CH3(g) + CH3(g) + M -> C2H6(g) + M
+B007 [ATM_NEUTRAL] CH3(g) + CH2(g) -> C2H4(g) + H(g)
+B008 [ATM_NEUTRAL] CH3(g) + CH(g) -> C2H3(g) + H(g)
+B009 [ATM_NEUTRAL] CH2(g) + CH2(g) -> C2H2(g) + H2(g)
+B010 [ATM_NEUTRAL] CH2(g) + CH2(g) -> C2H3(g) + H(g)
+B011 [ATM_NEUTRAL] CH(g) + CH4(g) -> C2H4(g) + H(g)
+B012 [ATM_NEUTRAL] CH(g) + CH4(g) -> C2H5(g)
+B013 [ATM_NEUTRAL] CH3(g) + H(g) -> CH2(g) + H2(g)
+B014 [ATM_NEUTRAL] CH2(g) + H2(g) -> CH3(g) + H(g)
+B015 [ATM_NEUTRAL] CH(g) + H2(g) -> CH2(g) + H(g)
+B016 [ATM_NEUTRAL] C(g) + H2(g) -> CH(g) + H(g)
+B017 [ATM_NEUTRAL] C2H5(g) + H(g) -> C2H4(g) + H2(g)
+B018 [ATM_NEUTRAL] C2H5(g) + M -> C2H4(g) + H(g) + M
+B019 [ATM_NEUTRAL] C2H4(g) + H(g) -> C2H3(g) + H2(g)
+B020 [ATM_NEUTRAL] C2H3(g) + H(g) -> C2H2(g) + H2(g)
+B021 [ATM_NEUTRAL] C2H3(g) + H(g) + M -> C2H4(g) + M
+B022 [ATM_NEUTRAL] C2H2(g) + H(g) -> C2H(g) + H2(g)
+B023 [ATM_NEUTRAL] C2H(g) + H2(g) -> C2H2(g) + H(g)
+B024 [ATM_NEUTRAL] C2H(g) + CH4(g) -> C2H2(g) + CH3(g)
+B025 [ATM_NEUTRAL] C2H(g) + C2H2(g) -> C4H2(g) + H(g)
+B026 [ATM_NEUTRAL] C2H(g) + C2H4(g) -> C4H4(g) + H(g)
+B027 [ATM_NEUTRAL] C2H3(g) + CH3(g) -> C3H6(g)
+B028 [ATM_NEUTRAL] C2H3(g) + CH3(g) -> C2H2(g) + CH4(g)
+B029 [ATM_NEUTRAL] C2H5(g) + CH3(g) -> C3H8(g)
+B030 [ATM_NEUTRAL] C2H5(g) + CH3(g) -> C2H4(g) + CH4(g)
+B031 [ATM_NEUTRAL] C3H8(g) + hv -> C3H7(g) + H(g)
+B032 [ATM_NEUTRAL] C3H6(g) + hv -> C3H5(g) + H(g)
+B033 [ATM_NEUTRAL] C3H4(g) + hv -> C3H3(g) + H(g)
+B034 [ATM_NEUTRAL] C3H3(g) + H(g) -> C3H4(g)
+B035 [ATM_NEUTRAL] C3H3(g) + C3H3(g) -> C6H6(g)
+
+# ============================================================
+# C. ATMOSPHERE: nitrogen incorporation and nitrile chemistry
+# ============================================================
+C001 [ATM_NEUTRAL] N(2D)(g) + CH4(g) -> CH3(g) + NH(g)
+C002 [ATM_NEUTRAL] N(2D)(g) + CH4(g) -> H2CNH(g) + H(g)
+C003 [ATM_NEUTRAL] N(2D)(g) + C2H2(g) -> HCN(g) + CH(g)
+C004 [ATM_NEUTRAL] N(2D)(g) + C2H4(g) -> HCN(g) + CH3(g)
+C005 [ATM_NEUTRAL] N(2D)(g) + C2H6(g) -> HCN(g) + CH3(g) + H2(g)
+C006 [ATM_NEUTRAL] N(4S)(g) + CH3(g) -> H2CN(g) + H(g)
+C007 [ATM_NEUTRAL] H2CN(g) + H(g) -> HCN(g) + H2(g)
+C008 [ATM_NEUTRAL] N(4S)(g) + CH2(g) -> HCN(g) + H(g)
+C009 [ATM_NEUTRAL] N(4S)(g) + CH(g) -> CN(g) + H(g)
+C010 [ATM_NEUTRAL] CN(g) + H2(g) -> HCN(g) + H(g)
+C011 [ATM_NEUTRAL] CN(g) + CH4(g) -> HCN(g) + CH3(g)
+C012 [ATM_NEUTRAL] CN(g) + C2H2(g) -> HC3N(g) + H(g)
+C013 [ATM_NEUTRAL] CN(g) + C2H4(g) -> C2H3CN(g) + H(g)
+C014 [ATM_NEUTRAL] CN(g) + C2H6(g) -> HCN(g) + C2H5(g)
+C015 [ATM_NEUTRAL] CN(g) + HCN(g) -> NCCN(g) + H(g)
+C016 [ATM_NEUTRAL] C2H(g) + HCN(g) -> HC3N(g) + H(g)
+C017 [ATM_NEUTRAL] C3N(g) + H2(g) -> HC3N(g) + H(g)
+C018 [ATM_NEUTRAL] C3N(g) + CH4(g) -> HC3N(g) + CH3(g)
+C019 [ATM_NEUTRAL] NH(g) + H2(g) -> NH2(g) + H(g)
+C020 [ATM_NEUTRAL] NH2(g) + H2(g) -> NH3(g) + H(g)
+C021 [ATM_NEUTRAL] NH2(g) + H(g) -> NH(g) + H2(g)
+C022 [ATM_NEUTRAL] NH(g) + CH3(g) -> H2CNH(g) + H(g)
+C023 [ATM_NEUTRAL] H2CNH(g) + hv -> HCN(g) + H2(g)
+C024 [ATM_NEUTRAL] H2CNH(g) + H(g) -> HCN(g) + H2(g) + H(g)
+C025 [ATM_NEUTRAL] HCN(g) + H(g) -> H2CN(g)
+C026 [ATM_NEUTRAL] H2CN(g) + CH3(g) -> CH3CN(g) + H2(g)
+C027 [ATM_NEUTRAL] CH3CN(g) + hv -> CH3(g) + CN(g)
+C028 [ATM_NEUTRAL] CH3CN(g) + CN(g) -> HCN(g) + CH2CN(g)
+C029 [ATM_NEUTRAL] CH2CN(g) + H(g) -> CH3CN(g)
+C030 [ATM_NEUTRAL] CH2CN(g) + H(g) -> HCN(g) + CH3(g)
+
+# ============================================================
+# D. ATMOSPHERE: simple trace oxygen chemistry
+# ============================================================
+D001 [ATM_NEUTRAL] O(g) + CH3(g) -> H2CO(g) + H(g)
+D002 [ATM_NEUTRAL] O(g) + CH4(g) -> OH(g) + CH3(g)
+D003 [ATM_NEUTRAL] OH(g) + CH4(g) -> H2O(g) + CH3(g)
+D004 [ATM_NEUTRAL] OH(g) + H2(g) -> H2O(g) + H(g)
+D005 [ATM_NEUTRAL] C(g) + O(g) -> CO(g)
+D006 [ATM_NEUTRAL] CO(g) + OH(g) -> CO2(g) + H(g)
+D007 [ATM_NEUTRAL] H2CO(g) + hv -> HCO(g) + H(g)
+D008 [ATM_NEUTRAL] HCO(g) + H(g) -> CO(g) + H2(g)
+D009 [ATM_NEUTRAL] HCO(g) + CH3(g) -> CH3CHO(g)
+D010 [ATM_NEUTRAL] CH3CHO(g) + hv -> CH3(g) + HCO(g)
+
+# ============================================================
+# E. AEROSOL / THOLIN / CONDENSED HAZE SURFACE
+# ============================================================
+E001 [AEROSOL] C2H2(aer) + hv -> C2H(aer) + H(aer)
+E002 [AEROSOL] C2H2(aer) + aerosol* + hv -> polymer_C2Hx(aer) + H2(g)
+E003 [AEROSOL] HCN(aer) + hv -> CN(aer) + H(aer)
+E004 [AEROSOL] HCN(aer) + aerosol* + hv -> nitrile_polymer(aer)
+E005 [AEROSOL] HC3N(aer) + hv -> C3N(aer) + H(aer)
+E006 [AEROSOL] C2H2(aer) + CN(aer) -> HC3N(aer)
+E007 [AEROSOL] C2H2(aer) + C2H(aer) -> C4H2(aer) + H(aer)
+E008 [AEROSOL] C4H2(aer) + C2H(aer) -> C6H2(aer) + H(aer)
+E009 [AEROSOL] C3H3(aer) + C3H3(aer) -> C6H6(aer)
+E010 [AEROSOL] C6H6(aer) + hv -> phenyl(aer) + H(aer)
+E011 [AEROSOL] phenyl(aer) + C2H2(aer) -> C8H7(aer)
+E012 [AEROSOL] nitrile_polymer(aer) + hv -> refractory_tholin(aer)
+E013 [AEROSOL] polymer_C2Hx(aer) + CN(aer) -> nitrile_polymer(aer)
+E014 [AEROSOL] CH3CN(aer) + hv -> CH2CN(aer) + H(aer)
+E015 [AEROSOL] CH2CN(aer) + HCN(aer) -> nitrile_polymer(aer)
+
+# ============================================================
+# F. LAKE / RAIN: methane-rich liquid environment
+# ============================================================
+F001 [LAKE_CH4_RICH] CH4(g) <-> CH4(lM)
+F002 [LAKE_CH4_RICH] C2H6(g) <-> C2H6(sol)
+F003 [LAKE_CH4_RICH] N2(g) <-> N2(sol)
+F004 [LAKE_CH4_RICH] HCN(g) -> HCN(sol)
+F005 [LAKE_CH4_RICH] C2H2(g) -> C2H2(sol)
+F006 [LAKE_CH4_RICH] C3H8(g) -> C3H8(sol)
+F007 [LAKE_CH4_RICH] CH3CN(g) -> CH3CN(sol)
+F008 [LAKE_CH4_RICH] HC3N(g) -> HC3N(sol)
+F009 [LAKE_CH4_RICH] CH4(lM) + hv -> CH3(sol) + H(sol)
+F010 [LAKE_CH4_RICH] C2H6(sol) + hv -> C2H5(sol) + H(sol)
+F011 [LAKE_CH4_RICH] C2H2(sol) + hv -> C2H(sol) + H(sol)
+F012 [LAKE_CH4_RICH] HCN(sol) + hv -> CN(sol) + H(sol)
+F013 [LAKE_CH4_RICH] CH3(sol) + CH3(sol) -> C2H6(sol)
+F014 [LAKE_CH4_RICH] CH3(sol) + H(sol) -> CH4(lM)
+F015 [LAKE_CH4_RICH] C2H5(sol) + H(sol) -> C2H6(sol)
+F016 [LAKE_CH4_RICH] C2H5(sol) -> C2H4(sol) + H(sol)
+F017 [LAKE_CH4_RICH] C2H4(sol) + H(sol) -> C2H5(sol)
+F018 [LAKE_CH4_RICH] C2H4(sol) + hv -> C2H3(sol) + H(sol)
+F019 [LAKE_CH4_RICH] C2H3(sol) + H(sol) -> C2H4(sol)
+F020 [LAKE_CH4_RICH] C2H3(sol) + H(sol) -> C2H2(sol) + H2(sol)
+F021 [LAKE_CH4_RICH] C2H(sol) + CH4(lM) -> C2H2(sol) + CH3(sol)
+F022 [LAKE_CH4_RICH] C2H(sol) + C2H2(sol) -> C4H2(sol) + H(sol)
+F023 [LAKE_CH4_RICH] CN(sol) + CH4(lM) -> HCN(sol) + CH3(sol)
+F024 [LAKE_CH4_RICH] CN(sol) + C2H2(sol) -> HC3N(sol) + H(sol)
+F025 [LAKE_CH4_RICH] CN(sol) + HCN(sol) -> NCCN(sol) + H(sol)
+F026 [LAKE_CH4_RICH] H(sol) + H(sol) -> H2(sol)
+F027 [LAKE_CH4_RICH] H2(sol) -> H2(g)
+F028 [LAKE_CH4_RICH] C2H2(sol) -> C2H2(s)
+F029 [LAKE_CH4_RICH] HCN(sol) -> HCN(s)
+F030 [LAKE_CH4_RICH] HC3N(sol) -> HC3N(s)
+
+# ============================================================
+# G. LAKE / SEA: ethane-rich liquid environment
+# ============================================================
+G001 [LAKE_C2H6_RICH] C2H6(g) <-> C2H6(lE)
+G002 [LAKE_C2H6_RICH] CH4(g) <-> CH4(sol)
+G003 [LAKE_C2H6_RICH] N2(g) <-> N2(sol)
+G004 [LAKE_C2H6_RICH] C3H8(g) <-> C3H8(sol)
+G005 [LAKE_C2H6_RICH] C4H10(g) -> C4H10(sol)
+G006 [LAKE_C2H6_RICH] C2H2(g) -> C2H2(sol)
+G007 [LAKE_C2H6_RICH] HCN(g) -> HCN(sol)
+G008 [LAKE_C2H6_RICH] CH3CN(g) -> CH3CN(sol)
+G009 [LAKE_C2H6_RICH] HC3N(g) -> HC3N(sol)
+G010 [LAKE_C2H6_RICH] C2H6(lE) + hv -> C2H5(sol) + H(sol)
+G011 [LAKE_C2H6_RICH] CH4(sol) + hv -> CH3(sol) + H(sol)
+G012 [LAKE_C2H6_RICH] C2H2(sol) + hv -> C2H(sol) + H(sol)
+G013 [LAKE_C2H6_RICH] HCN(sol) + hv -> CN(sol) + H(sol)
+G014 [LAKE_C2H6_RICH] CH3CN(sol) + hv -> CH2CN(sol) + H(sol)
+G015 [LAKE_C2H6_RICH] C2H5(sol) + H(sol) -> C2H6(lE)
+G016 [LAKE_C2H6_RICH] C2H5(sol) + CH3(sol) -> C3H8(sol)
+G017 [LAKE_C2H6_RICH] CH3(sol) + CH3(sol) -> C2H6(lE)
+G018 [LAKE_C2H6_RICH] C2H3(sol) + CH3(sol) -> C3H6(sol)
+G019 [LAKE_C2H6_RICH] C2H(sol) + C2H2(sol) -> C4H2(sol) + H(sol)
+G020 [LAKE_C2H6_RICH] C2H(sol) + C2H4(sol) -> C4H4(sol) + H(sol)
+G021 [LAKE_C2H6_RICH] C2H(sol) + CH4(sol) -> C2H2(sol) + CH3(sol)
+G022 [LAKE_C2H6_RICH] CN(sol) + C2H2(sol) -> HC3N(sol) + H(sol)
+G023 [LAKE_C2H6_RICH] CN(sol) + CH4(sol) -> HCN(sol) + CH3(sol)
+G024 [LAKE_C2H6_RICH] CN(sol) + C2H6(lE) -> HCN(sol) + C2H5(sol)
+G025 [LAKE_C2H6_RICH] CH2CN(sol) + H(sol) -> CH3CN(sol)
+G026 [LAKE_C2H6_RICH] C4H2(sol) + C2H(sol) -> C6H2(sol) + H(sol)
+G027 [LAKE_C2H6_RICH] C6H6(sol) -> C6H6(s)
+G028 [LAKE_C2H6_RICH] C2H2(sol) -> C2H2(s)
+G029 [LAKE_C2H6_RICH] HCN(sol) -> HCN(s)
+G030 [LAKE_C2H6_RICH] HC3N(sol) -> HC3N(s)
+
+# ============================================================
+# H. EVAPORITE / SOLID ORGANIC SURFACE CHEMISTRY
+# ============================================================
+H001 [EVAPORITE] HCN(s) + hv -> CN(s) + H(s)
+H002 [EVAPORITE] C2H2(s) + hv -> C2H(s) + H(s)
+H003 [EVAPORITE] HC3N(s) + hv -> C3N(s) + H(s)
+H004 [EVAPORITE] CH3CN(s) + hv -> CH2CN(s) + H(s)
+H005 [EVAPORITE] HCN(s) + C2H2(s) + hv -> HC3N(s) + H2(s)
+H006 [EVAPORITE] CN(s) + C2H2(s) -> HC3N(s) + H(s)
+H007 [EVAPORITE] C2H(s) + C2H2(s) -> C4H2(s) + H(s)
+H008 [EVAPORITE] C4H2(s) + C2H(s) -> C6H2(s) + H(s)
+H009 [EVAPORITE] C3H3(s) + C3H3(s) -> C6H6(s)
+H010 [EVAPORITE] HCN(s) + NH3(s) -> NH4CN(s)
+H011 [EVAPORITE] NH4CN(s) + heat_or_uv -> HCN_polymer(s)
+H012 [EVAPORITE] HCN_polymer(s) + hv -> refractory_nitrile_residue(s)
+H013 [EVAPORITE] C2H2(s) + tholin(s) + hv -> acetylene_modified_tholin(s)
+H014 [EVAPORITE] HCN(s) + tholin(s) + hv -> nitrile_modified_tholin(s)
+H015 [EVAPORITE] HC3N(s) + tholin(s) + hv -> nitrile_modified_tholin(s)
+
+# ============================================================
+# I. OPTIONAL: transient impact melt / cryovolcanic water-ammonia
+# ============================================================
+I001 [IMPACT_WATER] HCN(aq) + H2O(aq) -> HCONH2(aq)
+I002 [IMPACT_WATER] HCN(aq) + NH3(aq) -> NH4CN(aq)
+I003 [IMPACT_WATER] NH4CN(aq) -> HCN(aq) + NH3(aq)
+I004 [IMPACT_WATER] HCN(aq) + HCN(aq) -> iminoacetonitrile(aq)
+I005 [IMPACT_WATER] iminoacetonitrile(aq) + H2O(aq) -> glycinamide_precursor(aq)
+I006 [IMPACT_WATER] HCONH2(aq) + hv -> NH2CHO_radicals(aq)
+I007 [IMPACT_WATER] CO(aq) + NH3(aq) + hv -> HCONH2(aq)
+I008 [IMPACT_WATER] C2H2(aq) + HCN(aq) -> cyanoacetylene_precursor(aq)
+I009 [IMPACT_WATER] HC3N(aq) + H2O(aq) -> cyanoacetaldehyde_precursor(aq)
+I010 [IMPACT_WATER] refractory_tholin(s) + H2O(aq) -> soluble_organics(aq)
+
+# ============================================================
+# J. Cross-environment transport / exchange processes
+# ============================================================
+J001 [TRANSPORT] CH4(lM) -> CH4(g)
+J002 [TRANSPORT] CH4(g) -> CH4(lM)
+J003 [TRANSPORT] C2H6(lE) -> C2H6(g)
+J004 [TRANSPORT] C2H6(g) -> C2H6(lE)
+J005 [TRANSPORT] N2(sol) -> N2(g)
+J006 [TRANSPORT] N2(g) -> N2(sol)
+J007 [TRANSPORT] HCN(g) -> HCN(s)
+J008 [TRANSPORT] HCN(g) -> HCN(sol)
+J009 [TRANSPORT] C2H2(g) -> C2H2(s)
+J010 [TRANSPORT] C2H2(g) -> C2H2(sol)
+J011 [TRANSPORT] HC3N(g) -> HC3N(s)
+J012 [TRANSPORT] HC3N(g) -> HC3N(sol)
+J013 [TRANSPORT] aerosol_particle(g) -> tholin(s)
+J014 [TRANSPORT] nitrile_polymer(aer) -> nitrile_polymer(s)
+J015 [TRANSPORT] polymer_C2Hx(aer) -> polymer_C2Hx(s)
+
+# End of file

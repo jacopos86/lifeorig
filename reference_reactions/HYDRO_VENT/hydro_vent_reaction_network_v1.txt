@@ -1,0 +1,195 @@
+# Hydrothermal vent reaction network v1
+# Purpose:
+#   Environment-specific reference network for alkaline/reducing ocean-rock
+#   interfaces, hydrothermal pores, and vent-ocean mixing zones.
+#
+# Scope:
+#   This network is distinct from surface pond and volcanic rock networks.
+#   It emphasizes high-pressure aqueous speciation, serpentinization products,
+#   Fe/Ni sulfide and magnetite surfaces, C1 reduction, thioester/acetyl
+#   activation, reductive amination, peptide/lipid survival, and open-flow loss.
+#
+# Status:
+#   Literature-guided hypothesis network for comparative simulations.
+#   Many reactions are lumped effective pathways, not elementary mechanisms.
+#
+# Columns:
+#   ID | MODULE | REACTION | CATALYST_OR_CONTROL | RATE_TEMPLATE | ROLE | REFS | CONFIDENCE
+#
+# Environmental variables:
+#   T, P, pH, pe/Eh, ionic_strength, flow_rate, mixing_fraction, activities,
+#   gas_fugacity[H2,CO2,CO,CH4,H2S], mineral_SA[FeS,NiS,magnetite,brucite],
+#   saturation_index[mineral].
+#
+# Reference keys:
+#   HV01 MartinRussell2007; HV02 Sojo2016; HV03 Herschy2014; HV04 Roldan2015;
+#   HV05 HeinenLauwers1996; HV06 HuberWachtershauser1997; HV07 Cody2000;
+#   HV08 McCollomSeewald2007; HV09 AmendMcCollom2009; HV10 Kitadai2018;
+#   HV11 Barge2015; HV12 Whicher2018; HV13 ParkhurstAppelo2013;
+#   HV14 DasGhuleVanka2019.
+
+HV001 | geochemical_speciation | CO2(aq) + H2O <=> HCO3- + H+ | PHREEQC | equilibrium_activity | carbonate buffer | HV13 | high
+HV002 | geochemical_speciation | HCO3- <=> CO3-- + H+ | PHREEQC | equilibrium_activity | carbonate buffer | HV13 | high
+HV003 | geochemical_speciation | H2S(aq) <=> HS- + H+ | PHREEQC | equilibrium_activity | sulfide speciation | HV13 | high
+HV004 | geochemical_speciation | HS- <=> S-- + H+ | PHREEQC | equilibrium_activity | sulfide speciation | HV13 | medium
+HV005 | geochemical_speciation | NH4+ <=> NH3(aq) + H+ | PHREEQC | equilibrium_activity | available ammonia | HV13 | high
+HV006 | geochemical_speciation | H3PO4 <=> H2PO4- + H+ | PHREEQC | equilibrium_activity | phosphate speciation | HV13 | high
+HV007 | geochemical_speciation | H2PO4- <=> HPO4-- + H+ | PHREEQC | equilibrium_activity | phosphate speciation | HV13 | high
+HV008 | geochemical_speciation | HPO4-- <=> PO4--- + H+ | PHREEQC | equilibrium_activity | phosphate speciation | HV13 | high
+HV009 | geochemical_speciation | Fe++ + HS- -> FeS(s) + H+ | PHREEQC/mineral_kinetic | saturation_limited | FeS surface formation | HV13,HV01 | high
+HV010 | geochemical_speciation | Ni++ + HS- -> NiS(s) + H+ | PHREEQC/mineral_kinetic | saturation_limited | NiS surface formation | HV13,HV01 | high
+HV011 | geochemical_speciation | 3 Fe++ + 4 H2O -> Fe3O4(s) + 8 H+ + 2 e- | magnetite_buffer | redox_equilibrium_or_kinetic | magnetite redox surface | HV13,HV08 | medium
+HV012 | geochemical_speciation | Mg++ + 2 OH- -> Mg(OH)2(s) | PHREEQC | saturation_limited | brucite/alkalinity control | HV13,HV08 | high
+HV013 | geochemical_speciation | Ca++ + CO3-- -> CaCO3(s) | PHREEQC | saturation_limited | carbonate sink | HV13 | high
+HV014 | geochemical_speciation | SiO2(aq) -> SiO2(s) | PHREEQC | saturation_limited | silica precipitation | HV13 | high
+HV015 | geochemical_speciation | FeS(s) + S0 -> FeS2(s) | sulfide_redox | saturation_limited | pyrite formation sink | HV13,HV08 | medium
+HV016 | serpentinization | 3 FeO(silicate) + H2O -> Fe3O4(s) + H2 | ultramafic_rock | rock_water_rate | H2 source | HV08,HV09 | high
+HV017 | serpentinization | Mg2SiO4 + MgSiO3 + 2 H2O -> Mg3Si2O5(OH)4 | peridotite | rock_water_rate | serpentine formation | HV08,HV09 | high
+HV018 | serpentinization | Mg2SiO4 + H2O -> Mg(OH)2 + MgSiO3 | olivine_water | rock_water_rate | brucite alkalinity | HV08,HV09 | medium
+HV019 | serpentinization | CO2 + 4 H2 -> CH4 + 2 H2O | magnetite/NiFe | Arrhenius_redox | methanation sink | HV08,HV09 | medium
+HV020 | serpentinization | CO + 3 H2 -> CH4 + H2O | NiFe | Arrhenius_redox | CO methanation sink | HV08,HV09 | medium
+HV021 | C1_fixation | CO2 + H2 -> HCOO- + H+ | FeS/NiS/magnetite | Arrhenius*f_pH*f_redox*f_min | formate production | HV01,HV02,HV10 | medium
+HV022 | C1_fixation | CO2 + H2 -> CO + H2O | Fe/Ni_sulfide | Arrhenius*f_min*f_redox | CO source | HV01,HV02,HV10 | medium
+HV023 | C1_fixation | CO + H2O <=> CO2 + H2 | FeS/NiS | reversible_Arrhenius | water-gas-shift buffer | HV08,HV10 | medium
+HV024 | C1_fixation | HCOO- + H+ <=> HCOOH | PHREEQC/pH | equilibrium_activity | neutral formic acid pool | HV13 | high
+HV025 | C1_fixation | HCOO- + H2 -> HCHO + OH- | FeS/NiS | Arrhenius*f_redox*f_min | formaldehyde source | HV10 | low
+HV026 | C1_fixation | CO2 + HS- + H+ -> COS + H2O | sulfide_activation | Arrhenius*f_pH*a_HS | carbonyl sulfide source | HV06,HV10 | medium
+HV027 | C1_fixation | CO + H2S -> COS + H2 | FeS/NiS | Arrhenius*f_min | COS source | HV06,HV10 | medium
+HV028 | C1_fixation | COS + H2O -> CO2 + H2S | hydrolysis | acid_base_rate | COS loss | HV06,HV10 | high
+HV029 | C1_fixation | COS + NH3 -> NH2CO-SH | aqueous_sulfide | mass_action*f_pH | thiocarbamate/carbamoyl pool | HV06 | medium
+HV030 | C1_fixation | CO + NH3 -> HCONH2 | FeS/NiS | Arrhenius*f_min | formamide source | HV10 | low
+HV031 | C1_fixation | HCN + H2O -> HCONH2 | mineral_surface | acid_base*f_min | formamide from nitrile | HV10 | medium
+HV032 | C1_fixation | HCONH2 + H2O -> HCOO- + NH4+ | hydrolysis | acid_base_rate | formamide loss | HV10 | high
+HV033 | C1_fixation | HCHO + H2 -> CH3OH | NiFe/mineral | Arrhenius*f_redox | reduced C1 sink | HV08 | medium
+HV034 | C1_fixation | CH3OH + CO -> CH3COOH | metal_sulfide | Arrhenius*f_min | acetate source lump | HV07,HV10 | low
+HV035 | C1_fixation | CO + HS- -> HCS- | FeS/NiS | surface_mass_action | thioformyl pool | HV06,HV10 | medium
+HV036 | thioester_activation | CO + CH3SH -> CH3COSR | NiS/FeS | Arrhenius*f_min | acetyl thioester source | HV06,HV07 | medium
+HV037 | thioester_activation | CO2 + CH3SH + 2 H2 -> CH3COSR + 2 H2O | NiS/FeS | Arrhenius*f_redox*f_min | reductive acetyl thioester | HV01,HV06,HV07 | low
+HV038 | thioester_activation | CH3COSR + H2O -> acetate + RSH + H+ | hydrolysis | Arrhenius*f_pH | thioester loss | HV06,HV12 | high
+HV039 | thioester_activation | CH3COSR + Pi -> acetyl_phosphate + RSH | mineral/phosphate | mass_action*f_pH*f_min | acetyl phosphate source | HV12 | medium
+HV040 | thioester_activation | acetyl_phosphate + H2O -> acetate + Pi + H+ | hydrolysis | Arrhenius*f_pH | energy loss | HV12 | high
+HV041 | thioester_activation | acetyl_phosphate + NH3 -> acetamide + Pi | aqueous | mass_action*f_pH | amide branch | HV12 | medium
+HV042 | thioester_activation | CH3COSR + NH3 -> thioacetamide + RSH | aqueous | mass_action*f_pH | nitrogen side branch | HV06 | medium
+HV043 | thioester_activation | CH3COSR + HCOO- -> acetoacetyl_SR | FeS/NiS | surface_mass_action | C-C extension | HV07,HV10 | low
+HV044 | thioester_activation | CH3COSR + CO2 + H2 -> pyruvate + RSH | FeS/NiS | Arrhenius*f_redox*f_min | C3 precursor | HV01,HV10 | low
+HV045 | thioester_activation | acetate + H+ <=> acetic_acid | PHREEQC/pH | equilibrium_activity | acetate speciation | HV13 | high
+HV046 | thioester_activation | acetate + HS- + energy -> thioacetate + H2O | FeS/NiS | driven_effective_rate | thioester regeneration | HV06,HV12 | low
+HV047 | thioester_activation | thioacetate + Pi -> acetyl_phosphate + HS- | mineral/phosphate | mass_action*f_min | energy currency source | HV12 | medium
+HV048 | thioester_activation | acetyl_phosphate + ADP_analogue -> ATP_analogue + acetate | Mg/mineral | lumped_phosphoryl_transfer | phosphoryl transfer test | HV12 | low
+HV049 | thioester_activation | COS + phosphate -> thiophosphate + CO2 | aqueous_sulfide | mass_action*f_pH | phosphate activation branch | HV06 | low
+HV050 | thioester_activation | thiophosphate + H2O -> phosphate + H2S | hydrolysis | acid_base_rate | activated phosphate loss | HV06 | medium
+HV051 | central_carboxylate | formate + CO -> glyoxylate | FeS/NiS | surface_carbonylation | C2 acid entry | HV01,HV10 | low
+HV052 | central_carboxylate | glyoxylate + H2 -> glycolate | FeS/NiS | Arrhenius*f_redox | C2 reduction sink | HV10 | medium
+HV053 | central_carboxylate | glyoxylate + NH3 + H2 -> glycine + H2O | FeS/NiS | Arrhenius*f_pH*f_redox | reductive amination | HV10 | medium
+HV054 | central_carboxylate | acetate + CO2 + H2 -> pyruvate + H2O | FeS/NiS | Arrhenius*f_redox*f_min | C3 acid source | HV01,HV10 | low
+HV055 | central_carboxylate | pyruvate + NH3 + H2 -> alanine + H2O | FeS/NiS | Arrhenius*f_pH*f_redox | alanine source | HV10 | medium
+HV056 | central_carboxylate | pyruvate + CO2 + H2 -> oxaloacetate | FeS/NiS | Arrhenius*f_redox | C4 precursor | HV01,HV10 | low
+HV057 | central_carboxylate | oxaloacetate + NH3 + H2 -> aspartate + H2O | FeS/NiS | Arrhenius*f_pH*f_redox | aspartate source | HV10 | medium
+HV058 | central_carboxylate | glyoxylate + acetate -> malate | mineral/base | mass_action*f_pH*f_min | C4 pool abstraction | HV10 | low
+HV059 | central_carboxylate | malate -> fumarate + H2O | mineral/heat | Arrhenius*f_min | dehydration | HV10 | medium
+HV060 | central_carboxylate | fumarate + H2 -> succinate | FeS/NiS | Arrhenius*f_redox | rTCA-like reduction | HV10 | medium
+HV061 | central_carboxylate | succinate + CO2 + H2 -> alpha_ketoglutarate | FeS/NiS | Arrhenius*f_redox | C5 precursor | HV10 | low
+HV062 | central_carboxylate | alpha_ketoglutarate + NH3 + H2 -> glutamate + H2O | FeS/NiS | Arrhenius*f_pH*f_redox | glutamate source | HV10 | medium
+HV063 | central_carboxylate | pyruvate + H2 -> lactate | FeS/NiS | Arrhenius*f_redox | reduction sink | HV10 | medium
+HV064 | central_carboxylate | pyruvate -> acetate + CO2 | heat/mineral | Arrhenius | decarboxylation sink | HV10 | medium
+HV065 | central_carboxylate | oxaloacetate -> pyruvate + CO2 | heat/mineral | Arrhenius | decarboxylation sink | HV10 | medium
+HV066 | central_carboxylate | alpha_ketoglutarate -> succinate + CO2 | heat/mineral | Arrhenius | degradation sink | HV10 | medium
+HV067 | nitrile_amide | HCHO + NH3 + HCN -> aminoacetonitrile + H2O | aqueous | mass_action*f_pH | Strecker glycine branch if HCN supplied | HV10 | medium
+HV068 | nitrile_amide | aminoacetonitrile + 2 H2O -> glycine + NH3 | hydrolysis | acid_base_rate | glycine from nitrile | HV10 | high
+HV069 | nitrile_amide | acetaldehyde + NH3 + HCN -> alanine_nitrile + H2O | aqueous | mass_action*f_pH | Strecker alanine branch | HV10 | medium
+HV070 | nitrile_amide | alanine_nitrile + 2 H2O -> alanine + NH3 | hydrolysis | acid_base_rate | alanine from nitrile | HV10 | high
+HV071 | nitrile_amide | glyoxylate + HCN -> glycolonitrile | aqueous | mass_action*f_pH | nitrile branch | HV10 | medium
+HV072 | nitrile_amide | glycolonitrile + 2 H2O -> glycolate + NH3 | hydrolysis | acid_base_rate | glycolate formation | HV10 | high
+HV073 | nitrile_amide | HCN + H2S -> thioformamide | sulfide | mass_action*f_pH | sulfur-amide branch | HV10 | low
+HV074 | nitrile_amide | HCN + NH3 -> amidine_pool | aqueous | mass_action*f_pH | N-rich intermediate lump | HV10 | low
+HV075 | peptide_activation | amino_acid + acetyl_phosphate -> aminoacyl_phosphate + acetate | phosphate/Mg/mineral | mass_action*f_pH*f_min | amino acid activation | HV12 | medium
+HV076 | peptide_activation | amino_acid + thioacetate -> aminoacyl_thioester + acetate | thioester/mineral | mass_action*f_min | thioester amino acid activation | HV06,HV12 | medium
+HV077 | peptide_activation | aminoacyl_phosphate + amino_acid -> peptide2 + Pi | mineral_surface | mass_action*f_min | peptide bond formation | HV12 | medium
+HV078 | peptide_activation | aminoacyl_thioester + amino_acid -> peptide2 + RSH | mineral_surface | mass_action*f_min | peptide bond formation | HV06 | medium
+HV079 | peptide_activation | peptide_n + aminoacyl_phosphate -> peptide_n+1 + Pi | mineral_surface | mass_action*f_min | peptide growth | HV12 | medium
+HV080 | peptide_activation | peptide_n + aminoacyl_thioester -> peptide_n+1 + RSH | mineral_surface | mass_action*f_min | peptide growth | HV06 | medium
+HV081 | peptide_activation | peptide_n + H2O -> peptide_n-1 + amino_acid | hydrolysis/heat | Arrhenius*f_pH | peptide loss | HV10 | high
+HV082 | peptide_activation | peptide_n + FeS_surface -> peptide_n_adsorbed | adsorption | Langmuir | peptide retention | HV11 | medium
+HV083 | peptide_activation | peptide_n_adsorbed -> peptide_n | desorption/flow | first_order | peptide release | HV11 | medium
+HV084 | peptide_activation | peptide_m + peptide_n -> peptide_m+n + H2O | mineral_surface | condensation_effective | surface condensation | HV11 | low
+HV085 | lipid_amphiphile | CO + 2 H2 -> CH2_star + H2O | Fe/Ni | Fischer_Tropsch_effective | chain-growth monomer | HV08 | medium
+HV086 | lipid_amphiphile | CH2_star + acyl_Cn -> acyl_Cn+1 | Fe/Ni | surface_chain_growth | fatty acyl elongation | HV08 | medium
+HV087 | lipid_amphiphile | acetyl_SR + CH2_star -> acyl_C3_SR | Fe/Ni | surface_chain_initiation | acyl initiation | HV08 | low
+HV088 | lipid_amphiphile | acyl_Cn_SR + H2O -> fatty_acid_Cn + RSH | hydrolysis | mass_action*f_pH | fatty acid release | HV08 | medium
+HV089 | lipid_amphiphile | fatty_acid_Cn + H+ <=> protonated_fatty_acid_Cn | PHREEQC/pH | equilibrium_activity | membrane-active species | HV13 | high
+HV090 | lipid_amphiphile | fatty_acid_Cn + Mg++ -> Mg_fatty_acid_solid | PHREEQC | saturation_limited | divalent cation sink | HV13 | medium
+HV091 | lipid_amphiphile | fatty_acid_Cn + Ca++ -> Ca_fatty_acid_solid | PHREEQC | saturation_limited | divalent cation sink | HV13 | medium
+HV092 | lipid_amphiphile | fatty_acid_Cn -> micelle | self_assembly | CMC_threshold | micelle formation | HV11 | medium
+HV093 | lipid_amphiphile | micelle + fatty_acid_Cn -> vesicle | self_assembly | threshold*f_pH*f_I | vesicle growth | HV11 | medium
+HV094 | lipid_amphiphile | vesicle + peptide_n -> peptide_vesicle | adsorption | Langmuir | membrane stabilization | HV11 | low
+HV095 | lipid_amphiphile | vesicle -> micelle + fatty_acid_loss | high_T/high_I/divalent | first_order_environment | vesicle disruption | HV11 | medium
+HV096 | gradients_transport | species_vent -> species_cell | advection_diffusion | transport_rate | vent supply | HV02,HV13 | high
+HV097 | gradients_transport | species_cell -> species_ocean | advection_diffusion | dilution_rate | open-flow loss | HV02,HV13 | high
+HV098 | gradients_transport | H+_gradient + ADP_analogue + Pi -> ATP_analogue | inorganic_barrier | chemiosmotic_effective | gradient energy test | HV01,HV02,HV03 | low
+HV099 | gradients_transport | reduced_species + oxidized_ocean_species -> redox_products | mixing_zone | redox_mixing_rate | disequilibrium consumption | HV02,HV09 | medium
+HV100 | gradients_transport | mineral_surface + organic_pool -> fouled_surface | adsorption/polymerization | coverage_rate | catalytic surface poisoning | HV11 | medium
+HV101 | gradients_transport | fouled_surface + flow -> mineral_surface + organic_loss | shear/desorption | first_order | surface regeneration | HV11 | low
+HV102 | degradation_loss | amino_acid -> organic_degradation_pool | heat/mineral | Arrhenius | thermal amino acid loss | HV10 | medium
+HV103 | degradation_loss | HCHO -> formate + H2 | Cannizzaro/mineral | base_rate | aldehyde loss | HV10 | medium
+HV104 | degradation_loss | HCN + H2O -> formate + NH3 | hydrolysis | acid_base_rate | HCN loss in hot water | HV10 | high
+HV105 | degradation_loss | organic_pool + oxidant -> CO2 + NH4+ + sulfate | ocean_oxidants | redox_rate | oxidative sink | HV09 | medium
+HV106 | mineral_surface_cycles | FeS_surface + CO -> FeS_CO_complex | FeS | Langmuir*surface_rate | adsorbed carbonyl activation | HV06,HV07 | medium
+HV107 | mineral_surface_cycles | FeS_CO_complex + HS- -> FeS_COSH_complex | FeS | surface_mass_action | thiocarboxyl intermediate | HV06,HV07 | medium
+HV108 | mineral_surface_cycles | FeS_COSH_complex + H2O -> formate + H2S + FeS_surface | FeS | surface_turnover | C1 release/regeneration | HV06,HV10 | medium
+HV109 | mineral_surface_cycles | NiS_surface + CO + CH3SH -> NiS_acetyl_complex | NiS | Langmuir*surface_rate | acetyl surface complex | HV06,HV07 | medium
+HV110 | mineral_surface_cycles | NiS_acetyl_complex + HS- -> thioacetate + NiS_surface | NiS | surface_turnover | thioacetate release | HV06,HV07 | medium
+HV111 | mineral_surface_cycles | FeS_surface + peptide_n -> FeS_peptide_complex | FeS | Langmuir | mineral-peptide catalytic complex | HV11 | medium
+HV112 | mineral_surface_cycles | FeS_peptide_complex + CO2 + H2 -> FeS_peptide_complex + formate | FeS/peptide | catalyzed_surface_rate | emergent C1 catalysis test | HV10,HV11 | low
+HV113 | mineral_surface_cycles | NiS_surface + thiol_pool -> NiS_thiolate_complex | NiS | Langmuir | thiolate activation | HV06 | medium
+HV114 | mineral_surface_cycles | NiS_thiolate_complex + CO -> NiS_acyl_complex | NiS | surface_carbonylation | acyl complex formation | HV06,HV07 | medium
+HV115 | mineral_surface_cycles | NiS_acyl_complex + amino_acid -> N_acyl_amino_acid + NiS_surface | NiS | surface_transfer | acyl amino acid formation | HV06 | low
+HV116 | mineral_surface_cycles | magnetite_surface + H2 -> magnetite_H_complex | magnetite | Langmuir | reducing equivalent storage | HV08 | medium
+HV117 | mineral_surface_cycles | magnetite_H_complex + CO2 -> formate + magnetite_surface | magnetite | surface_redox | magnetite-assisted formate | HV08,HV10 | low
+HV118 | mineral_surface_cycles | brucite_surface + HCO3- -> adsorbed_carbonate | brucite | Langmuir | carbonate concentration | HV13 | medium
+HV119 | mineral_surface_cycles | adsorbed_carbonate + H2 -> formate + brucite_surface | brucite/NiFe | surface_redox | alkaline C1 reduction | HV08,HV10 | low
+HV120 | mineral_surface_cycles | silica_surface + amino_acid -> amino_acid_adsorbed | silica | Langmuir | retention on silica | HV11,HV13 | medium
+HV121 | mineral_surface_cycles | amino_acid_adsorbed + aminoacyl_phosphate -> peptide2_adsorbed + Pi | silica/FeS | surface_condensation | retained peptide formation | HV11,HV12 | medium
+HV122 | mineral_surface_cycles | peptide2_adsorbed -> peptide2 | desorption | first_order | product release | HV11 | medium
+HV123 | nitrogen_sulfur | NO2- + 3 H2 -> NH3 + 2 H2O | Fe/Ni_sulfide | Arrhenius*f_redox | reduced nitrogen source | HV09 | low
+HV124 | nitrogen_sulfur | NO3- + 4 H2 -> NH3 + 3 H2O | Fe/Ni_sulfide | Arrhenius*f_redox | oxidant consumption/NH3 source | HV09 | low
+HV125 | nitrogen_sulfur | N2 + 3 H2 -> 2 NH3 | Fe/Ni_sulfide | high_Ea_surface_rate | nitrogen fixation proxy | HV10 | low
+HV126 | nitrogen_sulfur | NH3 + CO2 -> carbamate | aqueous_pH | equilibrium_or_mass_action | carbamate pool | HV10 | medium
+HV127 | nitrogen_sulfur | carbamate + H2S -> thiocarbamate + H2O | sulfide | mass_action*f_pH | sulfur-nitrogen carbonyl branch | HV06 | low
+HV128 | nitrogen_sulfur | SO4-- + 4 H2 + H+ -> HS- + 4 H2O | microbial_absent_geochemical_proxy | redox_rate | sulfate reduction proxy | HV09 | low
+HV129 | nitrogen_sulfur | S0 + H2 -> H2S | metal_sulfide | Arrhenius*f_redox | sulfide regeneration | HV08 | medium
+HV130 | nitrogen_sulfur | H2S + FeOOH -> FeS + H2O + oxidized_products | Fe_oxide | redox_rate | FeS regeneration | HV08,HV13 | medium
+HV131 | phosphorous | apatite + H+ -> Ca++ + phosphate | acidic_microzone | dissolution_rate | phosphate release | HV13 | medium
+HV132 | phosphorous | phosphate + Mg++ -> Mg_phosphate_solid | PHREEQC | saturation_limited | phosphate sink | HV13 | high
+HV133 | phosphorous | phosphate + Fe++ -> Fe_phosphate_solid | PHREEQC | saturation_limited | phosphate sink | HV13 | high
+HV134 | phosphorous | acetyl_phosphate + amino_acid -> N_acetyl_amino_acid + phosphate | aqueous | mass_action*f_pH | acyl transfer side path | HV12 | medium
+HV135 | phosphorous | acetyl_phosphate + glycerol_like_alcohol -> acyl_phosphate_ester + acetate | Mg/mineral | mass_action*f_pH | ester activation branch | HV12 | low
+HV136 | phosphorous | pyrophosphate + H2O -> 2 phosphate | Mg/heat | hydrolysis_rate | condensed phosphate loss | HV12 | medium
+HV137 | phosphorous | 2 phosphate + thermal_gradient -> pyrophosphate + H2O | mineral_pore | driven_effective_rate | condensed phosphate formation proxy | HV12 | low
+HV138 | mixed_polymer | HCHO + NH3 -> imine_pool + H2O | aqueous | mass_action*f_pH | C-N precursor | HV10 | medium
+HV139 | mixed_polymer | imine_pool + HCN -> aminonitrile_pool | aqueous | mass_action*f_pH | aminonitrile source | HV10 | medium
+HV140 | mixed_polymer | aminonitrile_pool + H2O -> aminoamide_pool | hydrolysis | acid_base_rate | amide precursor | HV10 | medium
+HV141 | mixed_polymer | aminoamide_pool + H2O -> amino_acid_pool + NH3 | hydrolysis | acid_base_rate | amino acid release | HV10 | medium
+HV142 | mixed_polymer | glyoxylate + glycine -> imino_diacetate | aqueous | mass_action*f_pH | chelating organic branch | HV10 | low
+HV143 | mixed_polymer | imino_diacetate + Fe++ -> Fe_organic_complex | PHREEQC_complexation | equilibrium_activity | metal-organic retention | HV13 | medium
+HV144 | mixed_polymer | peptide_n + metal_ion -> metallopeptide_complex | PHREEQC_complexation | equilibrium_activity | emergent catalysis scaffold | HV11,HV13 | medium
+HV145 | mixed_polymer | metallopeptide_complex + acetyl_phosphate -> metallopeptide_complex + acetate + phosphate | metallopeptide | catalyzed_hydrolysis | energy dissipation by catalysts | HV12 | low
+HV146 | mixed_polymer | hetero_oligo_n + H2O -> smaller_hetero_oligo + monomer_pool | hydrolysis/heat | Arrhenius*f_pH | oligomer breakdown | HV10 | medium
+HV147 | mixed_polymer | organic_pool + mineral_surface -> refractory_organic_surface | adsorption/polymerization | coverage_rate | tar/refractory sink | HV11 | medium
+HV148 | mixed_polymer | refractory_organic_surface + oxidant -> CO2 + mineral_surface | oxidant_delivery | redox_rate | surface cleaning by oxidants | HV09,HV11 | low
+HV149 | protocell_interface | vesicle + pore_surface -> vesicle_pore_trapped | pore_geometry | capture_rate | compartment retention | HV02,HV11 | medium
+HV150 | protocell_interface | vesicle_pore_trapped + flow_shear -> vesicle_fragments | hydrodynamic_shear | first_order | compartment disruption | HV02 | medium
+HV151 | warm_HCN_interface | HCN + H2O -> formamide | hot_water/proton_shuttle | thermal_effective_rate | HCN hydrolysis intermediate | HV14 | medium
+HV152 | warm_HCN_interface | formamide + H2O -> formic_acid + NH3 | hot_water/proton_shuttle | thermal_effective_rate | formic acid/NH3 generation | HV14 | medium
+HV153 | warm_HCN_interface | formic_acid -> CO + H2O | hot_water | dehydration_rate | CO generation from HCN hydrolysis | HV14 | medium
+HV154 | warm_HCN_interface | formic_acid -> CO2 + H2 | hot_water | decomposition_rate | CO2/H2 generation | HV14 | medium
+HV155 | warm_HCN_interface | HCN + H2O -> formaldimine | hot_water/proton_shuttle | thermal_effective_rate | Strecker imine source | HV14 | medium
+HV156 | warm_HCN_interface | formaldimine + H2O -> formaldehyde + NH3 | hot_water/proton_shuttle | hydrolysis_rate | aldehyde/NH3 source | HV14 | medium
+HV157 | warm_HCN_interface | formaldehyde + HCN -> glycolonitrile | aqueous_HCN | mass_action*f_pH | cyanohydrin precursor | HV14 | high
+HV158 | warm_HCN_interface | formaldimine + HCN -> aminoacetonitrile | aqueous_HCN | mass_action*f_pH | Strecker precursor | HV14 | high
+HV159 | warm_HCN_interface | aminoacetonitrile + 2 H2O -> glycine + NH3 | hydrolysis | acid_base_rate | glycine from HCN/H2O route | HV14 | high
+HV160 | warm_HCN_interface | isocyanic_acid + NH3 -> urea | hot_water/proton_shuttle | mass_action | urea source | HV14 | medium
+HV161 | warm_HCN_interface | urea -> cyanamide + H2O | hot_water/NH3_shuttle | dehydration_rate | cyanamide source | HV14 | medium
+HV162 | warm_HCN_interface | isocyanic_acid + NH3 -> cyanamide + H2O | hot_water/proton_shuttle | lumped_dehydration | cyanamide branch | HV14 | low
+HV163 | warm_HCN_interface | formamide + glycolonitrile -> amino_oxazole_derivative + H2O | hot_water | cyclocondensation_rate | oxazole precursor branch | HV14 | medium
+HV164 | warm_HCN_interface | hydroxymethylene_carbene + hydroxymethylene_carbene -> glycolaldehyde | thermal_water | dimerization_rate | sugar precursor via low-valent route | HV14 | medium
+HV165 | warm_HCN_interface | HCN_surface_patch -> HCN_enriched_ice_water_interface | ice/water adsorption | partitioning_rate | HCN concentration near cold vent interface | HV14 | medium

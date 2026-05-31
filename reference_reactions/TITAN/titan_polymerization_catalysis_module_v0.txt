@@ -1,0 +1,171 @@
+# Titan polymerization and catalysis module v0
+# Add this module to titan_reactions_by_environment_v0.txt.
+#
+# Notation:
+#   P_CxHy_n          hydrocarbon polymer/oligomer with n repeat units
+#   P_HCN_n           HCN-derived nitrile/imine polymer with n repeat units
+#   P_CN_n            generic nitrile-rich polymer
+#   tholin*           reactive tholin/aerosol surface site
+#   mineral*          catalytic solid/ice/mineral site
+#   ice*              water-ice/ammonia-ice catalytic site
+#   hv                photon activation
+#   e-                electron/secondary electron activation
+#
+# Catalysts are written over the arrow as [cat] in comments, but explicitly
+# included as regenerated species so the network remains mass-action compatible.
+#
+# ============================================================
+# P. Gas / aerosol hydrocarbon polymer growth
+# ============================================================
+
+P001 [AEROSOL] C2H2(aer) + tholin* + hv -> C2H(aer) + H(aer) + tholin*
+P002 [AEROSOL] C2H(aer) + C2H2(aer) -> C4H2(aer) + H(aer)
+P003 [AEROSOL] C4H2(aer) + C2H2(aer) + tholin* -> P_C2H2_3(aer) + tholin*
+P004 [AEROSOL] P_C2H2_3(aer) + C2H2(aer) + tholin* -> P_C2H2_4(aer) + tholin*
+P005 [AEROSOL] P_C2H2_4(aer) + C2H2(aer) + tholin* -> P_C2H2_5(aer) + tholin*
+P006 [AEROSOL] P_C2H2_5(aer) + C2H2(aer) + tholin* -> P_C2H2_6(aer) + tholin*
+P007 [AEROSOL] P_C2H2_6(aer) + C2H2(aer) + tholin* -> P_C2H2_long(aer) + tholin*
+
+P008 [AEROSOL] C2H3(aer) + C2H2(aer) -> C4H5(aer)
+P009 [AEROSOL] C4H5(aer) + C2H2(aer) -> P_CxHy_3(aer) + H(aer)
+P010 [AEROSOL] P_CxHy_3(aer) + C2H2(aer) -> P_CxHy_4(aer) + H(aer)
+P011 [AEROSOL] P_CxHy_4(aer) + C2H2(aer) -> P_CxHy_5(aer) + H(aer)
+P012 [AEROSOL] P_CxHy_5(aer) + C2H2(aer) -> P_CxHy_long(aer) + H(aer)
+
+P013 [AEROSOL] C3H3(aer) + C3H3(aer) -> C6H6(aer)
+P014 [AEROSOL] C6H6(aer) + hv -> C6H5(aer) + H(aer)
+P015 [AEROSOL] C6H5(aer) + C2H2(aer) -> C8H7(aer)
+P016 [AEROSOL] C8H7(aer) + C2H2(aer) -> PAH_seed(aer) + H(aer)
+P017 [AEROSOL] PAH_seed(aer) + C2H2(aer) + tholin* -> PAH_large(aer) + H2(aer) + tholin*
+P018 [AEROSOL] PAH_large(aer) + CN(aer) -> N_PAH(aer) + H(aer)
+
+# ============================================================
+# Q. HCN / nitrile polymerization
+# ============================================================
+
+Q001 [AEROSOL] HCN(aer) + hv -> CN(aer) + H(aer)
+Q002 [AEROSOL] HCN(aer) + HCN(aer) + tholin* -> P_HCN_2(aer) + tholin*
+Q003 [AEROSOL] P_HCN_2(aer) + HCN(aer) + tholin* -> P_HCN_3(aer) + tholin*
+Q004 [AEROSOL] P_HCN_3(aer) + HCN(aer) + tholin* -> P_HCN_4(aer) + tholin*
+Q005 [AEROSOL] P_HCN_4(aer) + HCN(aer) + tholin* -> P_HCN_5(aer) + tholin*
+Q006 [AEROSOL] P_HCN_5(aer) + HCN(aer) + tholin* -> P_HCN_long(aer) + tholin*
+
+Q007 [AEROSOL] CN(aer) + C2H2(aer) -> HC3N(aer) + H(aer)
+Q008 [AEROSOL] HC3N(aer) + HCN(aer) + tholin* -> P_CN_2(aer) + tholin*
+Q009 [AEROSOL] P_CN_2(aer) + HCN(aer) + tholin* -> P_CN_3(aer) + tholin*
+Q010 [AEROSOL] P_CN_3(aer) + HC3N(aer) + tholin* -> P_CN_4(aer) + tholin*
+Q011 [AEROSOL] P_CN_4(aer) + HC3N(aer) + tholin* -> P_CN_long(aer) + tholin*
+
+Q012 [AEROSOL] CH3CN(aer) + hv -> CH2CN(aer) + H(aer)
+Q013 [AEROSOL] CH2CN(aer) + HCN(aer) -> P_CN_2(aer) + H2(aer)
+Q014 [AEROSOL] CH2CN(aer) + HC3N(aer) -> P_CN_3(aer) + H(aer)
+
+# ============================================================
+# R. Liquid methane-rich polymer / oligomer reactions
+# ============================================================
+
+R001 [LAKE_CH4_RICH] C2H2(sol) + hv -> C2H(sol) + H(sol)
+R002 [LAKE_CH4_RICH] C2H(sol) + C2H2(sol) -> C4H2(sol) + H(sol)
+R003 [LAKE_CH4_RICH] C4H2(sol) + C2H2(sol) + tholin* -> P_C2H2_3(sol) + tholin*
+R004 [LAKE_CH4_RICH] P_C2H2_3(sol) + C2H2(sol) + tholin* -> P_C2H2_4(sol) + tholin*
+R005 [LAKE_CH4_RICH] P_C2H2_4(sol) + C2H2(sol) + tholin* -> P_C2H2_long(sol) + tholin*
+
+R006 [LAKE_CH4_RICH] HCN(sol) + HCN(sol) + tholin* -> P_HCN_2(sol) + tholin*
+R007 [LAKE_CH4_RICH] P_HCN_2(sol) + HCN(sol) + tholin* -> P_HCN_3(sol) + tholin*
+R008 [LAKE_CH4_RICH] P_HCN_3(sol) + HCN(sol) + tholin* -> P_HCN_long(sol) + tholin*
+
+R009 [LAKE_CH4_RICH] CN(sol) + C2H2(sol) -> HC3N(sol) + H(sol)
+R010 [LAKE_CH4_RICH] HC3N(sol) + HCN(sol) + tholin* -> P_CN_2(sol) + tholin*
+R011 [LAKE_CH4_RICH] P_CN_2(sol) + HC3N(sol) + tholin* -> P_CN_long(sol) + tholin*
+
+# ============================================================
+# S. Liquid ethane-rich polymer / oligomer reactions
+# ============================================================
+
+S001 [LAKE_C2H6_RICH] C2H2(sol) + hv -> C2H(sol) + H(sol)
+S002 [LAKE_C2H6_RICH] C2H(sol) + C2H2(sol) -> C4H2(sol) + H(sol)
+S003 [LAKE_C2H6_RICH] C4H2(sol) + C2H2(sol) + tholin* -> P_C2H2_3(sol) + tholin*
+S004 [LAKE_C2H6_RICH] P_C2H2_3(sol) + C2H2(sol) + tholin* -> P_C2H2_4(sol) + tholin*
+S005 [LAKE_C2H6_RICH] P_C2H2_4(sol) + C2H2(sol) + tholin* -> P_C2H2_long(sol) + tholin*
+
+S006 [LAKE_C2H6_RICH] HCN(sol) + HCN(sol) + tholin* -> P_HCN_2(sol) + tholin*
+S007 [LAKE_C2H6_RICH] P_HCN_2(sol) + HCN(sol) + tholin* -> P_HCN_3(sol) + tholin*
+S008 [LAKE_C2H6_RICH] P_HCN_3(sol) + HCN(sol) + tholin* -> P_HCN_long(sol) + tholin*
+
+S009 [LAKE_C2H6_RICH] CN(sol) + C2H2(sol) -> HC3N(sol) + H(sol)
+S010 [LAKE_C2H6_RICH] HC3N(sol) + HCN(sol) + tholin* -> P_CN_2(sol) + tholin*
+S011 [LAKE_C2H6_RICH] P_CN_2(sol) + HC3N(sol) + tholin* -> P_CN_long(sol) + tholin*
+
+# ============================================================
+# T. Solid evaporite polymerization
+# ============================================================
+
+T001 [EVAPORITE] HCN(s) + HCN(s) + mineral* -> P_HCN_2(s) + mineral*
+T002 [EVAPORITE] P_HCN_2(s) + HCN(s) + mineral* -> P_HCN_3(s) + mineral*
+T003 [EVAPORITE] P_HCN_3(s) + HCN(s) + mineral* -> P_HCN_long(s) + mineral*
+
+T004 [EVAPORITE] C2H2(s) + C2H2(s) + mineral* + hv -> C4H2(s) + H2(s) + mineral*
+T005 [EVAPORITE] C4H2(s) + C2H2(s) + mineral* -> P_C2H2_3(s) + mineral*
+T006 [EVAPORITE] P_C2H2_3(s) + C2H2(s) + mineral* -> P_C2H2_long(s) + mineral*
+
+T007 [EVAPORITE] HCN(s) + C2H2(s) + mineral* + hv -> HC3N(s) + H2(s) + mineral*
+T008 [EVAPORITE] HC3N(s) + HCN(s) + mineral* -> P_CN_2(s) + mineral*
+T009 [EVAPORITE] P_CN_2(s) + HC3N(s) + mineral* -> P_CN_long(s) + mineral*
+
+T010 [EVAPORITE] tholin(s) + hv -> tholin*(s)
+T011 [EVAPORITE] tholin*(s) + HCN(s) -> nitrile_modified_tholin(s)
+T012 [EVAPORITE] tholin*(s) + C2H2(s) -> hydrocarbon_modified_tholin(s)
+T013 [EVAPORITE] nitrile_modified_tholin(s) + HCN(s) -> N_rich_polymer(s)
+T014 [EVAPORITE] hydrocarbon_modified_tholin(s) + C2H2(s) -> C_rich_polymer(s)
+
+# ============================================================
+# U. Optional water/ammonia impact melt polymer chemistry
+# ============================================================
+
+U001 [IMPACT_WATER] HCN(aq) + NH3(aq) -> NH4CN(aq)
+U002 [IMPACT_WATER] NH4CN(aq) + HCN(aq) -> aminonitrile_precursor(aq)
+U003 [IMPACT_WATER] aminonitrile_precursor(aq) + HCN(aq) -> P_HCN_3(aq)
+U004 [IMPACT_WATER] P_HCN_3(aq) + HCN(aq) -> P_HCN_long(aq)
+U005 [IMPACT_WATER] HCN(aq) + H2O(aq) -> HCONH2(aq)
+U006 [IMPACT_WATER] HCONH2(aq) + HCN(aq) -> formamide_HCN_adduct(aq)
+U007 [IMPACT_WATER] formamide_HCN_adduct(aq) + hv -> prebiotic_residue(aq)
+U008 [IMPACT_WATER] tholin(s) + H2O(aq) -> soluble_organics(aq)
+U009 [IMPACT_WATER] soluble_organics(aq) + HCN(aq) -> N_rich_soluble_polymer(aq)
+
+# ============================================================
+# V. Polymer aging, fragmentation, and insoluble residue formation
+# ============================================================
+
+V001 [AEROSOL] P_HCN_long(aer) + hv -> P_HCN_frag(aer) + CN(aer)
+V002 [AEROSOL] P_C2H2_long(aer) + hv -> P_C2H2_frag(aer) + C2H(aer)
+V003 [AEROSOL] P_CN_long(aer) + hv -> P_CN_frag(aer) + CN(aer)
+V004 [AEROSOL] P_CN_long(aer) + P_CxHy_long(aer) -> mixed_tholin(aer)
+V005 [AEROSOL] mixed_tholin(aer) + hv -> refractory_tholin(aer)
+
+V006 [EVAPORITE] P_HCN_long(s) + hv -> refractory_nitrile_residue(s)
+V007 [EVAPORITE] P_C2H2_long(s) + hv -> refractory_hydrocarbon_residue(s)
+V008 [EVAPORITE] P_CN_long(s) + hv -> refractory_nitrile_residue(s)
+V009 [EVAPORITE] refractory_nitrile_residue(s) + refractory_hydrocarbon_residue(s) -> mixed_organic_residue(s)
+
+# ============================================================
+# W. Generic chain-growth templates for code generation
+# ============================================================
+# Instead of writing 100 explicit polymer steps, generate:
+#
+#   P_HCN_n + HCN -> P_HCN_{n+1}
+#   P_C2H2_n + C2H2 -> P_C2H2_{n+1}
+#   P_CN_n + HC3N -> P_CN_{n+1}
+#
+# with environment-dependent catalysts:
+#
+#   AEROSOL:        catalyst = tholin*, hv/e-
+#   LAKE_CH4_RICH:  catalyst = tholin* or aerosol_particle
+#   LAKE_C2H6_RICH: catalyst = tholin* or aerosol_particle
+#   EVAPORITE:      catalyst = mineral*, ice*, tholin*
+#   IMPACT_WATER:   catalyst = NH3, H2O, mineral*
+#
+# Recommended code rule:
+#   for n = 2..Nmax:
+#       P_HCN_n + HCN + catalyst -> P_HCN_{n+1} + catalyst
+#
+# End of module
