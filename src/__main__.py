@@ -4,9 +4,8 @@
 #
 import numpy as np
 import logging
-from src.input.parser import parser
-from src.input.read_input import p
-from src.common.set_rndm_matrix import random_matrix
+from src.input_data.parser import parser
+from src.input_data.read_input import p
 from src.mutations.mutation_rate import zero_mutation, dist_mutation
 from src.QSP.fitness_distr import fitness_distr, fitness_distr_game_dyn
 from src.QSP.quasi_species_solver import BuildQuasiSpeciesSolver
@@ -17,11 +16,12 @@ from src.molecules_dyn.gillespie_algo import chemical_kinetics_solver
 from src.mutations.mutation_rate import compute_hamm_dist_matrix
 from src.utilities.logging_module import log
 from src.molecules.define_molecule_set import build_molecule_set
+from src.catalysts.catalysts_set import build_catalyst_set
+from src.environment.setup_environment import set_simulation_environment
 
 args = parser.parse_args()
 calc_type = args.ct[0]
 p.read_input_json(args.json_input[0])
-p.validate()
 
 log.info("\t ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 log.info("\t ++++++                                                                                  ++++++")
@@ -46,18 +46,28 @@ if calc_type == "set_initial_state":
     # set list molecular types
 
     X_set, X_set_map = build_molecule_set(p.metabolites_params)
+
+    # build catalysts set: Y set
+
+    Y_set = build_catalyst_set(X_set, p.catalyst_set_params)
     
     # set list of protocells
 
     n_protocells = p.QSP_size
 
-    protocell_list = set_up_empty_QSP_list(n_protocells)
+    protocell_list = set_up_empty_QSP_list(n_protocells, p.protocell_info)
 
-    protocell_list.set_initial_molecule_distr(X_set, p.metabolites_params)
+    # create simulation environment
+    
+    simul_env = set_simulation_environment(
+        protocell_list,
+        env_type=p.env_model,
+        env_data=p.env_data
+    )
 
     # set random networks -> one for each protocell
 
-    build_chem_networks(protocell_list, X_set, p.bpol_strng_size, p.catalyst_set_params, p.rates_params)
+    build_chem_networks(simul_env, X_set, Y_set, p.metabolites_params, p.rates_params)
     
 # evolutionary section
 
