@@ -3,7 +3,7 @@ from random import randrange
 import logging
 import os
 from src.mutations.mutation_rate import compute_hamming_distance
-from src.input.read_input import p
+from src.input_data.read_input import p
 from src.catalysts.catalysts_set import build_catalysts_distr_ACFS
 from src.utilities.plot_catal_distr import plot_ACFS_distr
 from src.RAF.RAF_engine import RAFEngine
