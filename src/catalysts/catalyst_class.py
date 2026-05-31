@@ -4,7 +4,7 @@
 #   single catalyst class
 # =========================================================
 
-class Catalyst:
+class CatalystState:
     def __init__(self, n_reactions, 
                  init_mean=0.0, 
                  init_std=1.0,
