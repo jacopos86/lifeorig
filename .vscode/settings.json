@@ -1,6 +1,27 @@
 {
-  "python.analysis.extraPaths": ["./", "./src", "./env/bin/"],
+  "python.analysis.extraPaths": ["./", "./src"],
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.indexing": true,
   "python.defaultInterpreterPath": "./env/bin/python3",
+  "editor.inlineSuggest.enabled": false,
+  "github.copilot.editor.enableAutoCompletions": false,
+  "editor.parameterHints.enabled": true,
+  "editor.quickSuggestions": {
+    "comments": false,
+    "strings": false,
+    "other": true
+  },
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.wordBasedSuggestions": "currentDocument",
+  "editor.suggest.showWords": false,
+  "editor.suggest.showSnippets": true,
+  "editor.suggest.showModules": true,
+  "editor.suggest.showFiles": true,
+  "editor.suggest.showFolders": true,
+  "editor.suggest.showVariables": true,
+  "editor.snippetSuggestions": "bottom",
+  "editor.acceptSuggestionOnCommitCharacter": false,
+  "editor.acceptSuggestionOnEnter": "smart",
   // Associate .cu files with CUDA C++
   "files.associations": {
     "*.cu": "cuda-cpp",
