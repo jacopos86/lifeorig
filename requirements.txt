@@ -6,3 +6,8 @@ gillespie
 matplotlib
 gravis
 pytest
+easychem
+pint
+periodictable
+hitran-api
+phreeqpy
