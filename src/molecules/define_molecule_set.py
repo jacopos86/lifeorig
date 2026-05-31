@@ -1,5 +1,5 @@
 from itertools import product
-from src.input.read_input import p
+from src.input_data.read_input import p
 from src.molecules.molecule_model import Molecule, MultiPolymer
 from src.utilities.logging_module import log
 
@@ -37,7 +37,7 @@ def build_molecule_set(metabolites_data):
         log.error("Unknown molecule type")
     log.info("\n")
     for i, mol in enumerate(molecules):
-        log.info(f"\t molecule {i+1}: {mol.show_sequence()}")
+        log.info(f"\t molecule {i+1}: {mol.show_sequence()} -- length: {len(mol)}")
     log.info("\t " + p.sep)
     log.info("\n")
     return molecules, molecule_map
