@@ -61,6 +61,7 @@ class AtmosphSolver(ABC):
         # loop controls
         self._max_iter_loop = int(self.atmosphere_data.get("max_iter_loop", 50))
         self._rel_tol = float(self.atmosphere_data.get("rel_tol"))
+        self._logp_tol = float(self.atmosphere_data.get("logp_tol", self._rel_tol))
         self._abs_tol = float(self.atmosphere_data.get("abs_tol").to(self.pressure_unit).magnitude)
         self._damping_loop = float(self.atmosphere_data.get("damping_loop", 1.0))
         # set atmospheric mass
