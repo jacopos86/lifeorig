@@ -78,6 +78,7 @@ EARTH_PLANETARY_PARAMS = PlanetaryEnvironmentParams(
         # Convergence tolerances for pressure updates. Use a dimensionless
         # relative fraction and an absolute pressure tolerance Quantity.
         "rel_tol": 1.0e-4,
+        "logp_tol": 1.0e-2,
         "abs_tol": Q_(1.0, "Pa"),
         "damping_loop": 0.3,
     },
