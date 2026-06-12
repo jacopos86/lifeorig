@@ -70,7 +70,6 @@ class LayeredEquilibriumAtmosphSolver(AtmosphSolver):
         pressure = np.asarray(config.pressure, dtype=float)
         gravity = np.asarray(config.gravity, dtype=float)
         # solve hydrostatic equilibrium at given T
-        converged = False
         pressure = np.maximum(pressure, self._min_pressure.to(self.pressure_unit).magnitude)
         # log pressure
         log_pressure = np.log(pressure)
@@ -81,13 +80,13 @@ class LayeredEquilibriumAtmosphSolver(AtmosphSolver):
         damping_max = 0.95  # Never go above this
         prev_log_pressure_update = None
         oscillation_count = 0
-        
         log.warning(
             "Starting adaptive damped log-pressure equilibrium solver: "
             f"maxiter={self._max_iter_loop}, abs_tol={self._abs_tol}, "
             f"rel_tol={self._rel_tol}, logp_tol={self._logp_tol}, "
             f"initial_damping={damping:.3f}"
         )
+        converged = False
         # start loop iterations
         for iteration in range(self._max_iter_loop):
             pressure_old = np.exp(log_pressure)
