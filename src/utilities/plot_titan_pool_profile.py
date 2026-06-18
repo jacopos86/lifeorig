@@ -4,7 +4,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from src.common.units import Q_
-from src.environment.pool_spatial_profile import get_pool_spatial_profile_function
+from src.environment.surf_pond.pool_spatial_profile import get_pool_spatial_profile_function
 
 #
 #   plot function
