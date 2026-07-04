@@ -1,11 +1,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import numpy as np
-from typing import Callable
-from src.atmosphere_solver.atm_struct_driver import AtmLayerDyn
 from src.common.units import Q_
 from src.exo_chem.easy_chem_driver import run_easy_chem_full_profile
 from src.utilities.logging_module import log
+from src.atmosphere_solver.atmosph_data import AtmLayerDyn
 
 @dataclass
 class PressureDensitySolverSettings:
@@ -26,11 +25,65 @@ class PressureDensitySolveResult:
     max_rel_pressure_delta: float
     max_log_pressure_delta: float
 
+#
+#   set solver
+#
 
-MeanMolecularWeightCallback = Callable[[object, np.ndarray], np.ndarray]
-SpeciesNumberDensityCallback = Callable[[np.ndarray, object, np.ndarray], dict[str, np.ndarray]]
-HydrostaticPressureCallback = Callable[..., np.ndarray]
+def set_hydro_solver(atmosphere_data, **solver_kwargs):
+    hydrostatic_data = atmosphere_data.get("hydrostatic_solver", {}) or {}
+    print(hydrostatic_data)
+    exit()
+    solver_type = hydrostatic_data.get("type", "standard")
+    settings_data = hydrostatic_data.get("settings", {}) or {}
 
+    def pressure_magnitude(value, default):
+        if value is None:
+            value = default
+        if hasattr(value, "to"):
+            return float(value.to("Pa").magnitude)
+        if isinstance(value, dict):
+            return float(Q_(value["value"], value["units"]).to("Pa").magnitude)
+        return float(value)
+
+    settings = PressureDensitySolverSettings(
+        max_iter=int(settings_data.get("max_iter", atmosphere_data.get("max_iter_loop", 50))),
+        abs_tol=pressure_magnitude(
+            settings_data.get("abs_tol", atmosphere_data.get("abs_tol")),
+            Q_(0.0, "Pa"),
+        ),
+        rel_tol=float(settings_data.get("rel_tol", atmosphere_data.get("rel_tol", 0.0))),
+        logp_tol=float(
+            settings_data.get(
+                "logp_tol",
+                atmosphere_data.get(
+                    "logp_tol",
+                    settings_data.get("rel_tol", atmosphere_data.get("rel_tol", 0.0)),
+                ),
+            )
+        ),
+        damping=float(settings_data.get("damping", atmosphere_data.get("damping_loop", 0.5))),
+        min_pressure=pressure_magnitude(settings_data.get("min_pressure"), Q_(1e-12, "Pa")),
+        anderson_depth=int(settings_data.get("anderson_depth", atmosphere_data.get("anderson_depth", 5))),
+    )
+
+    solver_classes = {
+        "standard": StandardPressureDensitySolver,
+        "anderson": AndersonPressureDensitySolver,
+    }
+    try:
+        solver_class = solver_classes[solver_type]
+    except KeyError:
+        log.error(
+            f"unknown hydrostatic solver type '{solver_type}'. "
+            f"Valid options: {sorted(solver_classes)}"
+        )
+
+    return solver_class(settings=settings, **solver_kwargs)
+
+
+#
+#   abstract solver class
+#
 
 class FixedTemperaturePressureDensitySolver(ABC):
     """
@@ -41,34 +94,49 @@ class FixedTemperaturePressureDensitySolver(ABC):
     pressure, mean molecular mass, and species number density so this module
     stays separate from radiative transfer and atmosphere setup details.
     """
-
     solver_name = "fixed-temperature pressure-density"
-
     def __init__(
         self,
         *,
         settings: PressureDensitySolverSettings,
-        pressure_unit: str,
-        temperature_unit: str,
-        density_unit: str,
-        kB: float,
         atomic_abundances: dict[str, float],
         chemical_species,
-        solve_hydrostatic_pressure: HydrostaticPressureCallback,
-        mean_molecular_weight_profile: MeanMolecularWeightCallback,
-        species_number_density: SpeciesNumberDensityCallback,
+        solve_hydrostatic_pressure,
+        mean_molecular_weight_profile,
+        species_number_density,
     ):
         self.settings = settings
-        self.pressure_unit = pressure_unit
-        self.temperature_unit = temperature_unit
-        self.density_unit = density_unit
-        self._kB = kB
         self.atomic_abundances = atomic_abundances
         self.chemical_species = chemical_species
         self._solve_hydrostatic_pressure = solve_hydrostatic_pressure
         self._mean_molecular_weight_profile = mean_molecular_weight_profile
         self._species_number_density = species_number_density
-
+    # set internal units
+    def _set_internal_units(self):
+        self.units = {
+            "length": "m",
+            "mass": "kg",
+            "time": "s",
+            "energy": "joule",
+            "temperature": "K",
+            "pressure": "Pa",
+            "density": "kg / m^3",
+            "number_density": "1 / m^3",
+            "gravity": "m / s^2",
+            "wavelength": "nanometer",
+            "spectral_radiance": "W / m^3 / steradian",
+            "spectral_flux": "W / m^3",
+        }
+        self.length_unit = self.units["length"]
+        self.mass_unit = self.units["mass"]
+        self.time_unit = self.units["time"]
+        self.temperature_unit = self.units["temperature"]
+        self.pressure_unit = self.units["pressure"]
+        self.density_unit = self.units["density"]
+        self.number_density_unit = self.units["number_density"]
+        self.gravity_unit = self.units["gravity"]
+        self._kB = kb.to(f"{self.units['energy']} / {self.temperature_unit}").magnitude
+    # solve hydrostatic equations
     def solve(self, config: AtmLayerDyn) -> PressureDensitySolveResult:
         z, temperature, pressure, gravity = self._unpack_config(config)
         log_pressure = np.log(np.maximum(pressure, self.settings.min_pressure))
@@ -224,27 +292,32 @@ class FixedTemperaturePressureDensitySolver(ABC):
     def _next_log_pressure(self, *, iteration: int, log_pressure: np.ndarray, residual: np.ndarray) -> np.ndarray:
         raise NotImplementedError
 
+#
+#    Standard pressure / density solver
+#
 
 class StandardPressureDensitySolver(FixedTemperaturePressureDensitySolver):
     solver_name = "standard fixed-temperature pressure-density solver"
-
+    # implement log pressure update
     def _next_log_pressure(self, *, iteration: int, log_pressure: np.ndarray, residual: np.ndarray) -> np.ndarray:
         damping = max(0.0, min(1.0, self.settings.damping))
         return log_pressure + damping * residual
 
+#
+#    Anderson pressure / density solver
+#
 
 class AndersonPressureDensitySolver(FixedTemperaturePressureDensitySolver):
     solver_name = "Anderson fixed-temperature pressure-density solver"
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._residual_history: list[np.ndarray] = []
-
+    # _start method
     def _start(self):
         self._residual_history.clear()
         super()._start()
         log.info(f"Anderson history depth={self.settings.anderson_depth}")
-
+    # implement log pressure update 
     def _next_log_pressure(self, *, iteration: int, log_pressure: np.ndarray, residual: np.ndarray) -> np.ndarray:
         self._residual_history.append(residual.copy())
 
