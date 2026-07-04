@@ -1,0 +1,46 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          miniforge-version: latest
+          use-mamba: true
+
+      - name: Build environment file
+        shell: bash -el {0}
+        run: make environment PYTHON_VERSION=python=3.11
+
+      - name: Configure environment
+        shell: bash -el {0}
+        run: make configure CONDA=mamba
+
+      - name: Install package
+        shell: bash -el {0}
+        run: make install CONDA=mamba
+
+      - name: Run unit tests
+        shell: bash -el {0}
+        run: make test CONDA=mamba
+
+      - name: Run Earth volcanic rock smoke test
+        shell: bash -el {0}
+        run: make smoke-earth-volcanic CONDA=mamba
+
+      - name: Run Earth hydro vent smoke test
+        shell: bash -el {0}
+        run: make smoke-earth-hydro CONDA=mamba
