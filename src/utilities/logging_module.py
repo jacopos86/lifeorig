@@ -1,8 +1,9 @@
 import logging
 import inspect
-import json
+import os
 import sys
 from colorlog import ColoredFormatter
+
 class log_class:
     def __init__(self, LOG_LEVEL, logfile):
         format = "[%(asctime)s %(filename)s->%(funcName)s():%(lineno)s]%(levelname)s: %(message)s"
@@ -106,32 +107,13 @@ class colored_log_class:
         msg2 += message
         self.log.error(msg2, *args)
         sys.exit(1)
-#
-# set up logger
-# read config.yml
-try:
-    f = open("./config.json")
-except:
-    raise Exception("./config.json cannot be opened")
-config = json.load(f)
-f.close()
-if 'LOG_LEVEL' in config:
-    if config['LOG_LEVEL'] == "DEBUG":
-        LOG_LEVEL = logging.DEBUG
-    elif config['LOG_LEVEL'] == "INFO":
-        LOG_LEVEL = logging.INFO
-    elif config['LOG_LEVEL'] == "WARNING":
-        LOG_LEVEL = logging.WARNING
-    elif config['LOG_LEVEL'] == "ERROR":
-        LOG_LEVEL = logging.ERROR
-    elif config['LOG_LEVEL'] == "CRITICAL":
-        LOG_LEVEL = logging.CRITICAL
-    else:
-        LOG_LEVEL = logging.NOTSET
-if 'COLORED_LOGGING' in config:
-    COLOR = config['COLORED_LOGGING']
-if 'LOGFILE' in config:
-    LOGFILE = config['LOGFILE']
+
+LOG_LEVEL_NAME = os.environ.get("LOG_LEVEL", "INFO").upper()
+LOG_LEVEL = getattr(logging, LOG_LEVEL_NAME, logging.NOTSET)
+COLORED_LOGGING = os.environ.get("COLORED_LOGGING", "1").strip().lower()
+COLOR = COLORED_LOGGING in {"1", "true", "yes", "on"}
+LOGFILE = os.environ.get("LOGFILE", "lifeorig.log")
+
 # set up logging system
 if COLOR:
     log = colored_log_class(LOG_LEVEL)
