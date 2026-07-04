@@ -1,29 +1,26 @@
 import os
 from src.utilities.logging_module import log
 from src.input_data.core import AbstractInput
-from src.planet_params.planetary_params import PlanetaryEnvironmentParams
-from src.planet_params.earth_params import get_earth_planetary_params, get_earth_stellar_params
-from src.planet_params.europa_params import get_europa_planetary_params, get_europa_stellar_params
-from src.planet_params.mars_params import get_mars_planetary_params, get_mars_stellar_params
-from src.planet_params.titan_params import get_titan_planetary_params, get_titan_stellar_params
-from src.planet_params.venus_params import get_venus_planetary_params, get_venus_stellar_params
-from src.stellar_params.stellar_data import StellarParams
-from src.environment.external_drive_params import LiquidLevelParams
-from src.environment.solvent import SolventData
+from src.input_data.input_configs import (
+    ChemicalNetworkInputConfig,
+    EnvironmentInputConfig,
+    EvolutionInputConfig,
+    MoleculeInputConfig,
+)
+from src.input_data.environment_input import EnvironmentInputBuilder
+from src.input_data.planet_input import PlanetInputBuilder
 from src.environment.set_planet_environment import derive_planet_env_data
 from src.chemical_env.chemical_environment import set_ChemEnvInput, SimulateChemEnv
-from src.common.units import Q_
-from src.environment.pool_spatial_profile import get_pool_spatial_profile_function
-from src.utilities.plot_titan_pool_profile import plot_titan_pool_profile
 
 #
 #  parameters class
 
-class parameters_class(AbstractInput):
+class parameters_class(AbstractInput, PlanetInputBuilder, EnvironmentInputBuilder):
     ''' parameters class '''
-    _ALLOWED_METABOLITE_TYPES = {"binary", "multi"}
+    _ALLOWED_METABOLITE_TYPES = {"binary", "multi", "reference_file"}
     _ALLOWED_METABOLITE_DISTR = {"uniform", "length_decay"}
-    _ALLOWED_ENV_MODELS = {"volcanic_rock", "hydro_vent", "impact_crater"}
+    _ALLOWED_ENV_MODELS = {"volcanic_rock", "hydro_vent", "surface_pond", "impact_crater"}
+    _ALLOWED_ENV_SOURCES = {"planetary_solver", "explicit"}
     _ALLOWED_PLANET_MODELS = {"Earth", "Europa", "Mars", "Titan", "Venus", "custom", None}
     _REQUIRED_ENV_VOLCROCK_KEYS = {
         "num_pores", 
@@ -41,20 +38,31 @@ class parameters_class(AbstractInput):
         self.protocell_info = None
         # catalyst set parameters
         self.catalyst_set_params = None
+        # chemical network data
+        self.chemical_network_data = None
+        self.chemistry_config = None
         # rates distribution parameters
         self.rates_params = None
         # molecules data parameters
         self.metabolites_params = None
+        self.molecule_config = None
         # env. data
         self.env_model = None
+        self.environment_config = None
         self.local_env_data = None
         # planetary data
         self.planetary_data = {}
         self.chem_env_params = None
         # stellar data
         self.stellar_data = None
+        # evolution data
+        self.evolution_config = None
     def _parse_data(self):
         # read input parameters
+        self.environment_config = EnvironmentInputConfig.from_raw(self._data)
+        self.chemistry_config = ChemicalNetworkInputConfig.from_raw(self._data)
+        self.molecule_config = MoleculeInputConfig.from_raw(self._data)
+        self.evolution_config = EvolutionInputConfig.from_raw(self._data)
         if "working_dir" in self._data:
             self.working_dir = self._data["working_dir"]
             isExist = os.path.exists(self.working_dir)
@@ -90,10 +98,13 @@ class parameters_class(AbstractInput):
             }
         # metabolites data
         if "metabolites_data" in self._data:
-            self.metabolites_params = self._data["metabolites_data"]
+            self.metabolites_params = self.molecule_config.data
         # catalysts set size
         if "catalyst_set" in self._data:
             self.catalyst_set_params = self._data["catalyst_set"]
+        # chemical network
+        if "chemical_network" in self._data:
+            self.chemical_network_data = self.chemistry_config.data
         #
         # mutation parameters
         #
@@ -102,12 +113,14 @@ class parameters_class(AbstractInput):
         # time variables
         # size sample space
         if "evol_params" in self._data:
-            self.evol_size = self._data["evol_params"]
+            self.evol_size = self.evolution_config.data
     # set local environment data and derived planetary forcing
     def set_local_environment(self):
-        self.env_model = self._data.get("environment")
+        self.env_model = self.environment_config.env_type
         self.local_env_data = self._build_local_env_data()
         if self.local_env_data is None:
+            return
+        if self.environment_config.is_explicit:
             return
         # set input Chem. Env.
         chem_input = set_ChemEnvInput(
@@ -147,308 +160,16 @@ class parameters_class(AbstractInput):
                 liquid_level_params.amplitude = derived_params.water_amplitude_factor
             if liquid_level_params.period is None:
                 liquid_level_params.period = derived_params.day_night_period
-    # build local environment parameters
-    def _build_local_env_data(self):
-        env_model = self._data.get("environment")
-        planet_model = self._data.get("planet_model")
-        if planet_model == "Titan":
-            return self._build_titan_local_env_data()
-        if env_model == "volcanic_rock":
-            return self._build_volcanic_rock_env_data(self._data.get("environment_data"))
-        if env_model == "hydro_vent":
-            # TODO
-            return None
-        if env_model == "impact_crater":
-            # TODO
-            return None
-        log.error(f"env model not recognized: {env_model}")
-    # build volcanic rock local environment data
-    def _build_volcanic_rock_env_data(self, data: dict | None):
-        if data is None:
-            log.error("Missing 'environment_data' in input")
-        return {
-            "num_pores": data.get("number_pores"),
-            "pore_radius": self._parse_quantity_from_dict(
-                input_dict=data.get("pore_radius"),
-                required_keys=("units", "value"),
-                desc="pore radius"
-            ),
-            "pore_height": self._parse_quantity_from_dict(
-                input_dict=data.get("pore_height"),
-                required_keys=("units", "value"),
-                desc="pore height"
-            ),
-            "distance_neigh_pores": self._parse_quantity_from_dict(
-                input_dict=data.get("distance_neigh_pores"),
-                required_keys=("units", "value"),
-                desc="distance neigh. pores"
-            ),
-            "temperature": self._parse_quantity_from_dict(
-                input_dict=data.get("temperature"),
-                required_keys=("units", "value"),
-                desc="temperature"
-            ),
-            "pressure": self._parse_quantity_from_dict(
-                input_dict=data.get("pressure"),
-                required_keys=("units", "value"),
-                desc="pressure"
-            ),
-            "solvent_data": self._get_solvent_data(data),
-        }
-    # build Titan local environment data
-    def _build_titan_local_env_data(self):
-        data = self._data.get("environment_data")
-        pool_spatial_profile = None
-        if data is not None:
-            pool_spatial_profile = self._get_pool_spatial_profile(data)
-            if pool_spatial_profile is not None:
-                plot_titan_pool_profile(
-                    output_dir=self.working_dir,
-                    function_name=pool_spatial_profile["function_name"],
-                    length=pool_spatial_profile["domain_length"],
-                )
-        # methane level
-        exit()
-        methane_level_params = LiquidLevelParams(
-            model_type="sinusoidal",
-            base_level=Q_(5.0, "millimeter"),
-            amplitude=Q_(2.0, "millimeter"),
-            period=Q_(15.945, "day"),
-            phase=0.0,
-        )
-        return {
-            "local_environment": "methane_pool",
-            "pool_spatial_profile": pool_spatial_profile,
-            "temperature": Q_(94.0, "kelvin"),
-            "pressure": Q_(1.45, "bar"),
-            "solvent_data": SolventData(
-                name="CH4",
-                liquid_level_params=methane_level_params,
-                density=Q_(450.0, "kg / m^3"),
-                dynamic_viscosity=Q_(1.8e-4, "Pa * s"),
-                dielectric_constant=1.7,
-                diffusion_scale=1.0,
-                polarity=0.0,
-            ),
-        }
-    # get pool spatial profile
-    def _get_pool_spatial_profile(self, env_data: dict):
-        profile_data = env_data.get("pool_spatial_profile")
-        if profile_data is None:
-            return None
-        bottom_profile = profile_data.get("bottom_profile", {})
-        function_name = bottom_profile.get("function")
-        if function_name is None:
-            log.error("Missing pool_spatial_profile.bottom_profile.function")
-        length = self._parse_quantity_from_dict(
-            input_dict=profile_data.get("domain_length"),
-            required_keys=("units", "value"),
-            desc="pool spatial profile domain length"
-        )
-        return {
-            "type": profile_data.get("type"),
-            "domain_length": length,
-            "function_name": function_name,
-            "function": get_pool_spatial_profile_function(function_name),
-        }
-    # get solvent data
-    def _get_solvent_data(self, env_data: dict) -> SolventData:
-        data = env_data.get("solvent_data", {})
-        return SolventData(
-            name=data.get("name", "H2O"),
-            liquid_level_params=self._get_liquid_level_params(env_data),
-            density=self._parse_quantity_from_dict(
-                input_dict=data.get("density"),
-                required_keys=("units", "value"),
-                desc="solvent density"
-            ),
-            dynamic_viscosity=self._parse_quantity_from_dict(
-                input_dict=data.get("dynamic_viscosity"),
-                required_keys=("units", "value"),
-                desc="solvent dynamic viscosity"
-            ),
-            dielectric_constant=(
-                None if data.get("dielectric_constant") is None
-                else float(data.get("dielectric_constant"))
-            ),
-            diffusion_scale=float(data.get("diffusion_scale", 1.0)),
-            polarity=(
-                None if data.get("polarity") is None
-                else float(data.get("polarity"))
-            ),
-        )
-    # get liquid level parameters
-    def _get_liquid_level_params(self, env_data: dict) -> LiquidLevelParams:
-        solvent_data = env_data.get("solvent_data", {})
-        if "liquid_level_params" in solvent_data:
-            data = solvent_data.get("liquid_level_params")
-        elif "liquid_level_params" in env_data:
-            data = env_data.get("liquid_level_params")
-        else:
-            data = env_data.get("water_level_params")
-        if data is None:
-            log.error("Missing 'liquid_level_params' in input")
-        # --- required ---
-        try:
-            model_type = data.get("model_type", data.get("type")).lower()
-        except KeyError as e:
-            log.error(f"Missing key in liquid_level_params: {e}")
-        except AttributeError:
-            log.error("Missing key in liquid_level_params: model_type")
-        # --- optional ---
-        base_level = self._parse_quantity_from_dict(
-            input_dict= data.get("base_level"), 
-            required_keys=("units", "value"), 
-            desc="liquid base level"
-        )
-        amplitude = self._parse_quantity_from_dict(
-            input_dict= data.get("amplitude"), 
-            required_keys=("units", "value"), 
-            desc="liquid amplitude level"
-        )
-        period = self._parse_quantity_from_dict(
-            input_dict= data.get("period"), 
-            required_keys=("units", "value"), 
-            desc="liquid oscillation period"
-        )
-        phase = float(data.get("phase", 0.0))
-        #  piecewise model
-        switch_times = self._parse_quantity_from_dict(
-            input_dict=data.get("switch_times"),
-            required_keys=("units", "value"),
-            desc="liquid level switch times"
-        )
-        levels = self._parse_quantity_from_dict(
-            input_dict=data.get("levels"),
-            required_keys=("units", "value"),
-            desc="piecewise water levels"
-        )
-        return LiquidLevelParams(
-            model_type=model_type,
-            base_level=base_level,
-            amplitude=amplitude,
-            period=period,
-            phase=phase,
-            switch_times=switch_times,
-            levels=levels,
-        )
-    #
-    #    build planetary parameters from input data
-    #
-    def build_planetary_params(
-        self,
-        planet_model: str,
-        planetary_data: dict | None,
-    ) -> PlanetaryEnvironmentParams:
-        if planet_model == "Earth":
-            return get_earth_planetary_params()
-        if planet_model == "Europa":
-            return get_europa_planetary_params()
-        if planet_model == "Mars":
-            return get_mars_planetary_params()
-        if planet_model == "Titan":
-            return get_titan_planetary_params()
-        if planet_model == "Venus":
-            return get_venus_planetary_params()
-        if planetary_data is None:
-            return None
-        # return planetary data
-        return PlanetaryEnvironmentParams(
-            name=planetary_data.get("name", planet_model or "custom"),
-            planet_radius=self._parse_quantity_from_dict(
-                input_dict=planetary_data.get("planet_radius"),
-                required_keys=("units", "value"), 
-                desc="planet radius"
-            ),
-            planet_mass=self._parse_quantity_from_dict(
-                input_dict=planetary_data.get("planet_mass"),
-                required_keys=("units", "value"), 
-                desc="planet mass"
-            ),
-            orbital_distance=self._parse_quantity_from_dict(
-                input_dict=planetary_data.get("orbital_distance"),
-                required_keys=("units", "value"), 
-                desc="orbital distance"
-            ),
-            rotation_period=self._parse_quantity_from_dict(
-                input_dict=planetary_data.get("rotation_period"),
-                required_keys=("units", "value"), 
-                desc="planet rotation period",
-            ),
-            obliquity=float(planetary_data.get("obliquity", 0.0)),
-            eccentricity=float(planetary_data.get("eccentricity", 0.0)),
-            tidal_locked=bool(planetary_data.get("tidal_locked", False)),
-            day_night_contrast=float(planetary_data.get("day_night_contrast", 0.0)),
-            chemical_env=planetary_data.get("exo_chemistry"),
-            atmosphere=self._build_atmosphere_params(planetary_data.get("atmosphere"))
-        )
-    # build atmospheric data
-    def _build_atmosphere_params(self, atmosphere_data: dict | None) -> dict | None:
-        if atmosphere_data is None:
-            return None
-        return {
-            "n_layers": atmosphere_data.get("n_layers"),
-            "z_max": self._parse_quantity_from_dict(
-                input_dict=atmosphere_data.get("z_max"),
-                required_keys=("units", "value"),
-                desc="atmosphere z_max"
-            ),
-            "top_pressure": self._parse_quantity_from_dict(
-                input_dict=atmosphere_data.get("top_pressure"),
-                required_keys=("units", "value"),
-                desc="atmosphere top_pressure"
-            ),
-        }
-    #
-    #    build stellar parameters from input data
-    #
-    def build_stellar_params(
-        self,
-        planet_model: str,
-        stellar_data: dict | None,
-    ) -> StellarParams | None:
-        if planet_model == "Earth":
-            return get_earth_stellar_params()
-        if planet_model == "Europa":
-            return get_europa_stellar_params()
-        if planet_model == "Mars":
-            return get_mars_stellar_params()
-        if planet_model == "Titan":
-            return get_titan_stellar_params()
-        if planet_model == "Venus":
-            return get_venus_stellar_params()
-        if stellar_data is None:
-            return None
-        return StellarParams(
-            name=stellar_data.get("name", "star"),
-            spectral_class=stellar_data.get("spectral_class"),
-            effective_temperature=self._parse_quantity_from_dict(
-                input_dict=stellar_data.get("star_temperature"),
-                required_keys=("units", "value"),
-                desc="star temperature"
-            ),
-            radius=self._parse_quantity_from_dict(
-                input_dict=stellar_data.get("star_radius"),
-                required_keys=("units", "value"),
-                desc="star radius"
-            ),
-            mass=self._parse_quantity_from_dict(
-                input_dict=stellar_data.get("star_mass"),
-                required_keys=("units", "value"),
-                desc="star mass"
-            ),
-            luminosity=self._parse_quantity_from_dict(
-                input_dict=stellar_data.get("luminosity"),
-                required_keys=("units", "value"),
-                desc="star luminosity"
-            ),
-        )
     #
     #    validation section
     #
     def _validate(self):
         # optional: check metabolites_parameters
-        required_keys = ["type", "pol_strng_maxsize", "metabolites_distr_type", "initial_population_molecules"]
+        required_keys = ["type", "initial_population_molecules"]
+        if self.metabolites_params.get("type") in {"binary", "multi"}:
+            required_keys.extend(["pol_strng_maxsize", "metabolites_distr_type"])
+        if self.metabolites_params.get("type") == "reference_file":
+            required_keys.append("reaction_file")
         missing = [k for k in required_keys 
            if k not in self.metabolites_params or self.metabolites_params[k] is None]
         if missing:
@@ -460,7 +181,10 @@ class parameters_class(AbstractInput):
                 f"Valid options: {sorted(self._ALLOWED_METABOLITE_TYPES)}"
         )
         # check distr. model
-        if self.metabolites_params.get("metabolites_distr_type") not in self._ALLOWED_METABOLITE_DISTR:
+        if (
+            self.metabolites_params.get("type") in {"binary", "multi"}
+            and self.metabolites_params.get("metabolites_distr_type") not in self._ALLOWED_METABOLITE_DISTR
+        ):
             log.error(
                 f"Invalid distr. type '{self.metabolites_params.get('metabolites_distr_type')}'. "
                 f"Valid options: {sorted(self._ALLOWED_METABOLITE_DISTR)}"
@@ -470,6 +194,11 @@ class parameters_class(AbstractInput):
             log.error(
                 f"Invalid env. type '{self.env_model}'. "
                 f"Valid options: {sorted(self._ALLOWED_ENV_MODELS)}"
+            )
+        if self.environment_config.source not in self._ALLOWED_ENV_SOURCES:
+            log.error(
+                f"Invalid environment source '{self.environment_config.source}'. "
+                f"Valid options: {sorted(self._ALLOWED_ENV_SOURCES)}"
             )
         self._validate_planet_data()
         self._validate_environment_data()
@@ -490,39 +219,57 @@ class parameters_class(AbstractInput):
         Validate environment input dictionary.
         Raises ValueError if something is wrong.
         """
+        if self.local_env_data is None:
+            return
+        if self.environment_config.is_explicit:
+            self._validate_explicit_environment_data()
+            return
         if self.env_model == "volcanic_rock":
             # check keys
-            missing = self._REQUIRED_ENV_VOLCROCK_KEYS - set(self.env_data.keys())
+            missing = self._REQUIRED_ENV_VOLCROCK_KEYS - set(self.local_env_data.keys())
             if missing:
                 log.error(f"Missing environment keys: {missing}")
             # number of pores
-            n_pores = self.env_data["num_pores"]
+            n_pores = self.local_env_data["num_pores"]
             if not isinstance(n_pores, int) or n_pores <= 0:
                 log.error("number_pores must be a positive integer")
             # pore geometry
-            pore_radius = self.env_data["pore_radius"]
-            pore_height = self.env_data["pore_height"]
+            pore_radius = self.local_env_data["pore_radius"]
+            pore_height = self.local_env_data["pore_height"]
             if pore_radius <= 0:
                 log.error("pore_radius must be > 0")
             if pore_height <= 0:
                 log.error("pore_height must be > 0")
             # distance between closest neighbors
-            min_distance = self.env_data["distance_neigh_pores"]
+            min_distance = self.local_env_data["distance_neigh_pores"]
             if min_distance <= 0:
                 log.error("min_distance must be > 0")
         # ----------------------------
         # temperature / pressure
         # ----------------------------
-        T = self.env_data["temperature"]
-        P = self.env_data["pressure"]
+        T = self.local_env_data["temperature"]
+        P = self.local_env_data["pressure"]
         if T <= 0:
             log.error("temperature must be > 0")
         if P <= 0:
             log.error("pressure must be > 0")
         self._validate_liquid_level_params()
+    # validate explicit environment data
+    def _validate_explicit_environment_data(self):
+        if not self.local_env_data:
+            log.error("Explicit environment source requires environment_data")
+        if self.env_model == "hydro_vent":
+            required_keys = {"T_hot", "T_cold", "pressure", "pH_hot", "pH_cold"}
+        elif self.env_model == "surface_pond":
+            required_keys = {"temperature", "pressure", "pH"}
+        else:
+            required_keys = set()
+        missing = required_keys - set(self.local_env_data.keys())
+        if missing:
+            log.error(f"Missing explicit environment keys: {missing}")
     # validate liquid level parameters
     def _validate_liquid_level_params(self):
-        solvent_data = self.env_data.get("solvent_data")
+        solvent_data = self.local_env_data.get("solvent_data")
         params = solvent_data.liquid_level_params if solvent_data is not None else None
         if params is None:
             log.error("Missing solvent_data.liquid_level_params in environment data")
