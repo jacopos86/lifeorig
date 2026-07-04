@@ -3,11 +3,12 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs,longtable,array}
+\usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{xcolor}
-\usepackage{siunitx}
-\usepackage{enumitem}
-\usepackage{chemformula}
+
+\newcommand{\SIrange}[3]{#1--#2 #3}
+\newcommand{\ch}[1]{\ensuremath{\mathrm{#1}}}
 
 \hypersetup{
   colorlinks=true,
@@ -261,6 +262,431 @@ b_{\rm dil}\Pi_{\rm dilution}
 +
 b_{\rm hyd}\Pi_{\rm hydrolysis}.
 \end{equation}
+
+\section{Hydrothermal vent model structure for implementation}
+
+The hydrothermal vent model should not start by assuming free protocells.
+In a vent setting the first chemically useful compartments are mineral pores,
+surface-bound reaction domains, and porous precipitate barriers. These objects
+are part of the environment. They concentrate feedstocks, expose them to mineral
+surfaces, impose residence times, and experience continuous exchange with vent
+fluid and ocean water. Coacervates and vesicles should appear only as later
+states created by the chemistry.
+
+The implementation hierarchy is therefore:
+\begin{equation}
+\boxed{
+\text{HydrothermalVent}
+\rightarrow
+\text{spatial cells}
+\rightarrow
+\text{mineral pore/surface reactors}
+\rightarrow
+\text{coacervates}
+\rightarrow
+\text{vesicles/protocell candidates}
+\rightarrow
+\text{lineage evolution}
+}
+\end{equation}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{hydrothermal_vent_chimney_model.png}
+\caption{
+Coarse-grained geometry of the hydrothermal vent model. The physical object is
+a porous mineral chimney or vent wall separating hot reduced vent fluid from
+colder ocean water. The one-dimensional coordinate is an effective coordinate
+through this porous reactive wall, not an empty line in the ocean. Each model
+cell represents a slice of water-filled mineral pores with local temperature,
+pH, flow, dissolved chemistry, and reactive mineral surface area such as FeS
+or NiS. Pore and surface chemistry happen first; coacervates and vesicle-like
+objects are later products of that chemistry.
+}
+\end{figure}
+
+\subsection{Top-level hydrothermal vent object}
+
+The hydrothermal vent object represents a one-dimensional vent--ocean mixing
+zone. It owns the environmental fields and the collection of compartment
+objects living inside the vent system:
+\begin{equation}
+\mathcal{V}_{\rm vent}
+=
+\{
+x_j,\ T_j,\ P_j,\ \mathrm{pH}_j,\ I_j,\ \mathrm{pe}_j,\ u_j,\ \lambda_j,
+\mathbf{C}^{\rm env}_j,\ \mathbf{S}^{\rm mineral}_j,\ \mathcal{C}_j
+\}.
+\end{equation}
+Here $x_j$ is the spatial coordinate, $u_j$ is the local flow velocity,
+$\lambda_j$ is the vent/ocean mixing fraction, $\mathbf{C}^{\rm env}_j$ are
+external aqueous concentrations or activities, $\mathbf{S}^{\rm mineral}_j$
+stores reactive mineral surface availability, and $\mathcal{C}_j$ is the list
+of compartments in cell $j$.
+
+The main variables are:
+\begin{itemize}
+  \item $x_j$ is the position of cell $j$ across the porous chimney wall. The
+  coordinate runs from hot vent side to cold ocean side.
+  \item $T_j$ is the temperature in cell $j$.
+  \item $P_j$ is the pressure in cell $j$.
+  \item $\mathrm{pH}_j$ is the acidity/basicity in cell $j$.
+  \item $I_j$ is ionic strength, a measure of dissolved salt content.
+  \item $\mathrm{pe}_j$ is the redox state used by PHREEQC.
+  \item $u_j$ is the effective flow velocity through the pores of cell $j$.
+  \item $\lambda_j$ is the mixing fraction: $\lambda_j=1$ means pure vent
+  fluid, $\lambda_j=0$ means pure ocean water.
+  \item $\mathbf{C}^{\rm env}_j$ is the vector of dissolved external chemical
+  concentrations in the pore water of cell $j$.
+  \item $\mathbf{S}^{\rm mineral}_j$ stores available mineral surface area in
+  cell $j$, for example FeS, NiS, magnetite, brucite, or silica surface.
+  \item $\mathcal{C}_j$ is the list of compartments currently inside cell $j$,
+  such as coacervates or vesicle candidates.
+\end{itemize}
+
+A first implementation can use fixed profiles:
+\begin{align}
+T(x) &= T_{\rm vent} + (T_{\rm ocean}-T_{\rm vent})x/L,\\
+\lambda(x) &= \exp(-x/\ell_{\rm mix}),\\
+C_i^{\rm env}(x) &= \lambda(x)C_{i,\rm vent} + [1-\lambda(x)]C_{i,\rm ocean}.
+\end{align}
+Later, these profiles can be replaced by advection--diffusion and PHREEQC
+transport.
+
+\subsection{Spatial cells}
+
+Each spatial cell is a local reactor environment:
+\begin{equation}
+\mathcal{G}_j
+=
+\{
+T_j,\ P_j,\ \mathrm{pH}_j,\ I_j,\ \mathrm{pe}_j,\ \mathbf{a}_j,\ 
+\mathrm{SI}_{m,j},\ A_{m,j},\ u_j
+\}.
+\end{equation}
+PHREEQC should provide the geochemical quantities $\mathbf{a}_j$,
+$\mathrm{SI}_{m,j}$, and mineral constraints. The organic kinetic network then
+uses these values to compute effective rates.
+
+\subsection{Mineral pore reactors}
+
+A pore is a fixed environmental compartment, not a protocell. It does not
+divide and it is not inherited. It is the first hydrothermal object that can
+concentrate and process chemistry.
+
+For pore $k$ in spatial cell $j$:
+\begin{equation}
+\mathcal{P}_{jk}
+=
+\{
+x_j,\ r_k,\ L_k,\ V_k,\ A_k,\ \mathbf{C}_{jk}^{\rm pore},
+\mathbf{A}_{jk}^{\rm mineral},\ \tau_{jk}^{\rm res},\ q_{jk}
+\}.
+\end{equation}
+The pore volume and surface area can initially be
+\begin{align}
+V_k &= \pi r_k^2 L_k,\\
+A_k &= 2\pi r_k L_k,\\
+\frac{A_k}{V_k} &= \frac{2}{r_k}.
+\end{align}
+
+The pore chemistry evolves as
+\begin{equation}
+\frac{dC_{i,k}^{\rm pore}}{dt}
+=
+\sum_\alpha \nu_{i\alpha} r_{\alpha,k}^{\rm pore}
++
+k_{i,k}^{\rm in}C_{i,j}^{\rm env}
+-
+k_{i,k}^{\rm out}C_{i,k}^{\rm pore}
+-
+k_{i,k}^{\rm loss}C_{i,k}^{\rm pore}.
+\end{equation}
+The reaction rate inside a pore is
+\begin{equation}
+r_{\alpha,k}^{\rm pore}
+=
+k_{\alpha}(T_j)
+\prod_i (C_{i,k}^{\rm pore})^{\nu_{i\alpha}^{+}}
+f_\alpha(\mathrm{pH}_j)
+g_\alpha(I_j)
+h_\alpha(\mathbf{A}_{jk}^{\rm mineral})
+q_\alpha(\mathrm{pe}_j).
+\end{equation}
+
+The residence-time interpretation is
+\begin{equation}
+k_{i,k}^{\rm out}\sim \frac{1}{\tau_{jk}^{\rm res}},
+\qquad
+\tau_{jk}^{\rm res}\sim \frac{L_k}{u_j}.
+\end{equation}
+Small pores have large surface-to-volume ratio and therefore stronger surface
+chemistry, but high flow can flush products before autocatalytic or
+compartment-forming chemistry accumulates.
+
+\subsection{Surface-bound reaction domains}
+
+Surface domains are reaction states attached to minerals rather than enclosed
+volumes. They matter in hydrothermal vents because FeS, NiS, magnetite, brucite,
+and silica can retain intermediates and catalyze carbonyl, thioester, peptide,
+and redox chemistry.
+
+For adsorbed species $i$ on mineral $m$:
+\begin{equation}
+\frac{d\Gamma_{i,m}}{dt}
+=
+k_{i,m}^{\rm ads}C_i^{\rm env}(1-\theta_m)
+-
+k_{i,m}^{\rm des}\Gamma_{i,m}
++
+\sum_\alpha \nu_{i\alpha} r_{\alpha,m}^{\rm surf}
+-
+k_{i,m}^{\rm foul}\Gamma_{i,m}.
+\end{equation}
+Here $\Gamma_{i,m}$ is surface loading and $\theta_m$ is fractional site
+coverage. Surface poisoning or refractory organic buildup should be represented
+as loss of available mineral sites.
+
+\subsection{Coacervate droplets as the first evolvable compartments}
+
+A coacervate is not a protocell, but it is the first mobile compartment that can
+carry a partially heritable internal composition. Coacervates form when the
+pore/surface chemistry produces enough oppositely charged or mutually
+phase-separating polymers, peptides, hetero-oligomers, or metal-organic
+complexes.
+
+In this model, a coacervate means a membrane-free, organic-rich liquid droplet
+inside water. It is a dense liquid phase, not a lipid vesicle. The reason it is
+important is that some molecules can become much more concentrated inside the
+droplet than in the surrounding water. This concentration can make otherwise
+slow reactions fast enough to matter.
+
+Define a local coacervation score:
+\begin{equation}
+\Phi_{\rm coa}(j)
+=
+\sum_{a\in A}\sum_{b\in B}
+\alpha_{ab}
+C_{a,j}^{\rm env}
+C_{b,j}^{\rm env}
+f_{\rm pH}(\mathrm{pH}_j)
+f_I(I_j).
+\end{equation}
+
+The symbols in this score mean:
+\begin{itemize}
+  \item $\Phi_{\rm coa}(j)$ is the tendency of spatial cell $j$ to form
+  coacervate droplets.
+  \item $j$ labels one slice of the one-dimensional porous vent wall.
+  \item $A$ and $B$ are two classes of molecules that can phase-separate
+  together, for example oppositely charged peptides or organic polymers.
+  \item $C_{a,j}^{\rm env}$ is the concentration of molecule or pool $a$ in
+  the external water of cell $j$.
+  \item $C_{b,j}^{\rm env}$ is the concentration of molecule or pool $b$ in
+  the same external water.
+  \item $\alpha_{ab}$ measures how strongly species class $a$ and species
+  class $b$ promote droplet formation.
+  \item $f_{\rm pH}(\mathrm{pH}_j)$ reduces or enhances coacervation depending
+  on the local pH.
+  \item $f_I(I_j)$ reduces or enhances coacervation depending on ionic
+  strength. High salt can screen charges and destabilize some coacervates.
+\end{itemize}
+
+Coacervate birth is allowed when
+\begin{equation}
+\Phi_{\rm coa}(j)>\Phi_{\rm coa}^{\rm crit}.
+\end{equation}
+Here $\Phi_{\rm coa}^{\rm crit}$ is the threshold above which the local mixture
+is treated as able to phase-separate into droplets.
+
+At birth, droplet $d$ samples its internal inventory from the local environment
+with partition coefficients:
+\begin{equation}
+N_{i,d}(t_{\rm birth})
+\sim
+\mathrm{Poisson}
+\left[
+K_{i,d}^{\rm coa}
+C_{i,j}^{\rm env}
+V_d
+N_A
+\right].
+\end{equation}
+
+The symbols in the birth equation mean:
+\begin{itemize}
+  \item $N_{i,d}$ is the number of molecules of species $i$ inside droplet $d$.
+  \item $t_{\rm birth}$ is the time at which the droplet forms.
+  \item $K_{i,d}^{\rm coa}$ is the partition coefficient of species $i$ into
+  droplet $d$. If $K_{i,d}^{\rm coa}>1$, the molecule is enriched inside the
+  droplet. If $K_{i,d}^{\rm coa}<1$, it is excluded.
+  \item $C_{i,j}^{\rm env}$ is the concentration of species $i$ in the
+  surrounding water of cell $j$.
+  \item $V_d$ is the droplet volume.
+  \item $N_A$ is Avogadro's number, converting concentration times volume into
+  expected molecule number.
+  \item $\mathrm{Poisson}[\cdots]$ means the actual molecule count is randomly
+  sampled around the expected count.
+\end{itemize}
+
+The coacervate internal dynamics are
+\begin{equation}
+\frac{dC_{i,d}^{\rm coa}}{dt}
+=
+\sum_\alpha \nu_{i\alpha} r_{\alpha,d}^{\rm coa}
++
+\frac{
+K_{i,d}^{\rm coa}C_{i,j}^{\rm env}
+-
+C_{i,d}^{\rm coa}
+}{\tau_{i,d}^{\rm part}}
+-
+k_{i,d}^{\rm loss}C_{i,d}^{\rm coa}.
+\end{equation}
+
+The symbols in the coacervate dynamics equation mean:
+\begin{itemize}
+  \item $C_{i,d}^{\rm coa}$ is the concentration of species $i$ inside
+  coacervate droplet $d$.
+  \item $\nu_{i\alpha}$ is the stoichiometric change of species $i$ in reaction
+  $\alpha$: positive if the reaction produces $i$, negative if it consumes $i$.
+  \item $r_{\alpha,d}^{\rm coa}$ is the rate of reaction $\alpha$ inside
+  droplet $d$.
+  \item $K_{i,d}^{\rm coa}C_{i,j}^{\rm env}$ is the concentration that species
+  $i$ would approach inside the droplet if partitioning reached equilibrium.
+  \item $\tau_{i,d}^{\rm part}$ is the exchange or partitioning timescale. Large
+  values mean slow exchange with the environment; small values mean fast
+  equilibration.
+  \item $k_{i,d}^{\rm loss}$ is the loss or degradation rate of species $i$
+  inside droplet $d$.
+\end{itemize}
+
+The partition coefficients $K_i^{\rm coa}$ and exchange times
+$\tau_i^{\rm part}$ are evolvable or sampled traits in later simulations.
+
+\subsection{Coacervate to vesicle transition}
+
+The vesicle/protocell stage should be created by amphiphile accumulation, not
+assumed at initialization. Track amphiphile coverage on the coacervate
+interface:
+\begin{equation}
+\frac{dN_{L,d}}{dt}
+=
+k_{\rm ads}A_d C_{L,j}^{\rm env}
+-
+k_{\rm des}N_{L,d}
++
+R_{L,d}^{\rm internal}.
+\end{equation}
+The required number of amphiphiles for a membrane-like coating is
+\begin{equation}
+N_{L,d}^{\rm req}
+\approx
+\frac{8\pi R_d^2}{a_L},
+\end{equation}
+where $a_L$ is the molecular area per amphiphile. Define coverage
+\begin{equation}
+\theta_d=\frac{N_{L,d}}{N_{L,d}^{\rm req}}.
+\end{equation}
+When
+\begin{equation}
+\theta_d \geq \theta_{\rm ves},
+\end{equation}
+the transition is
+\begin{equation}
+\text{coacervate droplet}
+\rightarrow
+\text{amphiphile-stabilized vesicle/protocell candidate}.
+\end{equation}
+
+\subsection{Lineage evolution should begin at the coacervate stage}
+
+For hydrothermal vents, selection should not start from fully formed
+protocells. The first selectable objects are coacervates or amphiphile-stabilized
+droplets that persist, concentrate feedstocks, and enhance productive chemistry.
+Their evolvable traits can be represented as
+\begin{equation}
+\Theta_d
+=
+\{
+K_i^{\rm coa},\ \tau_i^{\rm part},\ 
+\chi_{\rm eff},\ P_i,\ 
+\mathcal{K}_{d\alpha}^{\rm cat},\ 
+\theta_{\rm div}
+\}.
+\end{equation}
+Here $\mathcal{K}_{d\alpha}^{\rm cat}$ is the droplet's catalytic enhancement
+profile over the reference reaction network. Mutation changes these traits
+between parent and daughter droplets.
+
+An operational fitness for early hydrothermal compartment evolution is
+\begin{equation}
+F_d
+=
+w_R R_{\rm productive}
++
+w_A A_{\rm autocatalytic}
++
+w_E C_{\rm energy}
++
+w_L C_{\rm amphiphile}
++
+w_S t_{\rm survival}
+-
+w_D D_{\rm dilution}
+-
+w_H H_{\rm hydrolysis}
+-
+w_F F_{\rm fouling}.
+\end{equation}
+The first computational target is not ``life''. It is persistent,
+compartmentalized, autocatalytic chemistry that can transition from mineral
+pore/surface concentration into coacervate or vesicle-like objects.
+
+\subsection{Minimal code objects}
+
+The corresponding first implementation should expose these objects:
+\begin{verbatim}
+HydrothermalVent
+    spatial_cells: list[VentCell]
+    pore_compartments: list[PoreCompartment]
+    coacervates: list[CoacervateDroplet]
+    vesicles: list[VesicleCandidate]
+
+VentCell
+    x, T, P, pH, ionic_strength, pe, flow_velocity
+    env_concentrations
+    mineral_surfaces
+
+PoreCompartment
+    cell_id, radius, length, volume, surface_area
+    mineral_surface_area
+    concentrations
+    residence_time
+
+CoacervateDroplet
+    cell_id, radius, volume
+    internal_counts
+    partition_coefficients
+    partition_times
+    catalytic_profile
+
+VesicleCandidate
+    cell_id, radius, volume, area
+    internal_counts
+    amphiphile_count
+    permeability
+\end{verbatim}
+
+The hydrothermal vent branch should therefore implement chemistry in this order:
+\begin{enumerate}
+  \item parse the hydrothermal reference reaction network;
+  \item build environmental feedstock and mineral-surface fields;
+  \item run pore/surface chemistry;
+  \item allow coacervate birth from enriched polymer/charged-organic pools;
+  \item evolve coacervate internal chemistry and partitioning traits;
+  \item convert successful droplets into vesicle/protocell candidates.
+\end{enumerate}
 
 \section{Initial conditions for water worlds}
 
@@ -627,7 +1053,7 @@ with $f_{\rm div}$ decreasing when divalent cations precipitate fatty acids.
 
 \section{Numerical algorithm}
 
-\begin{enumerate}[label=\arabic*.]
+\begin{enumerate}
 \item Build planet object and compute $T(x)$, $P(x)$, flow velocity $u(x)$, and energy/redox fluxes.
 \item Initialize bulk element totals for ocean and vent endmembers.
 \item For each grid cell, mix ocean and vent endmembers:
