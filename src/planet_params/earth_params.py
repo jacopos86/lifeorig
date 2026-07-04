@@ -74,13 +74,19 @@ EARTH_PLANETARY_PARAMS = PlanetaryEnvironmentParams(
         "n_layers": 60,
         "z_max": Q_(100.0, "km"),
         "atmosphere_mass_fraction": 8.6e-7,
-        "max_iter_loop": 100,
-        # Convergence tolerances for pressure updates. Use a dimensionless
-        # relative fraction and an absolute pressure tolerance Quantity.
-        "rel_tol": 1.0e-4,
-        "logp_tol": 1.0e-2,
-        "abs_tol": Q_(1.0, "Pa"),
-        "damping_loop": 0.3,
+        "hydrostatic_solver": {
+            "type": "standard",
+            "settings": {
+                "max_iter": 100,
+                # Convergence tolerances for pressure updates. Use a dimensionless
+                # relative fraction and an absolute pressure tolerance Quantity.
+                "rel_tol": 1.0e-4,
+                "logp_tol": 1.0e-2,
+                "abs_tol": Q_(1.0, "Pa"),
+                "damping": 0.3,
+                "anderson_depth": 5,
+            },
+        },
     },
     hydro={
         "ocean_composition": EARTH_OCEAN_COMPOSITION,

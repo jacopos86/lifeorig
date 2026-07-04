@@ -63,10 +63,16 @@ EUROPA_PLANETARY_PARAMS = PlanetaryEnvironmentParams(
         "n_layers": 200,
         "z_max": Q_(300.0, "km"),
         "atmosphere_mass_fraction": 1.0e-16,
-        "max_iter_loop": 100,
-        "rel_tol": 1.0e-6,
-        "abs_tol": 0.0,
-        "damping_loop": 1.0,
+        "hydrostatic_solver": {
+            "type": "standard",
+            "settings": {
+                "max_iter": 100,
+                "rel_tol": 1.0e-6,
+                "abs_tol": Q_(0.0, "Pa"),
+                "damping": 1.0,
+                "anderson_depth": 5,
+            },
+        },
     },
     hydro={
         "ocean_composition": EUROPA_OCEAN_COMPOSITION,

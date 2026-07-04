@@ -61,10 +61,16 @@ VENUS_PLANETARY_PARAMS = PlanetaryEnvironmentParams(
         "n_layers": 300,
         "z_max": Q_(250.0, "km"),
         "atmosphere_mass_fraction": 9.9e-5,
-        "max_iter_loop": 100,
-        "rel_tol": 1.0e-6,
-        "abs_tol": 0.0,
-        "damping_loop": 1.0,
+        "hydrostatic_solver": {
+            "type": "standard",
+            "settings": {
+                "max_iter": 100,
+                "rel_tol": 1.0e-6,
+                "abs_tol": Q_(0.0, "Pa"),
+                "damping": 1.0,
+                "anderson_depth": 5,
+            },
+        },
     },
 )
 
