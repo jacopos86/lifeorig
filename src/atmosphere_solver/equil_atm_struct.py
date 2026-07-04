@@ -1,12 +1,7 @@
 import os
-import contextlib
-import io
 import numpy as np
-from src.atmosphere_solver.atm_struct_driver import (
-    AtmDynResult,
-    AtmLayerDyn,
-    AtmosphSolver,
-)
+from src.atmosphere_solver.atm_struct_driver import AtmosphSolver
+from src.atmosphere_solver.atmosph_data import AtmDynResult, AtmLayerDyn
 from src.chemical_env.chem_env_data import ChemEnvResult
 from src.common.units import Q_
 from src.exo_chem.easy_chem_driver import run_easy_chem_full_profile
