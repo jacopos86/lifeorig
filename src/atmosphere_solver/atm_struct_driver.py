@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 import os
 import numpy as np
 from periodictable import formula
@@ -10,33 +9,13 @@ from src.utilities.logging_module import log
 from src.utilities.plot_chemical_mass_profiles import plot_chemical_mass_profiles
 from src.utilities.plot_stellar_spectrum import plot_stellar_B_lambda
 from src.exo_chem.easy_chem_driver import run_easy_chem_full_profile
+from src.atmosphere_solver.hydrostatic_solver import set_hydro_solver
 from src.atmosphere_solver.IR_absorption_coeff import set_IR_absorption_coefficient_profile
 from src.atmosphere_solver.optical_depth_eval import (
     OpticalDepthProfiles,
     absorption_optical_depth_profile,
 )
-
-@dataclass
-class AtmLayerDyn:
-    altitude: np.ndarray
-    pressure: np.ndarray
-    temperature: np.ndarray
-    mean_molecular_mass: np.ndarray
-    gravity: np.ndarray
-    species_number_density: dict[str, np.ndarray]
-    chemistry: object | None = None
-
-
-@dataclass
-class AtmDynResult:
-    atomic_abundances: dict[str, float]
-    stellar_params: object
-    uv_wavelength_grid: Q_
-    ir_wavelength_grid: Q_
-    stellar_B_lambda: Q_
-    bond_albedo: float | None
-    spectral_albedo: np.ndarray | None
-    layers: AtmLayerDyn
+from src.atmosphere_solver.atmosph_data import AtmLayerDyn
 
 #
 #   full atmospheric solver
@@ -49,7 +28,7 @@ class AtmosphSolver(ABC):
         self.stellar_data = stellar_data
         self.atmosphere_data = atmosphere_data
         self.output_dir = output_dir or "."
-        # physical parameters
+        # physical radiative parameters
         self.UV_wavelength_grid = None
         self.IR_wavelength_grid = None
         self.stellar_B_lambda = None
@@ -58,12 +37,9 @@ class AtmosphSolver(ABC):
         self.spectral_albedo = None
         # set internal units
         self._set_internal_units()
-        # loop controls
-        self._max_iter_loop = int(self.atmosphere_data.get("max_iter_loop", 50))
-        self._rel_tol = float(self.atmosphere_data.get("rel_tol"))
-        self._logp_tol = float(self.atmosphere_data.get("logp_tol", self._rel_tol))
-        self._abs_tol = float(self.atmosphere_data.get("abs_tol").to(self.pressure_unit).magnitude)
-        self._damping_loop = float(self.atmosphere_data.get("damping_loop", 1.0))
+        # set hydrostatic solver
+        self._hydro_solver = set_hydro_solver(atmosphere_data)
+        exit()
         # set atmospheric mass
         self._atmosphere_mass_fraction = float(self.atmosphere_data.get("atmosphere_mass_fraction"))
         self._atmosphere_mass = self._atmosphere_mass_fraction*self.planet_data.planet_mass
