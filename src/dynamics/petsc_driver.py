@@ -1,4 +1,9 @@
+from __future__ import annotations
 
+from typing import Any
+
+import numpy as np
+from petsc4py import PETSc
 
 # ============================================================
 #  PETSc driver
@@ -19,7 +24,7 @@ class PETScDriver:
     - add Vec for summary observables
     - couple to TS if hybrid field + particle model is used
     """
-    def __init__(self, solver: DynamicsSolver, comm=PETSc.COMM_WORLD):
+    def __init__(self, solver: Any, comm=PETSc.COMM_WORLD):
         self.solver = solver
         self.comm = comm
         self.rank = comm.getRank()
