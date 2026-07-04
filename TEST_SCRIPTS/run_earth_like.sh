@@ -3,7 +3,9 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PYTHON_BIN="${PYTHON_BIN:-$ROOT_DIR/env/bin/python}"
+export MPLCONFIGDIR="${MPLCONFIGDIR:-$ROOT_DIR/.cache/matplotlib}"
+mkdir -p "$MPLCONFIGDIR"
+PYTHON_BIN="${PYTHON_BIN:-python}"
 INPUT_JSON="${INPUT_JSON:-$ROOT_DIR/TESTS/2/input.json}"
 CALC_TYPE="${CALC_TYPE:-set_initial_state}"
 

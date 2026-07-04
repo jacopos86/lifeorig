@@ -3,12 +3,24 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PYTHON_BIN="${PYTHON_BIN:-$ROOT_DIR/env/bin/python}"
+export MPLCONFIGDIR="${MPLCONFIGDIR:-$ROOT_DIR/.cache/matplotlib}"
+mkdir -p "$MPLCONFIGDIR"
+PYTHON_BIN="${PYTHON_BIN:-python}"
 PLANET_MODEL="${PLANET_MODEL:-Earth}"
 ENVIRONMENT="${ENVIRONMENT:-volcanic_rock}"
 OUTPUT_DIR="${OUTPUT_DIR:-$ROOT_DIR/TESTS/${PLANET_MODEL}_${ENVIRONMENT}}"
 INPUT_JSON="${INPUT_JSON:-$OUTPUT_DIR/input.json}"
 CALC_TYPE="${CALC_TYPE:-set_initial_state}"
+HYDROSTATIC_SOLVER="${HYDROSTATIC_SOLVER:-standard}"
+HYDROSTATIC_MAX_ITER="${HYDROSTATIC_MAX_ITER:-100}"
+HYDROSTATIC_ABS_TOL_VALUE="${HYDROSTATIC_ABS_TOL_VALUE:-1.0}"
+HYDROSTATIC_ABS_TOL_UNITS="${HYDROSTATIC_ABS_TOL_UNITS:-Pa}"
+HYDROSTATIC_REL_TOL="${HYDROSTATIC_REL_TOL:-1.0e-4}"
+HYDROSTATIC_LOGP_TOL="${HYDROSTATIC_LOGP_TOL:-1.0e-2}"
+HYDROSTATIC_DAMPING="${HYDROSTATIC_DAMPING:-0.3}"
+HYDROSTATIC_ANDERSON_DEPTH="${HYDROSTATIC_ANDERSON_DEPTH:-5}"
+CHEM_NETWORK_TYPE="${CHEM_NETWORK_TYPE:-reference_file}"
+CHEM_REACTION_FILE="${CHEM_REACTION_FILE:-$ROOT_DIR/reference_reactions/PREBIOTIC/prebiotic_polymer_autocatalytic_network_v2.txt}"
 
 mkdir -p "$OUTPUT_DIR"
 
@@ -17,6 +29,28 @@ cat > "$INPUT_JSON" <<EOF
     "working_dir" : "$OUTPUT_DIR",
     "planet_model": "$PLANET_MODEL",
     "environment": "$ENVIRONMENT",
+    "planetary_data": {
+        "atmosphere": {
+            "hydrostatic_solver": {
+                "type": "$HYDROSTATIC_SOLVER",
+                "settings": {
+                    "max_iter": $HYDROSTATIC_MAX_ITER,
+                    "abs_tol": {
+                        "value": $HYDROSTATIC_ABS_TOL_VALUE,
+                        "units": "$HYDROSTATIC_ABS_TOL_UNITS"
+                    },
+                    "rel_tol": $HYDROSTATIC_REL_TOL,
+                    "logp_tol": $HYDROSTATIC_LOGP_TOL,
+                    "damping": $HYDROSTATIC_DAMPING,
+                    "anderson_depth": $HYDROSTATIC_ANDERSON_DEPTH
+                }
+            }
+        }
+    },
+    "chemical_network": {
+        "type": "$CHEM_NETWORK_TYPE",
+        "reaction_file": "$CHEM_REACTION_FILE"
+    },
     "catalyst_set" : {"distribution": "gaussian", "center": 20, "std": 1.0, "set_size": 10},
     "metabolites_data" : {
         "type": "binary",

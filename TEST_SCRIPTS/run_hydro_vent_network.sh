@@ -3,7 +3,9 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PYTHON_BIN="${PYTHON_BIN:-$ROOT_DIR/env/bin/python}"
+export MPLCONFIGDIR="${MPLCONFIGDIR:-$ROOT_DIR/.cache/matplotlib}"
+mkdir -p "$MPLCONFIGDIR"
+PYTHON_BIN="${PYTHON_BIN:-python}"
 
 ENVIRONMENT="${ENVIRONMENT:-hydro_vent}"
 ENVIRONMENT_SOURCE="${ENVIRONMENT_SOURCE:-explicit}"

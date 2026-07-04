@@ -3,7 +3,9 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PYTHON_BIN="${PYTHON_BIN:-$ROOT_DIR/env/bin/python}"
+export MPLCONFIGDIR="${MPLCONFIGDIR:-$ROOT_DIR/.cache/matplotlib}"
+mkdir -p "$MPLCONFIGDIR"
+PYTHON_BIN="${PYTHON_BIN:-python}"
 CATALOG_JSON="${CATALOG_JSON:-$ROOT_DIR/src/planet_params/exoplanet_catalog.json}"
 EXOPLANET_NAME="${EXOPLANET_NAME:-TRAPPIST-1 e}"
 ENVIRONMENT="${ENVIRONMENT:-volcanic_rock}"
