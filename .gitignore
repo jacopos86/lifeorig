@@ -1,9 +1,6 @@
-PLOT
-build
-dist
+# === PACKAGE SET UP === #
+conda-environment.yml
 lifeorig.egg-info
-env
-promem
 
 # === TEST DATA === #
 TESTS
@@ -15,3 +12,4 @@ src/__pycache__
 utils/__pycache__/
 *.pyc
 .codex
+.cache/
