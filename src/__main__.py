@@ -45,8 +45,9 @@ if calc_type == "set_initial_state":
     
     # set list molecular types
 
+    print(p.metabolites_params)
     X_set, X_set_map = build_molecule_set(p.metabolites_params)
-
+    exit()
     # build catalysts set: Y set
 
     Y_set = build_catalyst_set(X_set, p.catalyst_set_params)
