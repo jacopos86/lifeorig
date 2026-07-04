@@ -1,5 +1,4 @@
 setuptools
-numpy
 scipy
 colorlog
 gillespie
