@@ -2,225 +2,225 @@
 # Purpose: starting reaction list for a kinetic/SSA/ODE network.
 # Not a single canonical literature network; compiled/synthesized from Titan photochemistry mechanisms.
 # Sources to check for rates: Yung et al. 1984 ApJS; Clarke & Ferris 1997; Wilson & Atreya 2004; Loison et al. 2015; Pearce et al. 2020 CRAHCN.
-# Columns: ID | SECTION | TYPE | REACTION | SOURCE_HINT
+# Columns: ID | MODULE | REACTION | CATALYST_OR_CONTROL | RATE_TEMPLATE | ROLE | REFS | CONFIDENCE
 
-R001 | photolysis_electron_sources | photo/electron | N2 + hnu -> N(4S) + N(2D) | Yung1984_Clarke1997_Titan_models
-R002 | photolysis_electron_sources | photo/electron | N2 + e -> N(4S) + N(2D) + e | Yung1984_Clarke1997_Titan_models
-R003 | photolysis_electron_sources | photo/electron | N2 + e -> N(4S) + N(4S) + e | Yung1984_Clarke1997_Titan_models
-R004 | photolysis_electron_sources | photo/electron | CH4 + hnu -> CH3 + H | Yung1984_Clarke1997_Titan_models
-R005 | photolysis_electron_sources | photo/electron | CH4 + hnu -> 1CH2 + H2 | Yung1984_Clarke1997_Titan_models
-R006 | photolysis_electron_sources | photo/electron | CH4 + hnu -> 3CH2 + 2 H | Yung1984_Clarke1997_Titan_models
-R007 | photolysis_electron_sources | photo/electron | CH4 + hnu -> CH + H2 + H | Yung1984_Clarke1997_Titan_models
-R008 | photolysis_electron_sources | photo/electron | CH4 + e -> CH3 + H + e | Yung1984_Clarke1997_Titan_models
-R009 | photolysis_electron_sources | photo/electron | CH4 + e -> CH2 + H2 + e | Yung1984_Clarke1997_Titan_models
-R010 | photolysis_electron_sources | photo/electron | H2 + hnu -> H + H | Yung1984_Clarke1997_Titan_models
-R011 | photolysis_electron_sources | photo/electron | H2 + e -> H + H + e | Yung1984_Clarke1997_Titan_models
-R012 | photolysis_electron_sources | photo/electron | C2H2 + hnu -> C2H + H | Yung1984_Clarke1997_Titan_models
-R013 | photolysis_electron_sources | photo/electron | C2H2 + hnu -> C2 + H2 | Yung1984_Clarke1997_Titan_models
-R014 | photolysis_electron_sources | photo/electron | C2H2 + hnu -> C2 + H + H | Yung1984_Clarke1997_Titan_models
-R015 | photolysis_electron_sources | photo/electron | C2H4 + hnu -> C2H2 + H2 | Yung1984_Clarke1997_Titan_models
-R016 | photolysis_electron_sources | photo/electron | C2H4 + hnu -> C2H3 + H | Yung1984_Clarke1997_Titan_models
-R017 | photolysis_electron_sources | photo/electron | C2H6 + hnu -> C2H5 + H | Yung1984_Clarke1997_Titan_models
-R018 | photolysis_electron_sources | photo/electron | C2H6 + hnu -> CH3 + CH3 | Yung1984_Clarke1997_Titan_models
-R019 | photolysis_electron_sources | photo/electron | C3H4 + hnu -> C3H3 + H | Yung1984_Clarke1997_Titan_models
-R020 | photolysis_electron_sources | photo/electron | C3H6 + hnu -> C3H5 + H | Yung1984_Clarke1997_Titan_models
-R021 | photolysis_electron_sources | photo/electron | C3H8 + hnu -> C3H7 + H | Yung1984_Clarke1997_Titan_models
-R022 | photolysis_electron_sources | photo/electron | C4H2 + hnu -> C4H + H | Yung1984_Clarke1997_Titan_models
-R023 | photolysis_electron_sources | photo/electron | C4H2 + hnu -> C2H + C2H | Yung1984_Clarke1997_Titan_models
-R024 | photolysis_electron_sources | photo/electron | C4H4 + hnu -> C4H3 + H | Yung1984_Clarke1997_Titan_models
-R025 | photolysis_electron_sources | photo/electron | C4H6 + hnu -> C4H5 + H | Yung1984_Clarke1997_Titan_models
-R026 | photolysis_electron_sources | photo/electron | C6H6 + hnu -> C6H5 + H | Yung1984_Clarke1997_Titan_models
-R027 | photolysis_electron_sources | photo/electron | HCN + hnu -> CN + H | Yung1984_Clarke1997_Titan_models
-R028 | photolysis_electron_sources | photo/electron | HCN + hnu -> H + C + N | Yung1984_Clarke1997_Titan_models
-R029 | photolysis_electron_sources | photo/electron | HC3N + hnu -> C3N + H | Yung1984_Clarke1997_Titan_models
-R030 | photolysis_electron_sources | photo/electron | HC3N + hnu -> CN + C2H | Yung1984_Clarke1997_Titan_models
-R031 | photolysis_electron_sources | photo/electron | C2N2 + hnu -> CN + CN | Yung1984_Clarke1997_Titan_models
-R032 | photolysis_electron_sources | photo/electron | C4N2 + hnu -> C3N + CN | Yung1984_Clarke1997_Titan_models
-R033 | photolysis_electron_sources | photo/electron | CH3CN + hnu -> CH3 + CN | Yung1984_Clarke1997_Titan_models
-R034 | photolysis_electron_sources | photo/electron | CH2NH + hnu -> H2CN + H | Yung1984_Clarke1997_Titan_models
-R035 | photolysis_electron_sources | photo/electron | NH3 + hnu -> NH2 + H | Yung1984_Clarke1997_Titan_models
-R036 | photolysis_electron_sources | photo/electron | NH2 + hnu -> NH + H | Yung1984_Clarke1997_Titan_models
-R037 | photolysis_electron_sources | photo/electron | NH + hnu -> N + H | Yung1984_Clarke1997_Titan_models
-R038 | photolysis_electron_sources | photo/electron | H2O + hnu -> H + OH | Yung1984_Clarke1997_Titan_models
-R039 | photolysis_electron_sources | photo/electron | CO2 + hnu -> CO + O | Yung1984_Clarke1997_Titan_models
-R040 | photolysis_electron_sources | photo/electron | CO + hnu -> C + O | Yung1984_Clarke1997_Titan_models
-R041 | photolysis_electron_sources | photo/electron | O2 + hnu -> O + O | Yung1984_Clarke1997_Titan_models
-R042 | photolysis_electron_sources | photo/electron | NO + hnu -> N + O | Yung1984_Clarke1997_Titan_models
-R043 | photolysis_electron_sources | photo/electron | HCO + hnu -> H + CO | Yung1984_Clarke1997_Titan_models
-R044 | photolysis_electron_sources | photo/electron | H2CO + hnu -> HCO + H | Yung1984_Clarke1997_Titan_models
-R045 | photolysis_electron_sources | photo/electron | H2CO + hnu -> CO + H2 | Yung1984_Clarke1997_Titan_models
-R046 | H_H2_radical_pool | thermal | H + H + M -> H2 + M | synthesized
-R047 | H_H2_radical_pool | thermal | H + CH4 -> CH3 + H2 | synthesized
-R048 | H_H2_radical_pool | thermal | H + CH3 -> CH2 + H2 | synthesized
-R049 | H_H2_radical_pool | thermal | H + 1CH2 -> CH + H2 | synthesized
-R050 | H_H2_radical_pool | thermal | H + 3CH2 -> CH + H2 | synthesized
-R051 | H_H2_radical_pool | thermal | H + CH -> C + H2 | synthesized
-R052 | H_H2_radical_pool | thermal | H + C2H2 -> C2H + H2 | synthesized
-R053 | H_H2_radical_pool | thermal | H + C2H3 -> C2H2 + H2 | synthesized
-R054 | H_H2_radical_pool | thermal | H + C2H4 -> C2H3 + H2 | synthesized
-R055 | H_H2_radical_pool | thermal | H + C2H5 -> C2H4 + H2 | synthesized
-R056 | H_H2_radical_pool | thermal | H + C2H6 -> C2H5 + H2 | synthesized
-R057 | H_H2_radical_pool | thermal | H + C3H4 -> C3H3 + H2 | synthesized
-R058 | H_H2_radical_pool | thermal | H + C4H2 -> C4H + H2 | synthesized
-R059 | H_H2_radical_pool | thermal | H + HCN -> H2CN | synthesized
-R060 | H_H2_radical_pool | thermal | H + CN + M -> HCN + M | synthesized
-R061 | H_H2_radical_pool | thermal | H + OH -> O + H2 | synthesized
-R062 | H_H2_radical_pool | thermal | H + O + M -> OH + M | synthesized
-R063 | H_H2_radical_pool | thermal | H + CO + M -> HCO + M | synthesized
-R064 | H_H2_radical_pool | thermal | H + HCO -> CO + H2 | synthesized
-R065 | H_H2_radical_pool | thermal | H + H2CO -> HCO + H2 | synthesized
-R066 | C1_methane_degradation | thermal | CH3 + CH3 + M -> C2H6 + M | synthesized
-R067 | C1_methane_degradation | thermal | CH3 + CH3 -> C2H5 + H | synthesized
-R068 | C1_methane_degradation | thermal | CH3 + H + M -> CH4 + M | synthesized
-R069 | C1_methane_degradation | thermal | CH3 + 1CH2 -> C2H4 + H | synthesized
-R070 | C1_methane_degradation | thermal | CH3 + 3CH2 -> C2H4 + H | synthesized
-R071 | C1_methane_degradation | thermal | CH3 + CH -> C2H3 + H | synthesized
-R072 | C1_methane_degradation | thermal | CH3 + C -> C2H2 + H | synthesized
-R073 | C1_methane_degradation | thermal | 1CH2 + H2 -> CH3 + H | synthesized
-R074 | C1_methane_degradation | thermal | 3CH2 + H2 -> CH3 + H | synthesized
-R075 | C1_methane_degradation | thermal | 1CH2 + N2 -> 3CH2 + N2 | synthesized
-R076 | C1_methane_degradation | thermal | 1CH2 + CH4 -> CH3 + CH3 | synthesized
-R077 | C1_methane_degradation | thermal | 3CH2 + CH4 -> CH3 + CH3 | synthesized
-R078 | C1_methane_degradation | thermal | CH + CH4 -> C2H4 + H | synthesized
-R079 | C1_methane_degradation | thermal | CH + H2 -> 3CH2 + H | synthesized
-R080 | C1_methane_degradation | thermal | C + CH4 -> C2H3 + H | synthesized
-R081 | C1_methane_degradation | thermal | C + H2 -> CH + H | synthesized
-R082 | hydrocarbon_growth | thermal | C2H + H2 -> C2H2 + H | synthesized
-R083 | hydrocarbon_growth | thermal | C2H + CH4 -> C2H2 + CH3 | synthesized
-R084 | hydrocarbon_growth | thermal | C2H + C2H2 -> C4H2 + H | synthesized
-R085 | hydrocarbon_growth | thermal | C2H + C2H4 -> C4H4 + H | synthesized
-R086 | hydrocarbon_growth | thermal | C2H + C2H6 -> C2H2 + C2H5 | synthesized
-R087 | hydrocarbon_growth | thermal | C2H + C3H4 -> C5H4 + H | synthesized
-R088 | hydrocarbon_growth | thermal | C2H + C4H2 -> C6H2 + H | synthesized
-R089 | hydrocarbon_growth | thermal | C2H2 + CH2 + M -> CH3CCH + M | synthesized
-R090 | hydrocarbon_growth | thermal | C2H2 + CH3 -> C3H5 | synthesized
-R091 | hydrocarbon_growth | thermal | C2H2 + C2H3 -> C4H4 + H | synthesized
-R092 | hydrocarbon_growth | thermal | C2H2 + C2H5 -> C4H6 + H | synthesized
-R093 | hydrocarbon_growth | thermal | C2H2 + C3H3 -> C5H5 | synthesized
-R094 | hydrocarbon_growth | thermal | C2H2 + C4H -> C6H2 + H | synthesized
-R095 | hydrocarbon_growth | thermal | C2H3 + H + M -> C2H4 + M | synthesized
-R096 | hydrocarbon_growth | thermal | C2H3 + H -> C2H2 + H2 | synthesized
-R097 | hydrocarbon_growth | thermal | C2H3 + CH3 -> C3H6 | synthesized
-R098 | hydrocarbon_growth | thermal | C2H3 + C2H3 -> C4H6 | synthesized
-R099 | hydrocarbon_growth | thermal | C2H3 + C2H5 -> C4H8 | synthesized
-R100 | hydrocarbon_growth | thermal | C2H4 + H + M -> C2H5 + M | synthesized
-R101 | hydrocarbon_growth | thermal | C2H4 + CH3 -> C3H7 | synthesized
-R102 | hydrocarbon_growth | thermal | C2H4 + C2H -> C4H4 + H | synthesized
-R103 | hydrocarbon_growth | thermal | C2H4 + C2H3 -> C4H7 | synthesized
-R104 | hydrocarbon_growth | thermal | C2H5 + H + M -> C2H6 + M | synthesized
-R105 | hydrocarbon_growth | thermal | C2H5 + CH3 -> C3H8 | synthesized
-R106 | hydrocarbon_growth | thermal | C2H5 + C2H5 -> C4H10 | synthesized
-R107 | hydrocarbon_growth | thermal | C2H6 + CH -> C3H6 + H | synthesized
-R108 | hydrocarbon_growth | thermal | C3H3 + H -> C3H2 + H2 | synthesized
-R109 | hydrocarbon_growth | thermal | C3H3 + H + M -> C3H4 + M | synthesized
-R110 | hydrocarbon_growth | thermal | C3H3 + CH3 -> C4H6 | synthesized
-R111 | hydrocarbon_growth | thermal | C3H3 + C2H2 -> C5H5 | synthesized
-R112 | hydrocarbon_growth | thermal | C3H3 + C3H3 -> C6H6 | synthesized
-R113 | hydrocarbon_growth | thermal | C3H4 + H -> C3H3 + H2 | synthesized
-R114 | hydrocarbon_growth | thermal | C3H4 + CH3 -> C4H6 + H | synthesized
-R115 | hydrocarbon_growth | thermal | C3H4 + C2H -> C5H4 + H | synthesized
-R116 | hydrocarbon_growth | thermal | C3H5 + H -> C3H4 + H2 | synthesized
-R117 | hydrocarbon_growth | thermal | C3H5 + H + M -> C3H6 + M | synthesized
-R118 | hydrocarbon_growth | thermal | C3H5 + CH3 -> C4H8 | synthesized
-R119 | hydrocarbon_growth | thermal | C3H6 + H -> C3H5 + H2 | synthesized
-R120 | hydrocarbon_growth | thermal | C3H6 + CH3 -> C4H9 | synthesized
-R121 | hydrocarbon_growth | thermal | C3H7 + H -> C3H6 + H2 | synthesized
-R122 | hydrocarbon_growth | thermal | C3H7 + H + M -> C3H8 + M | synthesized
-R123 | hydrocarbon_growth | thermal | C3H7 + CH3 -> C4H10 | synthesized
-R124 | hydrocarbon_growth | thermal | C3H8 + H -> C3H7 + H2 | synthesized
-R125 | hydrocarbon_growth | thermal | C4H + H2 -> C4H2 + H | synthesized
-R126 | hydrocarbon_growth | thermal | C4H + CH4 -> C4H2 + CH3 | synthesized
-R127 | hydrocarbon_growth | thermal | C4H + C2H2 -> C6H2 + H | synthesized
-R128 | hydrocarbon_growth | thermal | C4H2 + H -> C4H + H2 | synthesized
-R129 | hydrocarbon_growth | thermal | C4H2 + C2H -> C6H2 + H | synthesized
-R130 | hydrocarbon_growth | thermal | C4H2 + C4H -> C8H2 + H | synthesized
-R131 | hydrocarbon_growth | thermal | C4H3 + H -> C4H2 + H2 | synthesized
-R132 | hydrocarbon_growth | thermal | C4H3 + H + M -> C4H4 + M | synthesized
-R133 | hydrocarbon_growth | thermal | C4H3 + C2H2 -> C6H5 | synthesized
-R134 | hydrocarbon_growth | thermal | C4H4 + H -> C4H3 + H2 | synthesized
-R135 | hydrocarbon_growth | thermal | C4H4 + C2H -> C6H4 + H | synthesized
-R136 | hydrocarbon_growth | thermal | C4H5 + H -> C4H4 + H2 | synthesized
-R137 | hydrocarbon_growth | thermal | C4H5 + H + M -> C4H6 + M | synthesized
-R138 | hydrocarbon_growth | thermal | C4H6 + H -> C4H5 + H2 | synthesized
-R139 | hydrocarbon_growth | thermal | C4H6 + C2H -> C6H6 + H | synthesized
-R140 | hydrocarbon_growth | thermal | C5H5 + H -> C5H4 + H2 | synthesized
-R141 | hydrocarbon_growth | thermal | C5H5 + CH3 -> C6H8 | synthesized
-R142 | hydrocarbon_growth | thermal | C6H5 + H -> C6H6 | synthesized
-R143 | hydrocarbon_growth | thermal | C6H5 + C2H2 -> C8H6 + H | synthesized
-R144 | hydrocarbon_growth | thermal | C6H6 + H -> C6H5 + H2 | synthesized
-R145 | hydrocarbon_growth | thermal | C6H6 + C2H -> C8H6 + H | synthesized
-R146 | hydrocarbon_growth | thermal | C8H2 + H -> C8H + H2 | synthesized
-R147 | hydrocarbon_growth | thermal | C8H2 + C2H -> C10H2 + H | synthesized
-R148 | hydrocarbon_growth | thermal | C2 + H2 -> C2H + H | synthesized
-R149 | hydrocarbon_growth | thermal | C2 + CH4 -> C2H2 + H2 | synthesized
-R150 | hydrocarbon_growth | thermal | C2 + C2H2 -> C4H + H | synthesized
-R151 | hydrocarbon_growth | thermal | C + C2H2 -> C3H + H | synthesized
-R152 | hydrocarbon_growth | thermal | C + C2H4 -> C3H3 + H | synthesized
-R153 | nitrogen_nitrile_chemistry | thermal | N(4S) + CH3 -> H2CN + H | synthesized
-R154 | nitrogen_nitrile_chemistry | thermal | N(4S) + CH3 -> HCN + H2 | synthesized
-R155 | nitrogen_nitrile_chemistry | thermal | N(4S) + 3CH2 -> HCN + H | synthesized
-R156 | nitrogen_nitrile_chemistry | thermal | N(2D) + CH4 -> NH + CH3 | synthesized
-R157 | nitrogen_nitrile_chemistry | thermal | N(2D) + CH4 -> CH2NH + H | synthesized
-R158 | nitrogen_nitrile_chemistry | thermal | N(2D) + H2 -> NH + H | synthesized
-R159 | nitrogen_nitrile_chemistry | thermal | N(2D) + C2H2 -> CHCN + H | synthesized
-R160 | nitrogen_nitrile_chemistry | thermal | N(2D) + C2H4 -> CH2CN + H | synthesized
-R161 | nitrogen_nitrile_chemistry | thermal | N(2D) + C2H6 -> C2H5NH | synthesized
-R162 | nitrogen_nitrile_chemistry | thermal | N + CH -> CN + H | synthesized
-R163 | nitrogen_nitrile_chemistry | thermal | N + C2H -> CN + CH | synthesized
-R164 | nitrogen_nitrile_chemistry | thermal | N + C2H3 -> HCN + CH2 | synthesized
-R165 | nitrogen_nitrile_chemistry | thermal | N + C2H5 -> HCN + CH4 | synthesized
-R166 | nitrogen_nitrile_chemistry | thermal | N + H2CN -> HCN + NH | synthesized
-R167 | nitrogen_nitrile_chemistry | thermal | N + NH -> N2 + H | synthesized
-R168 | nitrogen_nitrile_chemistry | thermal | N + NH2 -> N2 + H + H | synthesized
-R169 | nitrogen_nitrile_chemistry | thermal | N + CN -> N2 + C | synthesized
-R170 | nitrogen_nitrile_chemistry | thermal | N + HCN -> CN + NH | synthesized
-R171 | nitrogen_nitrile_chemistry | thermal | CN + H2 -> HCN + H | synthesized
-R172 | nitrogen_nitrile_chemistry | thermal | CN + CH4 -> HCN + CH3 | synthesized
-R173 | nitrogen_nitrile_chemistry | thermal | CN + C2H2 -> HC3N + H | synthesized
-R174 | nitrogen_nitrile_chemistry | thermal | CN + C2H4 -> C2H3CN + H | synthesized
-R175 | nitrogen_nitrile_chemistry | thermal | CN + C2H6 -> HCN + C2H5 | synthesized
-R176 | nitrogen_nitrile_chemistry | thermal | CN + HCN -> C2N2 + H | synthesized
-R177 | nitrogen_nitrile_chemistry | thermal | CN + C4H2 -> HC5N + H | synthesized
-R178 | nitrogen_nitrile_chemistry | thermal | CN + C6H2 -> HC7N + H | synthesized
-R179 | nitrogen_nitrile_chemistry | thermal | C3N + H2 -> HC3N + H | synthesized
-R180 | nitrogen_nitrile_chemistry | thermal | C3N + CH4 -> HC3N + CH3 | synthesized
-R181 | nitrogen_nitrile_chemistry | thermal | C3N + C2H2 -> HC5N + H | synthesized
-R182 | nitrogen_nitrile_chemistry | thermal | C5N + H2 -> HC5N + H | synthesized
-R183 | nitrogen_nitrile_chemistry | thermal | C5N + C2H2 -> HC7N + H | synthesized
-R184 | nitrogen_nitrile_chemistry | thermal | H2CN + H -> HCN + H2 | synthesized
-R185 | nitrogen_nitrile_chemistry | thermal | H2CN + H -> H2 + CN + H | synthesized
-R186 | nitrogen_nitrile_chemistry | thermal | H2CN + M -> HCN + H + M | synthesized
-R187 | nitrogen_nitrile_chemistry | thermal | H2CN + CH3 -> CH3CN + H2 | synthesized
-R188 | nitrogen_nitrile_chemistry | thermal | H2CN + CN -> HCN + HCN | synthesized
-R189 | nitrogen_nitrile_chemistry | thermal | CH2NH + H -> H2CN + H2 | synthesized
-R190 | nitrogen_nitrile_chemistry | thermal | CH2NH + CN -> HCN + H2CN | synthesized
-R191 | nitrogen_nitrile_chemistry | thermal | CHCN + H -> HCCN + H | synthesized
-R192 | nitrogen_nitrile_chemistry | thermal | CHCN + N -> C2N2 + H | synthesized
-R193 | nitrogen_nitrile_chemistry | thermal | CHCN + CH3 -> CH3CN + CH | synthesized
-R194 | nitrogen_nitrile_chemistry | thermal | HCCN + H -> HCN + CH | synthesized
-R195 | nitrogen_nitrile_chemistry | thermal | HCCN + N -> C2N2 + H | synthesized
-R196 | nitrogen_nitrile_chemistry | thermal | NH + H2 -> NH2 + H | synthesized
-R197 | nitrogen_nitrile_chemistry | thermal | NH2 + H2 -> NH3 + H | synthesized
-R198 | nitrogen_nitrile_chemistry | thermal | NH + CH4 -> NH2 + CH3 | synthesized
-R199 | nitrogen_nitrile_chemistry | thermal | NH2 + CH3 -> CH3NH2 | synthesized
-R200 | nitrogen_nitrile_chemistry | thermal | NH2 + H -> NH + H2 | synthesized
-R201 | nitrogen_nitrile_chemistry | thermal | NH3 + H -> NH2 + H2 | synthesized
-R202 | nitrogen_nitrile_chemistry | thermal | NH + CN -> HCN + N | synthesized
-R203 | nitrogen_nitrile_chemistry | thermal | NH2 + CN -> HCN + NH | synthesized
-R204 | nitrogen_nitrile_chemistry | thermal | HCN + H + M -> H2CN + M | synthesized
-R205 | nitrogen_nitrile_chemistry | thermal | HCN + CH3 -> CH3CN + H | synthesized
-R206 | nitrogen_nitrile_chemistry | thermal | HC3N + H -> C3N + H2 | synthesized
-R207 | nitrogen_nitrile_chemistry | thermal | HC3N + CN -> C4N2 + H | synthesized
-R208 | nitrogen_nitrile_chemistry | thermal | C2N2 + H -> HCN + CN | synthesized
-R209 | nitrogen_nitrile_chemistry | thermal | C4N2 + H -> HC3N + CN | synthesized
-R210 | nitrogen_nitrile_chemistry | thermal | CH3CN + H -> CH2CN + H2 | synthesized
-R211 | nitrogen_nitrile_chemistry | thermal | CH2CN + H -> CH3CN | synthesized
-R212 | nitrogen_nitrile_chemistry | thermal | CH2CN + H -> HCN + CH3 | synthesized
-R213 | nitrogen_nitrile_chemistry | thermal | C2H3CN + H -> CH2CHCN + H2 | synthesized
-R214 | nitrogen_nitrile_chemistry | thermal | C2H3CN + CN -> HC3N + H2CN | synthesized
-R215 | oxygen_minor_chemistry | thermal | H2O + H -> OH + H2 | synthesized
-R216 | oxygen_minor_chemistry | thermal | OH + H2 -> H2O + H | synthesized
-R217 | oxygen_minor_chemistry | thermal | OH + CH3 -> CO + 2 H2 | synthesized
-R218 | oxygen_minor_chemistry | thermal | OH + CH3 -> H2CO + H2 | synthesized
-R219 | oxygen_minor_chemistry | thermal | OH + CO -> CO2 + H | synthesized
-R220 | oxygen_minor_chemistry | thermal | OH + HCO -> CO + H2O | synthesized
+R001 | photolysis_electron_sources | N2 + hnu -> N(4S) + N(2D) | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R002 | photolysis_electron_sources | N2 + e -> N(4S) + N(2D) + e | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R003 | photolysis_electron_sources | N2 + e -> N(4S) + N(4S) + e | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R004 | photolysis_electron_sources | CH4 + hnu -> CH3 + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R005 | photolysis_electron_sources | CH4 + hnu -> 1CH2 + H2 | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R006 | photolysis_electron_sources | CH4 + hnu -> 3CH2 + 2 H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R007 | photolysis_electron_sources | CH4 + hnu -> CH + H2 + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R008 | photolysis_electron_sources | CH4 + e -> CH3 + H + e | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R009 | photolysis_electron_sources | CH4 + e -> CH2 + H2 + e | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R010 | photolysis_electron_sources | H2 + hnu -> H + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R011 | photolysis_electron_sources | H2 + e -> H + H + e | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R012 | photolysis_electron_sources | C2H2 + hnu -> C2H + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R013 | photolysis_electron_sources | C2H2 + hnu -> C2 + H2 | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R014 | photolysis_electron_sources | C2H2 + hnu -> C2 + H + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R015 | photolysis_electron_sources | C2H4 + hnu -> C2H2 + H2 | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R016 | photolysis_electron_sources | C2H4 + hnu -> C2H3 + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R017 | photolysis_electron_sources | C2H6 + hnu -> C2H5 + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R018 | photolysis_electron_sources | C2H6 + hnu -> CH3 + CH3 | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R019 | photolysis_electron_sources | C3H4 + hnu -> C3H3 + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R020 | photolysis_electron_sources | C3H6 + hnu -> C3H5 + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R021 | photolysis_electron_sources | C3H8 + hnu -> C3H7 + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R022 | photolysis_electron_sources | C4H2 + hnu -> C4H + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R023 | photolysis_electron_sources | C4H2 + hnu -> C2H + C2H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R024 | photolysis_electron_sources | C4H4 + hnu -> C4H3 + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R025 | photolysis_electron_sources | C4H6 + hnu -> C4H5 + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R026 | photolysis_electron_sources | C6H6 + hnu -> C6H5 + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R027 | photolysis_electron_sources | HCN + hnu -> CN + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R028 | photolysis_electron_sources | HCN + hnu -> H + C + N | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R029 | photolysis_electron_sources | HC3N + hnu -> C3N + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R030 | photolysis_electron_sources | HC3N + hnu -> CN + C2H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R031 | photolysis_electron_sources | C2N2 + hnu -> CN + CN | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R032 | photolysis_electron_sources | C4N2 + hnu -> C3N + CN | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R033 | photolysis_electron_sources | CH3CN + hnu -> CH3 + CN | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R034 | photolysis_electron_sources | CH2NH + hnu -> H2CN + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R035 | photolysis_electron_sources | NH3 + hnu -> NH2 + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R036 | photolysis_electron_sources | NH2 + hnu -> NH + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R037 | photolysis_electron_sources | NH + hnu -> N + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R038 | photolysis_electron_sources | H2O + hnu -> H + OH | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R039 | photolysis_electron_sources | CO2 + hnu -> CO + O | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R040 | photolysis_electron_sources | CO + hnu -> C + O | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R041 | photolysis_electron_sources | O2 + hnu -> O + O | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R042 | photolysis_electron_sources | NO + hnu -> N + O | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R043 | photolysis_electron_sources | HCO + hnu -> H + CO | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R044 | photolysis_electron_sources | H2CO + hnu -> HCO + H | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R045 | photolysis_electron_sources | H2CO + hnu -> CO + H2 | photo/electron | titan_kinetic_rate | Titan atmosphere candidate reaction | Yung1984_Clarke1997_Titan_models | medium
+R046 | H_H2_radical_pool | H + H + M -> H2 + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R047 | H_H2_radical_pool | H + CH4 -> CH3 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R048 | H_H2_radical_pool | H + CH3 -> CH2 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R049 | H_H2_radical_pool | H + 1CH2 -> CH + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R050 | H_H2_radical_pool | H + 3CH2 -> CH + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R051 | H_H2_radical_pool | H + CH -> C + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R052 | H_H2_radical_pool | H + C2H2 -> C2H + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R053 | H_H2_radical_pool | H + C2H3 -> C2H2 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R054 | H_H2_radical_pool | H + C2H4 -> C2H3 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R055 | H_H2_radical_pool | H + C2H5 -> C2H4 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R056 | H_H2_radical_pool | H + C2H6 -> C2H5 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R057 | H_H2_radical_pool | H + C3H4 -> C3H3 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R058 | H_H2_radical_pool | H + C4H2 -> C4H + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R059 | H_H2_radical_pool | H + HCN -> H2CN | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R060 | H_H2_radical_pool | H + CN + M -> HCN + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R061 | H_H2_radical_pool | H + OH -> O + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R062 | H_H2_radical_pool | H + O + M -> OH + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R063 | H_H2_radical_pool | H + CO + M -> HCO + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R064 | H_H2_radical_pool | H + HCO -> CO + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R065 | H_H2_radical_pool | H + H2CO -> HCO + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R066 | C1_methane_degradation | CH3 + CH3 + M -> C2H6 + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R067 | C1_methane_degradation | CH3 + CH3 -> C2H5 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R068 | C1_methane_degradation | CH3 + H + M -> CH4 + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R069 | C1_methane_degradation | CH3 + 1CH2 -> C2H4 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R070 | C1_methane_degradation | CH3 + 3CH2 -> C2H4 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R071 | C1_methane_degradation | CH3 + CH -> C2H3 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R072 | C1_methane_degradation | CH3 + C -> C2H2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R073 | C1_methane_degradation | 1CH2 + H2 -> CH3 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R074 | C1_methane_degradation | 3CH2 + H2 -> CH3 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R075 | C1_methane_degradation | 1CH2 + N2 -> 3CH2 + N2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R076 | C1_methane_degradation | 1CH2 + CH4 -> CH3 + CH3 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R077 | C1_methane_degradation | 3CH2 + CH4 -> CH3 + CH3 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R078 | C1_methane_degradation | CH + CH4 -> C2H4 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R079 | C1_methane_degradation | CH + H2 -> 3CH2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R080 | C1_methane_degradation | C + CH4 -> C2H3 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R081 | C1_methane_degradation | C + H2 -> CH + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R082 | hydrocarbon_growth | C2H + H2 -> C2H2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R083 | hydrocarbon_growth | C2H + CH4 -> C2H2 + CH3 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R084 | hydrocarbon_growth | C2H + C2H2 -> C4H2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R085 | hydrocarbon_growth | C2H + C2H4 -> C4H4 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R086 | hydrocarbon_growth | C2H + C2H6 -> C2H2 + C2H5 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R087 | hydrocarbon_growth | C2H + C3H4 -> C5H4 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R088 | hydrocarbon_growth | C2H + C4H2 -> C6H2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R089 | hydrocarbon_growth | C2H2 + CH2 + M -> CH3CCH + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R090 | hydrocarbon_growth | C2H2 + CH3 -> C3H5 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R091 | hydrocarbon_growth | C2H2 + C2H3 -> C4H4 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R092 | hydrocarbon_growth | C2H2 + C2H5 -> C4H6 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R093 | hydrocarbon_growth | C2H2 + C3H3 -> C5H5 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R094 | hydrocarbon_growth | C2H2 + C4H -> C6H2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R095 | hydrocarbon_growth | C2H3 + H + M -> C2H4 + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R096 | hydrocarbon_growth | C2H3 + H -> C2H2 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R097 | hydrocarbon_growth | C2H3 + CH3 -> C3H6 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R098 | hydrocarbon_growth | C2H3 + C2H3 -> C4H6 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R099 | hydrocarbon_growth | C2H3 + C2H5 -> C4H8 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R100 | hydrocarbon_growth | C2H4 + H + M -> C2H5 + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R101 | hydrocarbon_growth | C2H4 + CH3 -> C3H7 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R102 | hydrocarbon_growth | C2H4 + C2H -> C4H4 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R103 | hydrocarbon_growth | C2H4 + C2H3 -> C4H7 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R104 | hydrocarbon_growth | C2H5 + H + M -> C2H6 + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R105 | hydrocarbon_growth | C2H5 + CH3 -> C3H8 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R106 | hydrocarbon_growth | C2H5 + C2H5 -> C4H10 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R107 | hydrocarbon_growth | C2H6 + CH -> C3H6 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R108 | hydrocarbon_growth | C3H3 + H -> C3H2 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R109 | hydrocarbon_growth | C3H3 + H + M -> C3H4 + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R110 | hydrocarbon_growth | C3H3 + CH3 -> C4H6 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R111 | hydrocarbon_growth | C3H3 + C2H2 -> C5H5 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R112 | hydrocarbon_growth | C3H3 + C3H3 -> C6H6 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R113 | hydrocarbon_growth | C3H4 + H -> C3H3 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R114 | hydrocarbon_growth | C3H4 + CH3 -> C4H6 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R115 | hydrocarbon_growth | C3H4 + C2H -> C5H4 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R116 | hydrocarbon_growth | C3H5 + H -> C3H4 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R117 | hydrocarbon_growth | C3H5 + H + M -> C3H6 + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R118 | hydrocarbon_growth | C3H5 + CH3 -> C4H8 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R119 | hydrocarbon_growth | C3H6 + H -> C3H5 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R120 | hydrocarbon_growth | C3H6 + CH3 -> C4H9 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R121 | hydrocarbon_growth | C3H7 + H -> C3H6 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R122 | hydrocarbon_growth | C3H7 + H + M -> C3H8 + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R123 | hydrocarbon_growth | C3H7 + CH3 -> C4H10 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R124 | hydrocarbon_growth | C3H8 + H -> C3H7 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R125 | hydrocarbon_growth | C4H + H2 -> C4H2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R126 | hydrocarbon_growth | C4H + CH4 -> C4H2 + CH3 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R127 | hydrocarbon_growth | C4H + C2H2 -> C6H2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R128 | hydrocarbon_growth | C4H2 + H -> C4H + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R129 | hydrocarbon_growth | C4H2 + C2H -> C6H2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R130 | hydrocarbon_growth | C4H2 + C4H -> C8H2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R131 | hydrocarbon_growth | C4H3 + H -> C4H2 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R132 | hydrocarbon_growth | C4H3 + H + M -> C4H4 + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R133 | hydrocarbon_growth | C4H3 + C2H2 -> C6H5 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R134 | hydrocarbon_growth | C4H4 + H -> C4H3 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R135 | hydrocarbon_growth | C4H4 + C2H -> C6H4 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R136 | hydrocarbon_growth | C4H5 + H -> C4H4 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R137 | hydrocarbon_growth | C4H5 + H + M -> C4H6 + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R138 | hydrocarbon_growth | C4H6 + H -> C4H5 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R139 | hydrocarbon_growth | C4H6 + C2H -> C6H6 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R140 | hydrocarbon_growth | C5H5 + H -> C5H4 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R141 | hydrocarbon_growth | C5H5 + CH3 -> C6H8 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R142 | hydrocarbon_growth | C6H5 + H -> C6H6 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R143 | hydrocarbon_growth | C6H5 + C2H2 -> C8H6 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R144 | hydrocarbon_growth | C6H6 + H -> C6H5 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R145 | hydrocarbon_growth | C6H6 + C2H -> C8H6 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R146 | hydrocarbon_growth | C8H2 + H -> C8H + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R147 | hydrocarbon_growth | C8H2 + C2H -> C10H2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R148 | hydrocarbon_growth | C2 + H2 -> C2H + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R149 | hydrocarbon_growth | C2 + CH4 -> C2H2 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R150 | hydrocarbon_growth | C2 + C2H2 -> C4H + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R151 | hydrocarbon_growth | C + C2H2 -> C3H + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R152 | hydrocarbon_growth | C + C2H4 -> C3H3 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R153 | nitrogen_nitrile_chemistry | N(4S) + CH3 -> H2CN + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R154 | nitrogen_nitrile_chemistry | N(4S) + CH3 -> HCN + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R155 | nitrogen_nitrile_chemistry | N(4S) + 3CH2 -> HCN + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R156 | nitrogen_nitrile_chemistry | N(2D) + CH4 -> NH + CH3 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R157 | nitrogen_nitrile_chemistry | N(2D) + CH4 -> CH2NH + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R158 | nitrogen_nitrile_chemistry | N(2D) + H2 -> NH + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R159 | nitrogen_nitrile_chemistry | N(2D) + C2H2 -> CHCN + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R160 | nitrogen_nitrile_chemistry | N(2D) + C2H4 -> CH2CN + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R161 | nitrogen_nitrile_chemistry | N(2D) + C2H6 -> C2H5NH | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R162 | nitrogen_nitrile_chemistry | N + CH -> CN + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R163 | nitrogen_nitrile_chemistry | N + C2H -> CN + CH | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R164 | nitrogen_nitrile_chemistry | N + C2H3 -> HCN + CH2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R165 | nitrogen_nitrile_chemistry | N + C2H5 -> HCN + CH4 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R166 | nitrogen_nitrile_chemistry | N + H2CN -> HCN + NH | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R167 | nitrogen_nitrile_chemistry | N + NH -> N2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R168 | nitrogen_nitrile_chemistry | N + NH2 -> N2 + H + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R169 | nitrogen_nitrile_chemistry | N + CN -> N2 + C | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R170 | nitrogen_nitrile_chemistry | N + HCN -> CN + NH | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R171 | nitrogen_nitrile_chemistry | CN + H2 -> HCN + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R172 | nitrogen_nitrile_chemistry | CN + CH4 -> HCN + CH3 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R173 | nitrogen_nitrile_chemistry | CN + C2H2 -> HC3N + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R174 | nitrogen_nitrile_chemistry | CN + C2H4 -> C2H3CN + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R175 | nitrogen_nitrile_chemistry | CN + C2H6 -> HCN + C2H5 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R176 | nitrogen_nitrile_chemistry | CN + HCN -> C2N2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R177 | nitrogen_nitrile_chemistry | CN + C4H2 -> HC5N + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R178 | nitrogen_nitrile_chemistry | CN + C6H2 -> HC7N + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R179 | nitrogen_nitrile_chemistry | C3N + H2 -> HC3N + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R180 | nitrogen_nitrile_chemistry | C3N + CH4 -> HC3N + CH3 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R181 | nitrogen_nitrile_chemistry | C3N + C2H2 -> HC5N + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R182 | nitrogen_nitrile_chemistry | C5N + H2 -> HC5N + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R183 | nitrogen_nitrile_chemistry | C5N + C2H2 -> HC7N + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R184 | nitrogen_nitrile_chemistry | H2CN + H -> HCN + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R185 | nitrogen_nitrile_chemistry | H2CN + H -> H2 + CN + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R186 | nitrogen_nitrile_chemistry | H2CN + M -> HCN + H + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R187 | nitrogen_nitrile_chemistry | H2CN + CH3 -> CH3CN + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R188 | nitrogen_nitrile_chemistry | H2CN + CN -> HCN + HCN | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R189 | nitrogen_nitrile_chemistry | CH2NH + H -> H2CN + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R190 | nitrogen_nitrile_chemistry | CH2NH + CN -> HCN + H2CN | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R191 | nitrogen_nitrile_chemistry | CHCN + H -> HCCN + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R192 | nitrogen_nitrile_chemistry | CHCN + N -> C2N2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R193 | nitrogen_nitrile_chemistry | CHCN + CH3 -> CH3CN + CH | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R194 | nitrogen_nitrile_chemistry | HCCN + H -> HCN + CH | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R195 | nitrogen_nitrile_chemistry | HCCN + N -> C2N2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R196 | nitrogen_nitrile_chemistry | NH + H2 -> NH2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R197 | nitrogen_nitrile_chemistry | NH2 + H2 -> NH3 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R198 | nitrogen_nitrile_chemistry | NH + CH4 -> NH2 + CH3 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R199 | nitrogen_nitrile_chemistry | NH2 + CH3 -> CH3NH2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R200 | nitrogen_nitrile_chemistry | NH2 + H -> NH + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R201 | nitrogen_nitrile_chemistry | NH3 + H -> NH2 + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R202 | nitrogen_nitrile_chemistry | NH + CN -> HCN + N | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R203 | nitrogen_nitrile_chemistry | NH2 + CN -> HCN + NH | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R204 | nitrogen_nitrile_chemistry | HCN + H + M -> H2CN + M | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R205 | nitrogen_nitrile_chemistry | HCN + CH3 -> CH3CN + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R206 | nitrogen_nitrile_chemistry | HC3N + H -> C3N + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R207 | nitrogen_nitrile_chemistry | HC3N + CN -> C4N2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R208 | nitrogen_nitrile_chemistry | C2N2 + H -> HCN + CN | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R209 | nitrogen_nitrile_chemistry | C4N2 + H -> HC3N + CN | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R210 | nitrogen_nitrile_chemistry | CH3CN + H -> CH2CN + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R211 | nitrogen_nitrile_chemistry | CH2CN + H -> CH3CN | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R212 | nitrogen_nitrile_chemistry | CH2CN + H -> HCN + CH3 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R213 | nitrogen_nitrile_chemistry | C2H3CN + H -> CH2CHCN + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R214 | nitrogen_nitrile_chemistry | C2H3CN + CN -> HC3N + H2CN | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R215 | oxygen_minor_chemistry | H2O + H -> OH + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R216 | oxygen_minor_chemistry | OH + H2 -> H2O + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R217 | oxygen_minor_chemistry | OH + CH3 -> CO + 2 H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R218 | oxygen_minor_chemistry | OH + CH3 -> H2CO + H2 | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R219 | oxygen_minor_chemistry | OH + CO -> CO2 + H | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
+R220 | oxygen_minor_chemistry | OH + HCO -> CO + H2O | thermal | titan_kinetic_rate | Titan atmosphere candidate reaction | synthesized | medium
