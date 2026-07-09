@@ -1,10 +1,10 @@
-from src.input_data.environment_input import EnvironmentInputBuilder
+from src.input_data.environment_input import build_local_env_data
 from src.input_data.core import AbstractInput
 from src.input_data.input_configs import EnvironmentInputConfig
 from src.input_data.planet_input import PlanetInputBuilder
 
 
-class _EnvironmentBuilderHarness(AbstractInput, EnvironmentInputBuilder, PlanetInputBuilder):
+class _EnvironmentBuilderHarness(AbstractInput, PlanetInputBuilder):
     def __init__(self, env_data):
         self._data = {
             "planet_model": "Earth",
@@ -50,7 +50,7 @@ def test_volcanic_rock_environment_input_parses_quantities():
         },
     }
 
-    parsed = _EnvironmentBuilderHarness(env_data)._build_local_env_data()
+    parsed = build_local_env_data(_EnvironmentBuilderHarness(env_data))
 
     assert parsed["num_pores"] == 10
     assert parsed["pore_radius"].magnitude == 1.0
