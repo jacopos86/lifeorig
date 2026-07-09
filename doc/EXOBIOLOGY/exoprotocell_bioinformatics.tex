@@ -1,0 +1,618 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\title{Bioinformatics of Exoprotocells}
+\author{LIFEORIG working note}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Purpose}
+
+This note connects the Titan protocell framework to a bioinformatics program. The existing Titan notes define a methane-pool environment, a reaction network, phase allocation, dense organic phases, and interface-stabilized protocell candidates. The next computational question is how to analyze the resulting population once many candidate compartments exist.
+
+The central proposal is that an exoprotocell does not need a DNA or RNA genome in order to generate an informatic state at the population level. The protocell itself is first a dynamical physical-chemical object. Its state evolves by internal reaction kinetics, transport across the boundary, structural change of the compartment, and coupling to the local environment. A useful abstract state is:
+\begin{equation}
+\mathcal{P}_k =
+\left(
+\mathbf{C}^{P_k},
+\mathbf{u}^{P_k},
+\mathbf{z}^{P_k},
+\mathbf{E}(z_k,t),
+\mathcal{H}_k
+\right),
+\end{equation}
+where $\mathbf{C}^{P_k}$ is the internal chemical composition, $\mathbf{u}^{P_k}$ is the boundary/interface structure and permeability state, $\mathbf{z}^{P_k}$ contains physical object variables such as radius, volume, and surface area, $\mathbf{E}(z_k,t)$ is the local external environment at the protocell position, and $\mathcal{H}_k$ is the object history.
+
+The active part of the chemical network is not assumed to be fixed inside the protocell. It is an emergent subnetwork selected by the current state:
+\begin{equation}
+\mathcal{R}_{\rm active}^{P_k}(t)
+=
+\mathcal{A}
+\left(
+\mathbf{C}^{P_k}(t),
+\mathbf{u}^{P_k}(t),
+\mathbf{z}^{P_k}(t),
+\mathbf{E}(z_k,t)
+\right).
+\end{equation}
+Bioinformatics enters after this dynamical step: it analyzes the distribution of protocell states, structures, active subnetworks, and lineages across a population.
+
+\section{Relation to the Titan Theory}
+
+The Titan design note separates chemical identity from physical phase allocation:
+\begin{equation}
+\text{chemical species classification}
+\neq
+\text{physical phase allocation}.
+\end{equation}
+This distinction is also the starting point for exoprotocell bioinformatics. The relevant unit is not only a molecule sequence. It is a coupled object:
+\begin{equation}
+\text{species}
++
+\text{phase}
++
+\text{reaction role}
++
+\text{retention}
++
+\text{history}.
+\end{equation}
+
+The Titan model promotes compartments by local threshold rules:
+\begin{align}
+C_{\rm coa}(z_j,t) &\ge C_{\rm coa}^{\rm crit}
+\quad \Rightarrow \quad
+\text{dense organic object},\\
+C_I(z_j,t) &\ge C_I^{\rm crit}
+\quad \Rightarrow \quad
+\text{interface-stabilized protocell candidate}.
+\end{align}
+Bioinformatics begins after this promotion step. Each promoted object becomes a sample in a population dataset.
+
+\section{Dynamical State and Informatic State}
+
+For an ordinary cell, bioinformatics often starts from sequence data. For a Titan exoprotocell candidate, the first object is instead the dynamical state:
+\begin{equation}
+\frac{d\mathbf{C}^{P_k}}{dt}
+=
+\mathbf{S}\mathbf{r}^{P_k}
++
+\mathbf{J}_{\rm in}^{P_k}
+-
+\mathbf{J}_{\rm out}^{P_k}
+-
+\mathbf{D}^{P_k},
+\end{equation}
+where $\mathbf{S}$ is the stoichiometric matrix, $\mathbf{r}^{P_k}$ is the vector of internal reaction rates, $\mathbf{J}_{\rm in}^{P_k}$ and $\mathbf{J}_{\rm out}^{P_k}$ are exchange fluxes with the local environment, and $\mathbf{D}^{P_k}$ represents degradation, leakage, burial, or photochemical damage.
+
+The exchange terms depend on both the protocell structure and the local environment:
+\begin{align}
+J_{{\rm in},i}^{P_k}
+&=
+\frac{A_k}{V_k}
+P_i
+\left(\mathbf{u}^{P_k},\mathbf{E}(z_k,t)\right)
+C_i^{\rm ext}(z_k,t),\\
+J_{{\rm out},i}^{P_k}
+&=
+\frac{A_k}{V_k}
+P_i
+\left(\mathbf{u}^{P_k},\mathbf{E}(z_k,t)\right)
+C_i^{P_k}(t).
+\end{align}
+Thus two protocells with the same internal composition can diverge if they have different shell structures, surface coverage, permeability profiles, birth positions, or local chemical environments.
+
+The informatic state is not an additional physical state inside the protocell. It is a feature representation extracted from the dynamical state and its history:
+\begin{equation}
+\mathbf{x}_k =
+\left[
+\mathbf{c}_k,
+\mathbf{p}_k,
+\mathbf{a}_k,
+\mathbf{g}_k,
+\mathbf{s}_k,
+\mathbf{h}_k
+\right].
+\end{equation}
+
+\begin{center}
+\begin{tabular}{p{0.16\linewidth}p{0.70\linewidth}}
+\toprule
+Block & Meaning \\
+\midrule
+$\mathbf{c}_k$ & internal composition vector for protocell candidate $k$ \\
+$\mathbf{p}_k$ & phase and localization vector: internal, interface, adsorbed, dense, external-nearby \\
+$\mathbf{a}_k$ & activity vector: active reactions, fluxes, catalytic factors, exchange rates \\
+$\mathbf{g}_k$ & graph features of the currently active subnetwork \\
+$\mathbf{s}_k$ & structural vector: shell composition, permeability, radius, surface area, retention times \\
+$\mathbf{h}_k$ & history features: birth position, parent object, exposure, division, fusion, loss \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The object to track is therefore not a private genome for each protocell. It is an effective organization that constrains which reactions from the shared network are expressed by the protocell state:
+\begin{equation}
+O_k^{\rm eff}(t) =
+\left(
+\mathcal{R}_{\rm active}^{P_k},
+\mathcal{C}_{\rm catalysts}^{P_k},
+\mathbf{P}^{P_k},
+\mathbf{u}^{P_k},
+\mathbf{E}(z_k,t)
+\right).
+\end{equation}
+Here $\mathbf{P}^{P_k}$ is the permeability profile. The boundary is included because, for non-aqueous protocells, chemical access and retention are part of the effective inherited organization.
+
+\section{Polymer-Generated Catalytic Diversity}
+
+The simulation has one global reaction network. Let
+\begin{equation}
+\mathcal{R}=\{r_1,\ldots,r_M\},
+\qquad
+\mathcal{S}=\{s_1,\ldots,s_N\}.
+\end{equation}
+Every protocell uses the same $\mathcal{R}$ and $\mathcal{S}$. Diversity is not introduced by giving each protocell a different network. Diversity is introduced by allowing different protocells to develop different internal polymer populations.
+
+Let the monomer alphabet be
+\begin{equation}
+\mathcal{M}=\{m_1,\ldots,m_A\}.
+\end{equation}
+A polymer sequence is
+\begin{equation}
+\pi_a=(\sigma_1,\ldots,\sigma_{L_a}),
+\qquad
+\sigma_j\in\mathcal{M},
+\end{equation}
+where $L_a$ is the chain length. The number of possible sequences of length $L$ is
+\begin{equation}
+|\Pi_L|=A^L.
+\end{equation}
+Thus longer polymers create a combinatorial space of possible structures. Most sequences may be inactive, but some sequences can fold, aggregate, adsorb, or expose chemical groups in ways that alter reaction rates.
+
+For protocell $k$, define the internal polymer copy number:
+\begin{equation}
+N^{\rm poly}_{a,k}(t)
+=
+\text{number of copies of polymer sequence }\pi_a
+\text{ inside protocell }k.
+\end{equation}
+The polymer population vector is
+\begin{equation}
+\mathbf{N}^{\rm poly}_k(t)
+=
+\left(
+N^{\rm poly}_{1,k},
+\ldots,
+N^{\rm poly}_{N_{\rm poly},k}
+\right).
+\end{equation}
+
+The key biochemical object is the polymer-to-reaction catalytic coefficient:
+\begin{equation}
+\Gamma_{ar}
+=
+\text{catalytic strength of polymer }\pi_a
+\text{ on reaction }r.
+\end{equation}
+This coefficient can be zero for most polymer-reaction pairs. It can depend on sequence length, composition, conformation, phase localization, and solvent compatibility. In a first model it can be assigned statistically:
+\begin{equation}
+\Gamma_{ar}\sim P_\Gamma(L_a,\chi_a,r),
+\end{equation}
+where $\chi_a$ is a sequence descriptor such as nitrile fraction, hydrophobic fraction, charge-like polarity class, or HCN-polymer motif count.
+
+The effective catalytic activity of reaction $r$ inside protocell $k$ is then
+\begin{equation}
+\Gamma^{\rm eff}_{r,k}(t)
+=
+\Gamma^0_r
++
+\sum_a
+\Gamma_{ar}
+\frac{N^{\rm poly}_{a,k}(t)}{V_k(t)}
+\,\theta_{a,k}(t),
+\end{equation}
+where $\Gamma^0_r$ is the background uncatalyzed or externally catalyzed contribution, $V_k$ is protocell volume, and $\theta_{a,k}$ is the fraction of polymer $\pi_a$ in an active location or conformation.
+
+The reaction rate inside protocell $k$ can then be written as
+\begin{equation}
+R_{r,k}(t)
+=
+\Gamma^{\rm eff}_{r,k}(t)
+F_r\!\left(\mathbf{E}(z_k,t)\right)
+\prod_i
+\left[
+C^{P_k}_i(t)
+\right]^{\nu_{ir}},
+\end{equation}
+where $F_r(\mathbf{E})$ is the extrinsic environmental factor and $\Gamma^{\rm eff}_{r,k}$ is the intrinsic protocell catalytic factor. This split is essential:
+\begin{equation}
+\text{environmental forcing}
+\neq
+\text{intrinsic protocell diversity}.
+\end{equation}
+
+A protocell-specific active reaction set can now be defined without changing the global network:
+\begin{equation}
+\mathcal{R}^{P_k}_{\rm active}(t)
+=
+\{r\in\mathcal{R}: R_{r,k}(t)>R_{\rm min}\}.
+\end{equation}
+The active set differs because $\mathbf{N}^{\rm poly}_k$, $\theta_{a,k}$, and $\Gamma^{\rm eff}_{r,k}$ differ, not because $\mathcal{R}$ differs.
+
+\section{Measuring Protocell Diversity}
+
+The intrinsic diversity variable should be
+\begin{equation}
+X_k(t)
+=
+\left(
+\mathbf{N}^{\rm poly}_k(t),
+\boldsymbol{\Gamma}^{\rm eff}_k(t),
+\mathbf{C}^{P_k}(t),
+\mathbf{P}_k(t),
+\boldsymbol{\theta}_k(t)
+\right),
+\end{equation}
+where
+\begin{align}
+\boldsymbol{\Gamma}^{\rm eff}_k(t)
+&=
+\left(\Gamma^{\rm eff}_{1,k},\ldots,\Gamma^{\rm eff}_{M,k}\right),\\
+\mathbf{P}_k(t)
+&=
+\left(P_{1,k},\ldots,P_{N,k}\right),\\
+\boldsymbol{\theta}_k(t)
+&=
+\left(\theta_{1,k},\ldots,\theta_{N_{\rm poly},k}\right).
+\end{align}
+Here $\mathbf{P}_k$ is the permeability vector for species transport across the protocell boundary. The vector $\boldsymbol{\theta}_k$ records which polymers are actually folded, surface-bound, dense-phase localized, or otherwise catalytically available.
+
+A concrete distance between protocells is:
+\begin{align}
+d_{\rm proto}(k,l)
+=&
+w_{\rm poly}
+\frac{
+\|\mathbf{N}^{\rm poly}_k-\mathbf{N}^{\rm poly}_l\|_1
+}{
+N^{\rm poly}_k+N^{\rm poly}_l+\epsilon
+}
+\nonumber\\
+&+
+w_\Gamma
+\|\boldsymbol{\Gamma}^{\rm eff}_k-\boldsymbol{\Gamma}^{\rm eff}_l\|_2
++
+w_C
+\|\mathbf{C}^{P_k}-\mathbf{C}^{P_l}\|_1
+\nonumber\\
+&+
+w_P
+\|\mathbf{P}_k-\mathbf{P}_l\|_2
++
+w_\theta
+\|\boldsymbol{\theta}_k-\boldsymbol{\theta}_l\|_1.
+\end{align}
+This is the object that should be clustered in a bioinformatics analysis. It measures intrinsic protocell differences. Local environment can be stored separately as metadata:
+\begin{equation}
+\mathbf{E}_k(t)=\mathbf{E}(z_k,t).
+\end{equation}
+The environment may change measured activity, but it should not be confused with protocell identity.
+
+\section{Exoprotocell Quasispecies}
+
+The population-level object is the quasispecies. In this framework, a quasispecies is not a cloud of nucleic-acid sequences. It is a cloud of protocell states whose main intrinsic diversity comes from retained polymer populations and the catalytic matrices generated by those polymers:
+\begin{equation}
+\mathcal{Q}(t)
+=
+\left\{
+\left(
+\mathbf{N}^{\rm poly}_k,
+\boldsymbol{\Gamma}^{\rm eff}_k,
+\mathbf{C}^{P_k},
+\mathbf{P}_k,
+\boldsymbol{\theta}_k
+\right)
+\right\}_{k=1}^{N_P(t)}.
+\end{equation}
+
+The local environment remains important, but it is not the definition of protocell type. A protocell at the UV-exposed surface and a protocell attached to a mineral surface may have different observed rates because $\mathbf{E}(z_k,t)$ is different. That is environmental heterogeneity. Protocell diversity requires differences in $X_k(t)$ itself: different retained polymers, different polymer conformational availability, different boundary permeability, and therefore different $\boldsymbol{\Gamma}^{\rm eff}_k$.
+
+Let $\phi_\alpha(t)$ be a coarse-grained protocell type, obtained by clustering records $\mathbf{x}_k$ into an equivalence class:
+\begin{align}
+\phi_\alpha
+=
+\big[
+&\text{polymer-population fingerprint},
+\text{effective-catalysis fingerprint},
+\nonumber\\
+&\text{internal-composition fingerprint},
+\text{permeability fingerprint},
+\text{active-conformation fingerprint}
+\big]_\alpha.
+\end{align}
+The quasispecies distribution is then
+\begin{equation}
+q_\alpha(t)
+=
+\frac{N_\alpha(t)}{\sum_\beta N_\beta(t)}.
+\end{equation}
+
+A useful first dynamical form is:
+\begin{equation}
+\frac{dq_\alpha}{dt}
+=
+\sum_\beta W_{\alpha\beta}q_\beta
+-
+\bar{W}q_\alpha,
+\end{equation}
+where $W_{\alpha\beta}$ is an effective transition-selection operator. It includes polymer growth, polymer cleavage, polymer loss, sequence-dependent catalysis, protocell growth, fragmentation, fusion, and boundary modification. Environmental relocation can change the observed rates, but a transition between intrinsic types requires a change in $X_k$. The mean population persistence is:
+\begin{equation}
+\bar{W}
+=
+\sum_{\alpha,\beta} W_{\alpha\beta}q_\beta.
+\end{equation}
+
+In this sense, mutation is generalized. A protocell type can change because its polymer population changes:
+\begin{equation}
+\mathbf{N}^{\rm poly}_k
+\rightarrow
+\mathbf{N}^{\rm poly}_k+\Delta\mathbf{N}^{\rm poly}_k,
+\end{equation}
+which induces
+\begin{equation}
+\boldsymbol{\Gamma}^{\rm eff}_k
+\rightarrow
+\boldsymbol{\Gamma}^{\rm eff}_k+\Delta\boldsymbol{\Gamma}^{\rm eff}_k.
+\end{equation}
+The formal reaction network remains fixed. The quasispecies is the population distribution over polymer-generated catalytic states.
+
+\section{Exoprotocell Omics}
+
+The following analogs are useful for implementation and analysis.
+
+\begin{center}
+\small
+\begin{tabular}{p{0.24\linewidth}p{0.55\linewidth}p{0.13\linewidth}}
+\toprule
+Earth bioinformatics term & Exoprotocell analog & Data object \\
+\midrule
+Genome-like state & retained polymer population inside the protocell & vector \\
+Transcriptome-like state & reaction-rate vector induced by the polymer population & vector \\
+Proteome-like state & catalytically active polymers, conformations, and surface sites & set/vector \\
+Metabolome & internal chemical composition & vector \\
+Lipidome & interface or shell composition & vector \\
+Microbiome & local population of interacting protocells & graph \\
+Phylogeny & lineage of birth, fusion, fragmentation, inheritance & tree/DAG \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+These labels should be used carefully. They are computational analogies, not claims that Titan protocells possess terrestrial biology.
+
+\section{Population Bioinformatics}
+
+A simulation output should be convertible into a population table:
+\begin{equation}
+\mathcal{D}(t)
+=
+\{ \mathbf{x}_1(t),\ldots,\mathbf{x}_{N_P(t)}(t) \}.
+\end{equation}
+The minimal columns should be:
+\begin{equation}
+\begin{aligned}
+\texttt{id},\quad
+\texttt{parent\_id},\quad
+\texttt{birth\_time},\quad
+\texttt{birth\_z},\quad
+\texttt{radius},\quad
+\texttt{interface\_type},\\
+\texttt{polymer\_fingerprint},\quad
+\texttt{gamma\_eff\_fingerprint},\\
+\texttt{permeability\_fingerprint},\quad
+\texttt{retention\_score}.
+\end{aligned}
+\end{equation}
+
+This enables standard population analyses:
+\begin{itemize}
+\item clustering of protocell states,
+\item trajectory analysis through chemical state space,
+\item detection of recurrent polymer-generated catalytic motifs,
+\item lineage reconstruction after fragmentation or division-like events,
+\item survival analysis of compartment lifetimes,
+\item association between interface composition and persistence.
+\end{itemize}
+
+\section{Lineages Without Genes}
+
+In early exoprotocell simulations, inheritance may occur through partial material continuity rather than sequence copying. If protocell $k$ fragments into daughters $a$ and $b$, inheritance can be measured by composition overlap:
+\begin{equation}
+H_{a|k}
+=
+\frac{\sum_i \min(C_i^{P_a},C_i^{P_k})}
+{\sum_i C_i^{P_a}}.
+\end{equation}
+Polymer inheritance can be measured by polymer population overlap:
+\begin{equation}
+J_{\rm poly}(a,k)
+=
+\frac{
+\sum_p \min(N^{\rm poly}_{p,a},N^{\rm poly}_{p,k})
+}{
+\sum_p \max(N^{\rm poly}_{p,a},N^{\rm poly}_{p,k})
+}.
+\end{equation}
+Effective catalytic inheritance can be measured by the similarity of the induced catalytic matrices:
+\begin{equation}
+J_{\Gamma}(a,k)
+=
+1-
+\frac{
+\|\boldsymbol{\Gamma}^{\rm eff}_a-\boldsymbol{\Gamma}^{\rm eff}_k\|_2
+}{
+\|\boldsymbol{\Gamma}^{\rm eff}_a\|_2+
+\|\boldsymbol{\Gamma}^{\rm eff}_k\|_2+\epsilon
+}.
+\end{equation}
+The lineage graph is then a directed acyclic graph:
+\begin{equation}
+\mathcal{L}=(V,E),
+\end{equation}
+where vertices are protocell objects and edges record division, fragmentation, fusion, or persistent material transfer.
+
+\section{Feature Engineering for Titan}
+
+For Titan specifically, the most important features are not fast growth features. They are persistence features:
+\begin{align}
+S_{{\rm persist},k}
+&=
+w_1\tau_{{\rm survival},k}
++w_2\tau_{{\rm retention},k}
++w_3\theta_{I,k}
++w_4M_{{\rm polymer},k}
+\nonumber\\
+&\quad
++w_5R_{{\rm catalytic},k}
+-w_6D_{{\rm photochemical},k}
+-w_7L_{{\rm sediment},k}.
+\end{align}
+
+The corresponding bioinformatics features should include:
+\begin{itemize}
+\item nitrile-rich composition fraction,
+\item HCN-polymer or tholin-like polymer fraction,
+\item interface-forming species fraction,
+\item polymer sequence-length distribution,
+\item polymer sequence diversity or Shannon entropy,
+\item effective catalytic matrix $\boldsymbol{\Gamma}^{\rm eff}_k$,
+\item catalytic closure score induced by retained polymers,
+\item RAF or autocatalytic subset size,
+\item retention time distribution over key species,
+\item phase entropy, measuring whether material is concentrated or dispersed,
+\item environmental birth context: surface, sediment, adsorbed layer, or dense organic phase.
+\end{itemize}
+
+One useful phase entropy is
+\begin{equation}
+H_{{\rm phase},k}
+=
+-\sum_m q_{m,k}\log q_{m,k},
+\end{equation}
+where $q_{m,k}$ is the fraction of protocell-associated material in phase $m$. Low entropy may indicate strong compartmentalization; high entropy may indicate diffuse material with weak protocell identity.
+
+\section{Implementation Proposal}
+
+The implementation should not replace the chemistry or dynamics layer. It should be an analysis layer that consumes simulation state snapshots.
+
+\subsection{New data objects}
+
+Recommended first objects:
+\begin{align}
+&\texttt{ExoprotocellRecord},\quad
+\texttt{ExoprotocellPopulation},\quad
+\texttt{PolymerPopulation},
+\nonumber\\
+&\texttt{EffectiveCatalyticMatrix},\quad
+\texttt{LineageGraph}.
+\end{align}
+
+\begin{center}
+\small
+\begin{tabular}{p{0.30\linewidth}p{0.58\linewidth}}
+\toprule
+Object & Responsibility \\
+\midrule
+\texttt{ExoprotocellRecord} & store one protocell candidate snapshot \\
+\texttt{ExoprotocellPopulation} & store all protocell snapshots at time $t$ \\
+\texttt{PolymerPopulation} & store polymer sequence counts $N^{\rm poly}_{a,k}$ for one protocell \\
+\texttt{EffectiveCatalyticMatrix} & compute $\boldsymbol{\Gamma}^{\rm eff}_k$ from retained polymers \\
+\texttt{LineageGraph} & record parent, daughter, fusion, and transfer relations \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Analysis functions}
+
+Recommended first functions:
+\begin{equation}
+\begin{gathered}
+\texttt{fingerprint\_composition(record)},\\
+\texttt{fingerprint\_polymer\_population(record)},\\
+\texttt{compute\_effective\_catalytic\_matrix(record)},\\
+\texttt{compute\_closure\_score(record)},\\
+\texttt{compute\_retention\_score(record)},\\
+\texttt{compare\_records(record\_a, record\_b)},\\
+\texttt{build\_lineage(records)}.
+\end{gathered}
+\end{equation}
+
+The output should be plain tables and sparse matrices first. More elaborate visualization can come later.
+
+\section{Connection to Current LIFEORIG Code}
+
+The existing code already has several useful anchors:
+\begin{itemize}
+\item \texttt{MoleculeModel}, \texttt{BinaryPolymer}, \texttt{MultiPolymer}, and \texttt{ReferenceMolecule} can define chemical identity records.
+\item \texttt{ChemicalNetworkParser} can provide parsed species and reaction records.
+\item ACF/RAF-style network routines can provide closure and autocatalytic subset features.
+\item Titan environment parsers provide the environmental context needed for birth and persistence features.
+\item The future \texttt{TitanPhaseAllocator} can provide phase labels and phase inventories.
+\end{itemize}
+
+The key design rule is:
+\begin{equation}
+\text{bioinformatics layer}
+=
+\text{read-only analysis of simulated protocell states}.
+\end{equation}
+It should not own the chemistry, the environmental dynamics, or the phase transition rules.
+
+\section{Minimal First Milestone}
+
+The first useful milestone is a post-processing pipeline:
+\begin{enumerate}
+\item Run a Titan methane-pool simulation.
+\item Save protocell candidate snapshots at selected times.
+\item Convert each candidate into an \texttt{ExoprotocellRecord}.
+\item Build polymer-population fingerprints and effective-catalytic-matrix fingerprints.
+\item Cluster candidates by $d_{\rm proto}(k,l)$.
+\item Build a lineage graph from parent-child or fragmentation metadata.
+\item Report persistence-associated features.
+\end{enumerate}
+
+The scientific output is not a claim of life. It is a map of which chemical organizations persist, recur, and transmit structure under Titan-like constraints.
+
+\section{References and Local Inputs}
+
+\subsection*{Local LIFEORIG notes and code}
+\begin{itemize}
+\item \texttt{doc/TITAN/titan\_methane\_pool\_protocell\_design.tex}
+\item \texttt{doc/TITAN/titan\_catalysis\_framework\_latex.pdf}
+\item \texttt{doc/TITAN/titan\_protocell\_framework.pdf}
+\item \texttt{src/chemical\_types/molecule\_model.py}
+\item \texttt{src/input\_data/chemical\_network\_parser.py}
+\item \texttt{src/RAF/RAF\_engine.py}
+\end{itemize}
+
+\subsection*{Literature for polymer-generated protocell diversity}
+
+\begin{itemize}
+\item Walker, S. I., Grover, M. A., and Hud, N. V. Universal sequence replication, reversible polymerization and early functional biopolymers: A model for the initiation of prebiotic sequence evolution. 2012. \url{https://arxiv.org/abs/1203.4625}
+\item Guseva, E. A., Zuckermann, R. N., and Dill, K. A. How did prebiotic polymers become informational foldamers? 2016. \url{https://arxiv.org/abs/1604.08890}
+\item Tkachenko, A. V. and Maslov, S. Onset of natural selection in auto-catalytic heteropolymers. 2017. \url{https://arxiv.org/abs/1710.06385}
+\item Hordijk, W. and Steel, M. Autocatalytic sets in polymer networks with variable catalysis distributions. 2016. \url{https://arxiv.org/abs/1605.03919}
+\item Kocher, C. D. and Dill, K. A. The prebiotic emergence of biological evolution. 2023. \url{https://arxiv.org/abs/2311.13650}
+\item Segr\'e, D., Ben-Eli, D., and Lancet, D. Compositional genomes: Prebiotic information transfer in mutually catalytic noncovalent assemblies. \textit{Proceedings of the National Academy of Sciences}, 2000.
+\item Eigen, M. and Schuster, P. The hypercycle: A principle of natural self-organization. 1979.
+\item Eigen, M., McCaskill, J., and Schuster, P. Molecular quasi-species. \textit{Journal of Physical Chemistry}, 1988.
+\end{itemize}
+
+\end{document}
