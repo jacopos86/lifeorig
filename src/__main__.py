@@ -15,7 +15,7 @@ from src.cell.build_QSP_list import set_up_empty_QSP_list
 from src.molecules_dyn.gillespie_algo import chemical_kinetics_solver
 from src.mutations.mutation_rate import compute_hamm_dist_matrix
 from src.utilities.logging_module import log
-from src.molecules.define_molecule_set import build_molecule_set
+from src.metabolites.metabolite_builder import build_metabolites
 from src.catalysts.catalysts_set import build_catalyst_set
 from src.environment.setup_environment import set_simulation_environment
 
@@ -44,9 +44,8 @@ if log.level <= logging.DEBUG:
 if calc_type == "set_initial_state":
     
     # set list molecular types
-
-    print(p.metabolites_params)
-    X_set, X_set_map = build_molecule_set(p.metabolites_params)
+    
+    X_set, X_set_map, X_init = build_metabolites(p.metabolites_params)
     exit()
     # build catalysts set: Y set
 
