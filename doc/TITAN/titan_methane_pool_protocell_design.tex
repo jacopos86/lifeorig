@@ -1,0 +1,1115 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\title{Titan Methane-Pool Protocell Design}
+\author{LIFEORIG working note}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Purpose}
+
+This note extends the existing Titan catalysis and protocell documents toward a more explicit computational pathway for protocell-like formation in an isolated methane-rich pool. The goal is not to assume Earth-like lipid vesicles. The goal is to define computable stages connecting
+\begin{align}
+\text{Titan methane pool}
+&\rightarrow
+\text{chemical network}
+\rightarrow
+\text{organic-rich phases}
+\nonumber\\
+&\rightarrow
+\text{compartments}
+\rightarrow
+\text{protocell candidates}.
+\end{align}
+
+The central idea is that Titan surface protocells should be modeled as phase-separated, surface-assisted, or membrane-like organic compartments in a nonpolar solvent, with methane, ethane, and nitrogen as the liquid environment, and with nitriles, hydrocarbons, tholin-like polymers, evaporite organics, and possible azotosome-forming species as the chemical inventory.
+
+\subsection{Novelty of the proposed calculation}
+
+The novelty of the proposed work is not the general statement that Titan has organic chemistry, and it is not the isolated idea that membrane analogs may exist in liquid methane. Those ideas already exist in the literature. The novel part is the construction of a phase-resolved dynamical model in which a Titan reaction network is coupled to physical reservoirs, phase transitions, compartment birth, and protocell-like persistence criteria.
+
+In computational form, the new object is
+\begin{equation}
+\left(
+\mathcal{R},
+\mathcal{S},
+E_{\rm Titan},
+\mathbf{n}^{L},
+\mathbf{n}^{S},
+\mathbf{n}^{A},
+\mathbf{n}^{D},
+\mathbf{n}^{M},
+\mathcal{C}
+\right),
+\end{equation}
+where $\mathcal{R}$ is the reaction network, $\mathcal{S}$ is the chemical species set, $E_{\rm Titan}$ is the methane-pool environment, the $\mathbf{n}$ vectors are phase inventories, and $\mathcal{C}$ is the population of compartment objects. The proposed calculation follows how chemistry moves material among these reservoirs and when a reservoir becomes a persistent compartment.
+
+\section{Framework Objects}
+
+For the current LIFEORIG framework, the Titan branch should start from four separate objects:
+\begin{equation}
+\texttt{EnvironmentState}, \quad
+\texttt{ChemicalNetwork}, \quad
+\texttt{ChemicalSpeciesSet}, \quad
+\texttt{CompartmentPopulation}.
+\end{equation}
+
+The first stage should not try to make protocells directly. It should first evolve the chemical inventory and classify species into physical phases.
+
+\subsection{Environment state}
+
+For an isolated methane pool, define
+\begin{equation}
+E_{\rm Titan}
+=
+\{T, P, x_{\rm CH4}, x_{\rm C2H6}, x_{\rm N2}, V_{\rm pool}, A_{\rm pool}, A_{\rm surf},
+\Phi_{\rm evap}, \Phi_{\rm rain}, F_{\rm UV}\}.
+\end{equation}
+
+For a first implementation this can be reduced to
+\begin{equation}
+E_{\rm Titan}
+=
+\{T, P, \text{solvent name}, \mathbf{x}_{\rm solvent}, V_{\rm pool}, A_{\rm surf}, \text{phase model}\}.
+\end{equation}
+
+The environment state owns methane-pool properties. These should not be encoded as molecule properties.
+
+\subsection{Meaning of environment variables}
+
+The environment variables have the following meaning.
+\begin{center}
+\begin{tabular}{p{0.18\linewidth}p{0.40\linewidth}p{0.30\linewidth}}
+\toprule
+Symbol & Meaning & Status \\
+\midrule
+$T$ & local pool temperature & input or slow dynamic variable \\
+$P$ & local surface pressure & input or slow dynamic variable \\
+$x_{\rm CH4}$ & methane mole fraction in liquid solvent & input or dynamic if evaporation is modeled \\
+$x_{\rm C2H6}$ & ethane mole fraction in liquid solvent & input or dynamic if evaporation is modeled \\
+$x_{\rm N2}$ & dissolved nitrogen mole fraction & input or dynamic if gas exchange is modeled \\
+$V_{\rm pool}$ & liquid volume of the modeled pool domain & input or dynamic \\
+$A_{\rm pool}$ & exposed liquid surface area & input geometry \\
+$A_{\rm surf}$ & reactive solid/sediment/surface area & input or dynamic \\
+$\Phi_{\rm evap}$ & evaporation forcing or evaporation rate factor & input forcing \\
+$\Phi_{\rm rain}$ & methane rainfall/refill forcing & input forcing \\
+$F_{\rm UV}$ & local photochemical photon flux & input forcing \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The first serious Titan geometry should be a one-dimensional shallow methane-pool/sediment column. This is still local and computationally controlled, but it is not spatially empty. It resolves a vertical coordinate
+\begin{equation}
+z\in[0,L],
+\end{equation}
+where $z=0$ is the methane-atmosphere or photochemical/feed side, and $z=L$ is the reactive sediment, evaporite, tholin, or pore-wall side. The first implementation can keep $T$, $P$, $L$, $A_{\rm pool}$, and $A_{\rm surf}$ fixed while evolving concentration profiles and phase transfer. A later environmental model can evolve solvent composition, pool depth, evaporation, refill, and stratification.
+
+\subsection{Chemical network}
+
+The reaction file should provide records of the form
+\begin{equation}
+\text{id} \mid \text{module} \mid \text{equation} \mid \text{catalyst/control}
+\mid \text{rate template} \mid \text{role} \mid \text{refs} \mid \text{confidence}.
+\end{equation}
+
+The network parser should return only
+\begin{equation}
+\mathcal{S} = \{s_1,\ldots,s_N\},
+\qquad
+\mathcal{R} = \{r_1,\ldots,r_M\}.
+\end{equation}
+
+The Titan protocell module should then consume this parsed network and decide which species are dissolved, solid, adsorbed, polymeric, surface-active, or compartment-forming.
+
+\section{Species Phase State}
+
+For each chemical species $i$, track concentrations in several physical reservoirs:
+\begin{align}
+C_i^L(z,t) &= \text{concentration dissolved in liquid methane/ethane},\\
+C_i^S(z,t) &= \text{solid, evaporite, or sediment concentration},\\
+C_i^A(z,t) &= \text{adsorbed surface concentration},\\
+C_i^D(z,t) &= \text{dense organic or coacervate-like concentration},\\
+C_i^M(z,t) &= \text{membrane or interface-phase concentration},\\
+C_i^{C_k}(t) &= \text{internal concentration inside compartment } k.
+\end{align}
+
+The total column inventory is obtained by integrating over the column and summing phases:
+\begin{equation}
+N_{i,\rm tot}
+=
+A_{\rm col}
+\int_0^L
+\left(
+C_i^L+C_i^S+C_i^A+C_i^D+C_i^M
+\right)dz
++
+\sum_k C_i^{C_k}V_k.
+\end{equation}
+
+This avoids forcing every species into ``molecule'' or ``metabolite''. The chemical species parser can classify the name, but the phase model decides where the material actually resides.
+
+\section{Dynamical Variables}
+
+The dynamical variables are the quantities that must be advanced in time by the PDE/ODE or stochastic solver. For the Titan shallow-column model, the fundamental dynamical variables are concentrations, not molecule counts. Molecule counts can still be recovered by multiplying concentrations by local cell volumes when stochastic compartment birth or encapsulation is needed.
+
+\subsection{One-dimensional methane-pool/sediment state}
+
+The vertical coordinate is
+\begin{equation}
+z\in[0,L],
+\end{equation}
+with boundary interpretation
+\begin{align}
+z=0 &: \text{methane-atmosphere interface, photochemical input, evaporation/refill},\\
+z=L &: \text{sediment, evaporite, tholin, pore-wall, or reactive organic surface}.
+\end{align}
+
+For the first Titan calculation, a clear state vector is
+\begin{equation}
+\mathbf{y}(t)
+=
+\left[
+\mathbf{C}^{L}(z,t),
+\mathbf{C}^{S}(z,t),
+\mathbf{C}^{A}(z,t),
+\mathbf{C}^{D}(z,t),
+\mathbf{C}^{M}(z,t),
+\mathbf{z}^{D}(t),
+\mathbf{z}^{C}(t)
+\right].
+\end{equation}
+
+Here
+\begin{align}
+\mathbf{C}^{L}(z,t) &= \{C_1^L(z,t),\ldots,C_N^L(z,t)\},\\
+\mathbf{C}^{S}(z,t) &= \{C_1^S(z,t),\ldots,C_N^S(z,t)\},\\
+\mathbf{C}^{A}(z,t) &= \{C_1^A(z,t),\ldots,C_N^A(z,t)\},\\
+\mathbf{C}^{D}(z,t) &= \{C_1^D(z,t),\ldots,C_N^D(z,t)\},\\
+\mathbf{C}^{M}(z,t) &= \{C_1^M(z,t),\ldots,C_N^M(z,t)\}.
+\end{align}
+
+The superscripts denote physical reservoirs:
+\begin{align}
+L&=\text{liquid},&
+S&=\text{solid/sediment},&
+A&=\text{adsorbed surface},\nonumber\\
+D&=\text{dense organic phase},&
+M&=\text{interface or membrane-like phase}.
+\end{align}
+
+The vector $\mathbf{z}^{D}$ contains object-level variables for dense organic aggregates, for example
+\begin{equation}
+\mathbf{z}^{D}
+=
+\{R_k^D,V_k^D,M_k^D,\phi_k^D\}_{k=1}^{N_D},
+\end{equation}
+where $R_k^D$ is aggregate radius, $V_k^D$ is aggregate volume, $M_k^D$ is total aggregate mass, and $\phi_k^D$ is dense-phase volume fraction.
+
+The vector $\mathbf{z}^{C}$ contains object-level variables for protocell candidates, for example
+\begin{equation}
+\mathbf{z}^{C}
+=
+\{R_k^C,V_k^C,A_k^C,\theta_{I,k},M_{I,k}\}_{k=1}^{N_C},
+\end{equation}
+where $R_k^C$ is candidate radius, $V_k^C$ is internal volume, $A_k^C$ is interface area, $\theta_{I,k}$ is interface coverage, and $M_{I,k}$ is interface-forming material.
+
+\subsection{Modes and localized objects}
+
+The most compact way to view the state is as a species-by-mode concentration system:
+\begin{equation}
+C_{i,m},
+\end{equation}
+where $i$ indexes chemical species and $m$ indexes the physical mode occupied by that species. The environmental modes are grid-resolved:
+\begin{equation}
+m\in\{L_j,S_j,A_j,M_j\}_{j=1}^{N_z}.
+\end{equation}
+Here $L_j$ is the liquid solvent in grid cell $j$, $S_j$ is solid/sediment material in grid cell $j$, $A_j$ is adsorbed material in grid cell $j$, and $M_j$ is interface-forming material available in grid cell $j$.
+
+Coacervates and protocell candidates are not best represented as global concentration fields. They are localized objects born at a grid location $z_k$. Their internal chemistry is represented by object-specific concentration vectors:
+\begin{align}
+\mathbf{C}^{D_k}(t) &= \{C_1^{D_k}(t),\ldots,C_N^{D_k}(t)\},\\
+\mathbf{C}^{P_k}(t) &= \{C_1^{P_k}(t),\ldots,C_N^{P_k}(t)\}.
+\end{align}
+
+Thus the full state has the form
+\begin{equation}
+\mathbf{y}(t)
+=
+\left[
+\{\mathbf{C}^{L}_j,\mathbf{C}^{S}_j,\mathbf{C}^{A}_j,\mathbf{C}^{M}_j\}_{j=1}^{N_z},
+\{\mathbf{C}^{D_k},\mathbf{z}^{D_k}\}_{k=1}^{N_D},
+\{\mathbf{C}^{P_k},\mathbf{z}^{P_k}\}_{k=1}^{N_P}
+\right].
+\end{equation}
+
+Each mode has its own reaction rates and exchange terms:
+\begin{equation}
+\frac{dC_{i,m}}{dt}
+=
+\sum_r \nu_{ir}R_{r,m}
++
+\sum_{m'}J_{i,m'\rightarrow m}
+-
+\sum_{m'}J_{i,m\rightarrow m'}
++
+\mathcal{T}_{i,m}
+-
+\mathcal{L}_{i,m}.
+\end{equation}
+
+For environmental grid modes, $\mathcal{T}_{i,m}$ includes diffusion, settling, advection, or burial. For localized coacervate and protocell objects, $\mathcal{T}_{i,m}=0$ unless object motion is added later. Their coupling to space occurs through exchange with the local grid cell at $z_k$.
+
+\subsection{Quantities evolved dynamically}
+
+The following variables should be evolved dynamically.
+\begin{center}
+\begin{tabular}{p{0.18\linewidth}p{0.35\linewidth}p{0.35\linewidth}}
+\toprule
+Variable & Meaning & Main source terms \\
+\midrule
+$C_i^L(z,t)$ & dissolved concentration of species $i$ & diffusion/advection, reactions, phase transfer, exchange \\
+$C_i^S(z,t)$ & solid, evaporite, or sediment concentration & precipitation, dissolution, burial, sediment conversion \\
+$C_i^A(z,t)$ & adsorbed surface concentration & adsorption, desorption, surface reactions \\
+$C_i^{D_k}(t)$ & internal concentration in coacervate/dense object $k$ & partitioning, internal reactions, loss \\
+$C_i^M(z,t)$ & interface or membrane-like material concentration & interfacial adsorption, shell growth, damage \\
+$C_i^{P_k}(t)$ & internal concentration in protocell candidate $k$ & internal reactions, exchange, damage \\
+$M_k^D$ & total mass of dense aggregate $k$ & polymer production, accretion, fragmentation, loss \\
+$R_k^D,V_k^D$ & radius and volume of dense aggregate $k$ & growth, coarsening, fragmentation \\
+$M_{I,k}$ & interface-forming material on object $k$ & adsorption, production, desorption \\
+$\theta_{I,k}$ & interface coverage of object $k$ & computed from $M_{I,k}$ and geometry, or evolved with relaxation \\
+$R_k^C,V_k^C,A_k^C$ & geometry of protocell candidate $k$ & growth, shrinkage, division-like events \\
+$N_D,N_C$ & number of dense aggregates and protocell candidates & birth, death, fragmentation, fusion \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Algebraic variables computed from the state}
+
+The following variables should usually be computed from the dynamical state rather than integrated independently:
+\begin{align}
+x_i^L(z,t) &= \frac{C_i^L(z,t)}{\sum_j C_j^L(z,t)},\\
+\theta_i(z,t) &= \frac{K_i C_i^L(z,t)}{1+\sum_j K_j C_j^L(z,t)},\\
+\theta_{I,k} &= \frac{N_{I,k}}{N_{I,\rm req}(R_k)},\\
+\tau_{{\rm retention},i,k} &= \frac{V_k^C}{A_k^C P_{i,k}}.
+\end{align}
+
+These are diagnostic or closure quantities. They enter the rates, but they should not become independent variables unless a more detailed model requires memory or delayed relaxation.
+
+\subsection{Parameters and inputs}
+
+The following are parameters or externally supplied functions in the first implementation:
+\begin{equation}
+k_{r,0},\quad E_{a,r},\quad T_{\rm ref},\quad S_i(E),\quad K_i,\quad
+C_{i,\rm sat}(E),\quad P_{i,k},\quad a_I,\quad \eta_{rc},\quad F_{\rm UV}(t).
+\end{equation}
+
+They may later become uncertain parameters sampled in an ensemble, but they are not part of the dynamic state in the first deterministic calculation.
+
+\section{One-Dimensional Shallow Sediment Column}
+
+The computational domain is a representative vertical column through a shallow liquid methane/ethane pool and its reactive bottom layer:
+\begin{equation}
+0 \le z \le L.
+\end{equation}
+
+The upper boundary, $z=0$, represents exchange with the atmosphere and photochemical input. The lower boundary, $z=L$, represents sediment, evaporite, tholin-rich solid, or a porous reactive bed. The point of this geometry is to allow chemical species to accumulate at the bottom and near surfaces, where dense organic phases and compartments are most likely to form.
+
+\subsection{Generic phase-resolved transport equation}
+
+For each species $i$ and phase $\alpha\in\{L,S,A,D,M\}$, write
+\begin{equation}
+\frac{\partial C_i^\alpha}{\partial t}
+=
+\mathcal{T}_i^\alpha
++
+\mathcal{R}_i^\alpha
++
+\mathcal{P}_i^\alpha
+-
+\mathcal{L}_i^\alpha.
+\end{equation}
+
+Here $\mathcal{T}_i^\alpha$ is spatial transport, $\mathcal{R}_i^\alpha$ is chemical production and consumption, $\mathcal{P}_i^\alpha$ is phase transfer, and $\mathcal{L}_i^\alpha$ is loss by burial, degradation, escape, or photochemical destruction.
+
+\subsection{Liquid species}
+
+The dissolved liquid concentration evolves as
+\begin{align}
+\frac{\partial C_i^L}{\partial t}
+&=
+\frac{\partial}{\partial z}
+\left(
+D_i^L \frac{\partial C_i^L}{\partial z}
+\right)
+-v_i^L\frac{\partial C_i^L}{\partial z}
+\sum_r \nu_{ir}R_r^L
+\nonumber\\
+&\quad
+-J_i^{L\rightarrow S}
++J_i^{S\rightarrow L}
+-J_i^{L\rightarrow A}
++J_i^{A\rightarrow L}
+-J_i^{L\rightarrow D}
++J_i^{D\rightarrow L}
+-J_i^{L\rightarrow M}
++J_i^{M\rightarrow L}
++Q_i^L(z,t).
+\end{align}
+
+$D_i^L$ is the effective diffusion coefficient in the methane/ethane liquid, $v_i^L$ is an optional settling or advective velocity, $R_r^L$ is the liquid-phase reaction rate, and $Q_i^L$ is an external source such as atmospheric deposition or photochemical input.
+
+\subsection{Solid, evaporite, and sediment species}
+
+Solid or sediment-associated species evolve as
+\begin{equation}
+\frac{\partial C_i^S}{\partial t}
+=
+-v_i^S\frac{\partial C_i^S}{\partial z}
++J_i^{L\rightarrow S}
+-J_i^{S\rightarrow L}
++\sum_r \nu_{ir}R_r^S
+-k_{{\rm bury},i}C_i^S.
+\end{equation}
+
+The velocity $v_i^S$ represents settling or burial into the sediment bed. For a first model it can be set to zero except near the bottom boundary.
+
+\subsection{Adsorbed surface species}
+
+Adsorbed species evolve as
+\begin{equation}
+\frac{\partial C_i^A}{\partial t}
+=
+J_i^{L\rightarrow A}
+-J_i^{A\rightarrow L}
++\sum_r \nu_{ir}R_r^A
+-k_{{\rm foul},i}C_i^A
+-k_{{\rm bury},i}^A C_i^A.
+\end{equation}
+
+$C_i^A$ should be interpreted as concentration per local bulk volume or, equivalently, surface loading converted into a volume-normalized variable using local surface area density $a_{\rm surf}(z)=A_{\rm surf}(z)/V(z)$.
+
+\subsection{Dense organic or coacervate-like phase}
+
+The dense organic phase concentration evolves as
+\begin{equation}
+\frac{\partial C_i^D}{\partial t}
+=
+J_i^{L\rightarrow D}
+-J_i^{D\rightarrow L}
++\sum_r \nu_{ir}R_r^D
+-k_{{\rm frag},i}^D C_i^D
+-k_{{\rm loss},i}^D C_i^D.
+\end{equation}
+
+The dense phase is the first compartment-like stage. It is allowed only where a concentration threshold is exceeded, as defined below.
+
+\subsection{Interface or protocell-shell material}
+
+Interface-forming material evolves as
+\begin{equation}
+\frac{\partial C_i^M}{\partial t}
+=
+J_i^{L\rightarrow M}
+-J_i^{M\rightarrow L}
++J_i^{D\rightarrow M}
+-J_i^{M\rightarrow D}
++\sum_r \nu_{ir}R_r^M
+-k_{{\rm damage},i}^M C_i^M.
+\end{equation}
+
+This phase represents material that can stabilize dense organic droplets, coat aggregates, or form membrane-like organic shells.
+
+\subsection{Boundary conditions}
+
+At the upper boundary:
+\begin{equation}
+-D_i^L\left.\frac{\partial C_i^L}{\partial z}\right|_{z=0}
+=
+F_{i,\rm atm}(t)
+-k_{{\rm evap},i}C_i^L(0,t),
+\end{equation}
+where $F_{i,\rm atm}$ is atmospheric deposition or photochemical feed and $k_{{\rm evap},i}$ is evaporative or escape loss.
+
+At the lower boundary:
+\begin{equation}
+-D_i^L\left.\frac{\partial C_i^L}{\partial z}\right|_{z=L}
+=
+k_{{\rm sed},i}C_i^L(L,t)
+-k_{{\rm rediss},i}C_i^S(L,t).
+\end{equation}
+
+This lower boundary is where sediment accumulation, adsorption, and dense organic phase nucleation are expected to be strongest.
+
+\section{Methane-Pool Chemistry}
+
+Use the Titan catalysis rate structure already defined in the existing note:
+\begin{equation}
+k_r(E)
+= k_{r,0} F_{T,r}(T) \Phi_r(E) \Gamma_r(E) \Lambda_r(E),
+\end{equation}
+where
+\begin{equation}
+F_{T,r}(T)
+=
+\exp\left[
+-\frac{E_{a,r}}{R}
+\left(
+\frac{1}{T}-\frac{1}{T_{\rm ref}}
+\right)
+\right].
+\end{equation}
+
+For a reaction
+\begin{equation}
+\sum_i \nu_{ir} X_i \rightarrow \text{products},
+\end{equation}
+the liquid-phase rate is
+\begin{equation}
+R_r^L = k_r(E) \prod_i a_i^{\nu_{ir}}.
+\end{equation}
+
+A first approximation for the activity is
+\begin{equation}
+a_i = S_i(E) x_i^L,
+\end{equation}
+where $S_i(E)$ is a dimensionless methane/ethane availability factor and $x_i^L$ is the liquid mole fraction or normalized concentration.
+
+The stoichiometric update for the liquid reservoir is
+\begin{equation}
+\left.\frac{\partial C_i^L}{\partial t}\right|_{\rm reaction}
+=
+\sum_r \nu_{ir} R_r^L,
+\end{equation}
+where $\nu_{ir}$ is positive for products and negative for reactants. The same convention should be used for surface, dense-phase, and compartment reactions.
+
+For surface reactions:
+\begin{equation}
+R_r^A
+=
+k_r(E)
+\left(a_{\rm surf}(z)\right)
+\prod_i \theta_i^{\nu_{ir}},
+\end{equation}
+with Langmuir-like coverage
+\begin{equation}
+\theta_i(z,t)
+=
+\frac{K_i C_i^L(z,t)}{1+\sum_j K_j C_j^L(z,t)}.
+\end{equation}
+
+For catalytic reactions:
+\begin{equation}
+\Lambda_r(E)
+=
+1+\sum_c \eta_{rc}\Theta_c.
+\end{equation}
+Here $c$ can represent tholin surface, HCN polymer, nitrile-rich solid, ice, evaporite, mineral impurity, or an existing organic aggregate.
+
+\section{Phase Transitions}
+
+The key computational problem is not only reaction kinetics. It is phase allocation. At Titan temperatures, many products may be poorly soluble and should leave the liquid pool into solids, sediments, floating porous solids, adsorbed layers, or dense organic phases.
+
+\subsection{Dissolved to solid or evaporite}
+
+Precipitation occurs if
+\begin{equation}
+C_i^L(z,t) > C_{i,\rm sat}(E,z).
+\end{equation}
+
+The precipitation flux is
+\begin{equation}
+J_i^{L\rightarrow S}
+=
+k_{{\rm precip},i}
+\max(0,C_i^L(z,t)-C_{i,\rm sat}(E,z)).
+\end{equation}
+
+Redissolution is
+\begin{equation}
+J_i^{S\rightarrow L}
+=
+k_{{\rm diss},i} C_i^S(z,t)
+\max\left(0,1-\frac{C_i^L(z,t)}{C_{i,\rm sat}(E,z)}\right).
+\end{equation}
+
+This is the first necessary step for Titan because nitriles, triple-bonded hydrocarbons, benzene-like species, and HCN-rich material may not remain as ordinary dissolved metabolites.
+
+The corresponding mass-transfer terms are
+\begin{align}
+\left.\frac{\partial C_i^L}{\partial t}\right|_{L\leftrightarrow S}
+&=
+-J_i^{L\rightarrow S}+J_i^{S\rightarrow L},\\
+\left.\frac{\partial C_i^S}{\partial t}\right|_{L\leftrightarrow S}
+&=
+J_i^{L\rightarrow S}-J_i^{S\rightarrow L}-k_{{\rm bury},i}C_i^S.
+\end{align}
+
+\subsection{Dissolved to adsorbed surface}
+
+Adsorption onto tholin, ice, evaporite, or mineral surfaces:
+\begin{align}
+J_i^{L\rightarrow A}(z,t) &= k_{{\rm ads},i} C_i^L(z,t) (1-\Theta_{\rm surface}(z,t)),\\
+J_i^{A\rightarrow L}(z,t) &= k_{{\rm des},i} C_i^A(z,t),
+\end{align}
+with
+\begin{equation}
+\Theta_{\rm surface}(z,t) = \frac{\sum_i C_i^A(z,t)}{C_{{\rm sites}}(z)}.
+\end{equation}
+
+Surface localization is important because low bulk reaction rates in liquid methane may become less limiting when reactants are concentrated and oriented on solids.
+
+The liquid and adsorbed reservoirs receive
+\begin{align}
+\left.\frac{\partial C_i^L}{\partial t}\right|_{L\leftrightarrow A}
+&=
+-J_i^{L\rightarrow A}+J_i^{A\rightarrow L},\\
+\left.\frac{\partial C_i^A}{\partial t}\right|_{L\leftrightarrow A}
+&=
+J_i^{L\rightarrow A}-J_i^{A\rightarrow L}.
+\end{align}
+
+\subsection{Polymer-rich dense organic phase}
+
+This is the Titan analog of a coacervate stage, but it should not be assumed to be the same as aqueous electrostatic coacervation. A safer code name is
+\begin{equation}
+\texttt{OrganicDensePhase}
+\quad \text{or} \quad
+\texttt{CryogenicOrganicAggregate}.
+\end{equation}
+
+Define a local dense-phase or coacervate score:
+\begin{equation}
+\Phi_D(z,t)
+=
+\sum_i \alpha_i C_i^S(z,t)
++
+\sum_i \beta_i C_i^A(z,t)
++
+\sum_i \gamma_i C_i^L(z,t).
+\end{equation}
+
+High weights should be assigned to polymeric HCN material, nitrile-rich solids, tholin fragments, long hydrocarbons, and poorly soluble organics. Dense-phase formation is allowed when
+\begin{equation}
+\Phi_D(z,t) > \Phi_{D,\rm crit}.
+\end{equation}
+
+Equivalently, a more explicit concentration-threshold rule can be used:
+\begin{equation}
+C_{\rm coa}(z,t)
+=
+\sum_{i\in\mathcal{G}_{\rm coa}} w_i^{\rm coa} C_i^{\alpha_i}(z,t),
+\end{equation}
+where $\mathcal{G}_{\rm coa}$ is the set of chemicals able to drive dense organic or coacervate-like phase formation. A dense organic compartment can nucleate locally if
+\begin{equation}
+C_{\rm coa}(z,t) \ge C_{\rm coa}^{\rm crit}.
+\end{equation}
+
+This is the clearest first rule: compartment formation is controlled by local chemical concentration exceeding a threshold.
+
+The birth rate of dense droplets or aggregates can be written
+\begin{equation}
+B_D(z,t)
+=
+k_{D,\rm birth}
+\max(0,\Phi_D(z,t)-\Phi_{D,\rm crit}).
+\end{equation}
+
+The local concentration of dense organic phase evolves as
+\begin{equation}
+\frac{\partial C_D^{\rm tot}}{\partial t}
+=
+\sum_{r\in \mathcal{P}} y_{r,D} R_r
+- k_{\rm frag}C_D^{\rm tot}
+- k_{\rm loss}C_D^{\rm tot},
+\end{equation}
+where $\mathcal{P}$ is the polymerization or aggregation-producing subset of reactions.
+
+For species-level inventories inside the dense phase:
+\begin{equation}
+\frac{\partial C_i^D}{\partial t}
+=
+\left.\frac{\partial C_i^D}{\partial t}\right|_{\rm partition}
++
+\left.\frac{\partial C_i^D}{\partial t}\right|_{\rm reaction}
+-k_{{\rm loss},i}^D C_i^D.
+\end{equation}
+This means the dense phase should not be only a diagnostic threshold. Once born, it becomes part of the dynamic state.
+
+\subsection{Interface or membrane-like phase}
+
+For membrane-like structures in methane, ordinary fatty-acid vesicles are not the default. Candidate classes are
+\begin{equation}
+\texttt{AzotosomeCandidate}, \quad
+\texttt{SurfaceFilmCompartment}, \quad
+\texttt{OrganicShellAggregate}.
+\end{equation}
+
+Define an interface-forming material pool:
+\begin{equation}
+C_I(z,t) = \sum_{i\in\mathcal{G}_I} w_i^I C_i^{\alpha_i}(z,t).
+\end{equation}
+
+Species with high $w_i^I$ may include acrylonitrile/vinyl cyanide candidates, nitrile amphiphile analogs, polar-in-nonpolar surface-active species, and polymer fragments able to form stable interfaces.
+
+Interface or shell formation is allowed only if
+\begin{equation}
+C_I(z,t)\ge C_I^{\rm crit}.
+\end{equation}
+
+The interface coverage of aggregate $k$ is
+\begin{equation}
+\theta_{I,k}
+=
+\frac{N_{I,k}}{N_{I,\rm req}(R_k)}.
+\end{equation}
+
+For a monolayer-like shell:
+\begin{equation}
+N_{I,\rm req}(R_k)
+=
+\frac{4\pi R_k^2}{a_I}.
+\end{equation}
+
+For a bilayer-like shell:
+\begin{equation}
+N_{I,\rm req}(R_k)
+=
+\frac{8\pi R_k^2}{a_I}.
+\end{equation}
+
+A compartment is promoted to a protocell candidate when
+\begin{equation}
+\Phi_D(z_k,t)\ge \Phi_{D,\rm crit},
+\qquad
+C_I(z_k,t)\ge C_I^{\rm crit},
+\qquad
+\theta_{I,k}\geq \theta_{I,\min},
+\qquad
+\tau_{{\rm retention},k}>\tau_{{\rm reaction},k}.
+\end{equation}
+
+Interface material evolves as
+\begin{equation}
+\frac{dM_{I,k}}{dt}
+=
+k_{{\rm ads},I}A_k C_I(z_k,t)
+-k_{{\rm des},I}M_{I,k}
++\sum_r y_{r,I}R_r^{C_k}
+-k_{{\rm damage},I}M_{I,k}.
+\end{equation}
+The interface coverage $\theta_{I,k}$ can then be computed from $M_{I,k}$ and the object geometry.
+
+\subsection{Compartment birth from local thresholds}
+
+On a numerical grid $z_j$, dense organic compartments are born in cell $j$ if
+\begin{equation}
+C_{\rm coa}(z_j,t)>C_{\rm coa}^{\rm crit}
+\end{equation}
+for at least a finite exposure time:
+\begin{equation}
+Q_{\rm coa}(z_j,t)
+=
+\int_0^t
+\max\left[
+0,
+\frac{C_{\rm coa}(z_j,t')-C_{\rm coa}^{\rm crit}}{C_{\rm coa}^{\rm crit}}
+\right]dt'
+>
+Q_{\rm coa}^{\rm crit}.
+\end{equation}
+
+This prevents numerical noise or very short concentration spikes from producing compartments. A protocell candidate is born from an existing dense organic compartment only if an additional interface threshold is crossed:
+\begin{equation}
+Q_I(z_j,t)
+=
+\int_0^t
+\max\left[
+0,
+\frac{C_I(z_j,t')-C_I^{\rm crit}}{C_I^{\rm crit}}
+\right]dt'
+>
+Q_I^{\rm crit}.
+\end{equation}
+
+Thus the minimal physical sequence is
+\begin{align}
+\text{local chemical enrichment}
+&\rightarrow
+\text{dense organic/coacervate phase}
+\nonumber\\
+&\rightarrow
+\text{interface-stabilized protocell candidate}.
+\end{align}
+
+\section{Compartment Objects}
+
+The code should distinguish four Titan compartment levels.
+
+\subsection{Column grid cell}
+
+This is not a protocell. It is one numerical cell of the one-dimensional methane/sediment column:
+\begin{equation}
+\texttt{ColumnCell}_j
+=
+\{\Delta z_j,V_j,A_{{\rm surface},j},C_i^L(z_j),C_i^S(z_j),C_i^A(z_j),C_i^D(z_j),C_i^M(z_j)\}.
+\end{equation}
+
+Evolution:
+\begin{align}
+\frac{dC_i^L(z_j)}{dt}
+&=
+\mathcal{D}_i^L(z_j)
++
+\mathcal{A}_i^L(z_j)
++
+\sum_r \nu_{ir}R_r^L(j)
+-J_i^{L\rightarrow S}
++J_i^{S\rightarrow L}
+-J_i^{L\rightarrow A}
++J_i^{A\rightarrow L}
++Q_i^L(z_j).
+\end{align}
+Here $\mathcal{D}_i^L$ and $\mathcal{A}_i^L$ are the discretized diffusion and advection/settling terms.
+
+\subsection{Surface-bound reactor}
+
+This is an adsorbed network on tholin, ice, evaporite, or mineral impurity:
+\begin{equation}
+\texttt{SurfaceReactor}_j
+=
+\{A_j,N_{{\rm sites},j},\theta_i(j),\text{catalyst sites}_j\}.
+\end{equation}
+
+Evolution:
+\begin{equation}
+\frac{\partial C_i^A}{\partial t}
+=
+\sum_r \nu_{ir}R_r^A
++J_i^{L\rightarrow A}
+-J_i^{A\rightarrow L}
+-k_{\rm bury}C_i^A.
+\end{equation}
+
+\subsection{Organic dense phase}
+
+This is the coacervate-like or aggregate phase:
+\begin{equation}
+\texttt{DensePhase}_k
+=
+\{z_k,R_k,V_k,M_k,\phi_k,K_{i,k},C_i^D(z_k)\}.
+\end{equation}
+
+Partitioning:
+\begin{equation}
+C_i^D(z_k,t)=K_{i,k}C_i^L(z_k,t).
+\end{equation}
+
+Dynamic exchange:
+\begin{equation}
+\frac{\partial C_i^D(z_k,t)}{\partial t}
+=
+\sum_r \nu_{ir}R_r^D(k)
++
+\frac{K_{i,k}C_i^L(z_k,t)-C_i^D(z_k,t)}{\tau_{{\rm part},i}}
+-k_{{\rm loss},i}^D C_i^D(z_k,t).
+\end{equation}
+
+Growth:
+\begin{equation}
+\frac{dV_k}{dt}
+=
+G_D(C^L,C^A,T,\text{solvent})
+-k_{\rm frag}V_k.
+\end{equation}
+
+\subsection{Protocell candidate}
+
+This is a compartment with a persistent interface and retained chemistry:
+\begin{equation}
+\texttt{TitanProtocell}_k
+=
+\{z_k,R_k,V_k,A_k,\text{interface type},\theta_{I,k},C_i^{C_k},P_{i,k},\text{catalyst content}_k\}.
+\end{equation}
+
+Internal chemistry:
+\begin{equation}
+\frac{dC_i^{C_k}}{dt}
+=
+\sum_r \nu_{ir}R_r^{C_k}
++\frac{A_k}{V_k}P_{i,k}\left[C_i^L(z_k,t)-C_i^{C_k}\right]
+-k_{{\rm damage},i}C_i^{C_k},
+\end{equation}
+where $z_k$ is the grid location where the compartment was born or currently resides.
+
+Retention timescale:
+\begin{equation}
+\tau_{{\rm retention},i,k}
+=
+\frac{V_k}{A_kP_{i,k}}.
+\end{equation}
+
+The object is protocell-like only if
+\begin{equation}
+\tau_{{\rm retention},i,k}
+>
+\tau_{{\rm reaction},i,k}
+\end{equation}
+for key species, and if the compartment can grow or maintain catalytic closure:
+\begin{equation}
+\frac{dM_k}{dt}>0,
+\qquad
+\max {\rm Re}\left[\lambda\left(\frac{\partial \dot{\mathbf{C}}}{\partial \mathbf{C}}\right)\right]>0.
+\end{equation}
+
+\section{Phase Pathway}
+
+The minimal computational sequence should be:
+\begin{enumerate}
+\item Read the Titan reaction network.
+\item Parse species.
+\item Classify chemical types.
+\item Initialize methane-pool \texttt{EnvironmentState}.
+\item Allocate species among liquid, solid, adsorbed, dense organic, and interface pools.
+\item Evolve reactions with Titan rate factors.
+\item Test dense-phase formation.
+\item Test interface stabilization.
+\item Promote stable compartments to \texttt{TitanProtocell} candidates.
+\item Couple compartment chemistry to survival, growth, fragmentation, and division-like events.
+\end{enumerate}
+
+The important distinction is
+\begin{equation}
+\text{chemical species classification}
+\neq
+\text{physical phase allocation}.
+\end{equation}
+
+A species can be a molecule chemically but a solid physically. Another species can be an uncategorized polymer chemically but a catalyst-rich surface physically.
+
+\section{Selection Variables}
+
+For Titan, fitness should not be ``fast metabolism''. At $94\,{\rm K}$ the dominant selective variables should be persistence and retention.
+
+For compartment $k$:
+\begin{align}
+F_k
+&=
+w_1\tau_{{\rm survival},k}
++w_2M_{{\rm polymer},k}
++w_3R_{{\rm catalytic},k}
++w_4{\rm Retention}_{{\rm key},k}
+\nonumber\\
+&\quad
++w_5{\rm InterfaceStability}_k
+-w_6{\rm PhotochemicalDamage}_k
+-w_7{\rm SedimentationLoss}_k.
+\end{align}
+
+A useful first success criterion is
+\begin{equation}
+\text{persistent compartmentalized chemistry},
+\end{equation}
+not life, not metabolism, and not Earth-like protocells.
+
+\section{Suggested Code Mapping}
+
+\subsection{Input data layer}
+
+Keep:
+\begin{equation}
+\texttt{ChemicalNetworkParser},\quad
+\texttt{ChemicalSpeciesParser},\quad
+\texttt{EnvironmentInputBuilder}.
+\end{equation}
+
+Add later:
+\begin{equation}
+\texttt{TitanPhaseAllocator}.
+\end{equation}
+
+Its purpose is
+\begin{equation}
+(\text{species},\text{environment})
+\rightarrow
+\text{initial phase inventories}.
+\end{equation}
+
+\subsection{Chemical types layer}
+
+Keep chemical identity classes separate from phase classes:
+\begin{align}
+&\texttt{Molecule},\quad
+\texttt{IonicSpecies},\quad
+\texttt{Mineral},\quad
+\texttt{MineralSurface},\nonumber\\
+&\texttt{UncategorizedMolecularSpecies},\quad
+\texttt{OrganicPolymer},\quad
+\texttt{OrganicPool}.
+\end{align}
+
+The uncertain Titan objects probably belong in phase or compartment modules, not in chemical identity:
+\begin{equation}
+\texttt{OrganicDensePhase},\quad
+\texttt{SurfaceReactor},\quad
+\texttt{AzotosomeCandidate},\quad
+\texttt{TitanProtocell}.
+\end{equation}
+
+\subsection{Dynamics layer}
+
+The semi-discrete PDE/ODE state vector can be arranged as
+\begin{equation}
+\mathbf{y}
+=
+\left[
+\mathbf{C}_L,\mathbf{C}_S,\mathbf{C}_A,\mathbf{C}_D,\mathbf{C}_M,
+\mathbf{z}_{\rm dense},
+\mathbf{z}_{\rm protocell}
+\right].
+\end{equation}
+
+The right-hand side is
+\begin{equation}
+\frac{d\mathbf{y}}{dt}
+=
+\mathbf{F}_{\rm transport}
++
+\mathbf{F}_{\rm reaction}
++\mathbf{F}_{\rm phase}
++\mathbf{F}_{\rm compartment}
+-\mathbf{F}_{\rm loss}.
+\end{equation}
+
+This is where PETSc later becomes useful: many species, many reactions, many compartments, and sparse stoichiometry.
+
+\section{Open Modeling Decisions}
+
+Before coding too much, decide explicitly:
+\begin{enumerate}
+\item Whether \texttt{coacervate} should be used as a generic term, or replaced by \texttt{OrganicDensePhase} for Titan.
+\item Whether azotosome candidates are included now, or left as a future membrane-interface model.
+\item Whether the first 1D run represents an open shallow pool column, a methane-wetted sediment column, or a pore-like tholin/evaporite column.
+\item Whether methane is treated as a solvent-only background, a reactive network species, or both.
+\item Whether organic pools are explicit species, phase reservoirs, or bookkeeping bins for unresolved tholin/polymer material.
+\end{enumerate}
+
+The recommended first implementation is:
+\begin{equation}
+\begin{gathered}
+\text{1D shallow methane/sediment column},\\
+\text{explicit methane solvent state},\\
+\text{methane also allowed as a reaction species if present in the network},\\
+\text{liquid/solid/adsorbed/dense-organic/interface concentration fields},\\
+\text{coacervate and protocell birth controlled by local concentration thresholds}.
+\end{gathered}
+\end{equation}
+
+\section{Final Structural Design}
+
+The final design should be understood as a concentration system over chemical species and physical modes. The basic dynamical variable is
+\begin{equation}
+C_{i,m},
+\end{equation}
+where $i$ is the chemical species index and $m$ is the mode occupied by that species.
+
+The environmental modes are grid-resolved:
+\begin{equation}
+m\in\{L_j,S_j,A_j,M_j\}_{j=1}^{N_z}.
+\end{equation}
+Here $L_j$ is the methane/ethane solvent phase in grid cell $j$, $S_j$ is the solid, sediment, or evaporite phase, $A_j$ is the adsorbed surface phase, and $M_j$ is the local interface-forming material pool.
+
+Coacervates and protocell candidates are localized objects. They are born at a grid position $z_k$ when the local concentration thresholds are crossed. Each object then evolves its own internal chemistry:
+\begin{align}
+\mathbf{C}^{D_k}(t) &= \{C_1^{D_k}(t),\ldots,C_N^{D_k}(t)\},\\
+\mathbf{C}^{P_k}(t) &= \{C_1^{P_k}(t),\ldots,C_N^{P_k}(t)\}.
+\end{align}
+
+Thus the full state is
+\begin{equation}
+\mathbf{y}(t)
+=
+\left[
+\{\mathbf{C}^{L}_j,\mathbf{C}^{S}_j,\mathbf{C}^{A}_j,\mathbf{C}^{M}_j\}_{j=1}^{N_z},
+\{\mathbf{C}^{D_k},\mathbf{z}^{D_k}\}_{k=1}^{N_D},
+\{\mathbf{C}^{P_k},\mathbf{z}^{P_k}\}_{k=1}^{N_P}
+\right].
+\end{equation}
+
+The grid fields describe the external methane/sediment environment. The coacervate and protocell objects describe internal chemistry inside individual compartments. Exchange couples each object to the local grid cell where it sits:
+\begin{align}
+\frac{dC_i^{D_k}}{dt}
+&=
+\sum_r \nu_{ir}R_r^{D_k}
++
+J_{i,L_j\rightarrow D_k}
+-
+J_{i,D_k\rightarrow L_j}
+-k_{{\rm loss},i}^{D_k}C_i^{D_k},
+\\
+\frac{dC_i^{P_k}}{dt}
+&=
+\sum_r \nu_{ir}R_r^{P_k}
++
+\frac{A_k}{V_k}P_{i,k}
+\left[C_i^L(z_k,t)-C_i^{P_k}\right]
+-k_{{\rm damage},i}^{P_k}C_i^{P_k}.
+\end{align}
+
+This gives the intended architecture:
+\begin{equation}
+\text{1D external column}
++
+\text{localized coacervate objects}
++
+\text{localized protocell objects}.
+\end{equation}
+
+The decisive transition rules are concentration thresholds:
+\begin{align}
+C_{\rm coa}(z_j,t) &\ge C_{\rm coa}^{\rm crit}
+\quad \Rightarrow \quad
+\text{birth of coacervate/dense object},\\
+C_I(z_j,t) &\ge C_I^{\rm crit}
+\quad \Rightarrow \quad
+\text{interface stabilization and protocell candidacy}.
+\end{align}
+
+This is the closest computational form to the intended physical picture: the environment is spatially resolved, but each coacervate or protocell is an individual entity with its own internal concentrations, reaction rates, exchange terms, growth, loss, and possible persistence.
+
+\section{References}
+
+\subsection*{Existing local notes}
+
+\begin{itemize}
+\item \texttt{doc/TITAN/titan\_catalysis\_framework\_latex.pdf}
+\item \texttt{doc/TITAN/titan\_protocell\_framework.pdf}
+\item \texttt{doc/protocell\_formation\_phases.pdf}
+\end{itemize}
+
+\subsection*{External starting points}
+
+\begin{itemize}
+\item Stevenson, J., Lunine, J. I., and Clancy, P. Membrane alternatives in worlds without oxygen: Creation of an azotosome. \textit{Science Advances}, 2015. \url{https://www.science.org/doi/10.1126/sciadv.1400067}
+\item Palmer, M. Y. et al. ALMA detection and astrobiological potential of vinyl cyanide on Titan. \textit{Science Advances}, 2017. \url{https://www.science.org/doi/10.1126/sciadv.1700022}
+\item Lai, J. C.-Y. et al. Mapping Vinyl Cyanide and Other Nitriles in Titan's Atmosphere Using ALMA. 2017. \url{https://arxiv.org/abs/1710.06411}
+\item Sandstrom, H. and Rahm, M. Can polarity-inverted membranes self-assemble on Titan? \textit{Science Advances}, 2020. \url{https://www.science.org/doi/10.1126/sciadv.aax0272}
+\item McKay, C. P. and Smith, H. D. Possibilities for methanogenic life in liquid methane on the surface of Titan. \textit{Icarus}, 2005. \url{https://doi.org/10.1016/j.icarus.2005.05.018}
+\item Cordier, D. et al. An estimate of the chemical composition of Titan's lakes. 2009. \url{https://arxiv.org/abs/0911.1860}
+\item Cordier, D. et al. Titan's lakes chemical composition: sources of uncertainties and variability. 2011. \url{https://arxiv.org/abs/1104.2131}
+\item Steckloff, J. K. et al. Stratification Dynamics of Titan's Lakes via Methane Evaporation. 2020. \url{https://arxiv.org/abs/2006.10896}
+\item Engle, A. E. et al. Phase Diagram for the Methane-Ethane System and its Implications for Titan's Lakes. 2021. \url{https://arxiv.org/abs/2103.15978}
+\item Yu, X. et al. The Fate of Simple Organics on Titan's Surface: A Theoretical Perspective. 2024. \url{https://arxiv.org/abs/2401.02640}
+\item Pearce, B. K. D. et al. HCN production in Titan's Atmosphere: Coupling quantum chemistry and disequilibrium atmospheric modeling. 2020. \url{https://arxiv.org/abs/2008.04312}
+\item Nixon, C. A. The Composition and Chemistry of Titan's Atmosphere. 2024. \url{https://arxiv.org/abs/2402.17116}
+\item Nixon, C. A., Carrasco, N., and Sotin, C. Open Questions and Future Directions in Titan Science. 2025. \url{https://arxiv.org/abs/2501.00971}
+\end{itemize}
+
+\end{document}
