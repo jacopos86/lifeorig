@@ -4,7 +4,6 @@ import numpy as np
 import logging
 import os
 from src.utilities.logging_module import log
-from src.input_data.read_input import p
 from src.utilities.graph_class import graph_obj
 from src.molecules_dyn.gillespie_algo import chemical_kinetics_solver
 from src.catalysts.catalysts_set import build_catalysts_list

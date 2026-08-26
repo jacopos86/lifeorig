@@ -1,5 +1,4 @@
 import logging
-from src.input_data.read_input import p
 from src.utilities.logging_module import log
 from src.catalysts.catalysts_set import set_catalysts_prob_distr
 
