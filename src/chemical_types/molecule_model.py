@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-from src.input_data.read_input import p
+from dataclasses import dataclass
 from src.utilities.logging_module import log
 
 #
 #   Abstract base molecule class
 #
 
-class MoleculeModel(ABC):
+class StringMoleculeModel(ABC):
     def __init__(self, sequence):
         self.sequence = sequence
         self.properties = {}  # dictionary for additional features (stability, polarity, etc.)
@@ -43,7 +43,7 @@ class MoleculeModel(ABC):
 #   Binary polymer implementation
 #
 
-class BinaryPolymer(MoleculeModel):
+class BinaryPolymer(StringMoleculeModel):
     ''' binary polymer class '''
     _MONOMER_TYPES = {'0', '1'}
     def __init__(self, sequence):
@@ -68,7 +68,7 @@ class BinaryPolymer(MoleculeModel):
 #   Multi-monomer polymer (more general)
 #
 
-class MultiPolymer(MoleculeModel):
+class MultiPolymer(StringMoleculeModel):
     ''' Multipolymer class'''
     _MONOMER_TYPES = {'A', 'B', 'C', 'D'}
     def __init__(self, sequence):
@@ -96,16 +96,23 @@ class MultiPolymer(MoleculeModel):
 #   Reference molecule implementation
 #
 
-class ReferenceMolecule(MoleculeModel):
+@dataclass
+class AtomicSpecies:
+    ID: int
+    symbol: str
+    aliases: set[str]
+    phase: str
+    state: str
+
+@dataclass
+class ReferenceMolecule:
     ''' molecule loaded from a reference reaction network '''
-    def __init__(self, name):
-        super().__init__(str(name))
-    def ligate(self, other):
-        log.error("Reference molecules do not support polymer ligation")
-    def cleave(self, index):
-        log.error("Reference molecules do not support polymer cleavage")
-    def mutate_conformation(self, mutation_rate=0.01):
-        pass
+    ID: int
+    sequence: str
+    aliases: set[str]
+    phase: str
+    state: str
+    conformation: str
     def show_sequence(self):
         return self.sequence
 
@@ -113,14 +120,10 @@ class ReferenceMolecule(MoleculeModel):
 #   Factory wrapper for Molecules
 #
 
-class Molecule:
-    def __new__(cls, sequence):
-        """ Return an instance of the appropriate molecule subclass """
-        if p.metabolites_params.get("type") == "binary":
-            return BinaryPolymer(sequence)
-        elif p.metabolites_params.get("type") == "multi":
-            return MultiPolymer(sequence)
-        elif p.metabolites_params.get("type") == "reference_file":
-            return ReferenceMolecule(sequence)
-        else:
-            log.error(f"Unknown molecule_type: {p.metabolites_params.get('type')}")
+@dataclass
+class MolecularTemplate:
+    name: str
+    aliases: set[str]
+    phase: str
+    state: str
+    matching_molecules: list[ReferenceMolecule]
