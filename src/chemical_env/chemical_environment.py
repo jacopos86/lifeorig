@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from src.utilities.logging_module import log
-from src.exo_chem.easy_chem_driver import run_easychem_backend
 from src.atmosphere_solver.equil_atm_struct import LayeredEquilibriumAtmosphSolver
 from src.chemical_env.chem_env_data import ChemEnvInput, ChemEnvResult
 
@@ -39,6 +38,8 @@ class SimulateChemEnv:
             return self._run_out_equilibrium()
         log.error(f"Unknown chemistry mode: {self.chem_input.mode}")
     def _run_local_equilibrium(self) -> ChemEnvResult:
+        from src.exo_chem.easy_chem_driver import run_easychem_backend
+
         if self.chem_input.pressure is None:
             log.error("pressure is required for local_equilibrium")
         if self.chem_input.temperature is None:
