@@ -7,15 +7,14 @@ from src.input_data.input_configs import (
     EvolutionInputConfig,
     MoleculeInputConfig,
 )
-from src.input_data.environment_input import EnvironmentInputBuilder
+from src.input_data.set_env_parser import build_local_env_data
 from src.input_data.planet_input import PlanetInputBuilder
-from src.environment.set_planet_environment import derive_planet_env_data
-from src.chemical_env.chemical_environment import set_ChemEnvInput, SimulateChemEnv
+from src.grids.temporal_grid import TimeGrid
 
 #
 #  parameters class
 
-class parameters_class(AbstractInput, PlanetInputBuilder, EnvironmentInputBuilder):
+class parameters_class(AbstractInput, PlanetInputBuilder):
     ''' parameters class '''
     _ALLOWED_METABOLITE_TYPES = {"binary", "multi", "reference_file"}
     _ALLOWED_METABOLITE_DISTR = {"uniform", "length_decay"}
@@ -30,6 +29,7 @@ class parameters_class(AbstractInput, PlanetInputBuilder, EnvironmentInputBuilde
         "solvent_data"
     }
     def __init__(self):
+        self.sep = "*"*94
         # work dir
         self.working_dir = None
         # n. protocell (initial)
@@ -51,12 +51,13 @@ class parameters_class(AbstractInput, PlanetInputBuilder, EnvironmentInputBuilde
         self.environment_config = None
         self.local_env_data = None
         # planetary data
-        self.planetary_data = {}
+        self.planetary_data = None
         self.chem_env_params = None
         # stellar data
         self.stellar_data = None
         # evolution data
         self.evolution_config = None
+        self.time_grid = None
     def _parse_data(self):
         # read input parameters
         self.environment_config = EnvironmentInputConfig.from_raw(self._data)
@@ -74,8 +75,8 @@ class parameters_class(AbstractInput, PlanetInputBuilder, EnvironmentInputBuilde
             planetary_data=self._data.get("planetary_data")
         )
         if planet_params is not None:
-            self.planetary_data["basic_info"] = planet_params
-            self.planetary_data["basic_info"].log_summary()
+            self.planetary_data = planet_params
+            self.planetary_data.log_summary()
         # stellar parameters
         self.stellar_data = self.build_stellar_params(
             planet_model=self._data.get("planet_model"),
@@ -84,6 +85,9 @@ class parameters_class(AbstractInput, PlanetInputBuilder, EnvironmentInputBuilde
         self.stellar_data.log_summary()
         # local environment data
         self.set_local_environment()
+        # time grid
+        if "time_grid" in self._data:
+            self.time_grid = self._parse_time_grid(self._data["time_grid"])
         # num. individuals in QSP to average
         if "QSP_size" in self._data:
             self.QSP_size = self._data["QSP_size"]
@@ -114,52 +118,14 @@ class parameters_class(AbstractInput, PlanetInputBuilder, EnvironmentInputBuilde
         # size sample space
         if "evol_params" in self._data:
             self.evol_size = self.evolution_config.data
-    # set local environment data and derived planetary forcing
+    # set local environment data
     def set_local_environment(self):
         self.env_model = self.environment_config.env_type
-        self.local_env_data = self._build_local_env_data()
-        if self.local_env_data is None:
-            return
-        if self.environment_config.is_explicit:
-            return
-        # set input Chem. Env.
-        chem_input = set_ChemEnvInput(
-            planet_data=self.planetary_data,
-            env_data=self.local_env_data
+        self.local_env_data = build_local_env_data(
+            environment_config=self.environment_config,
+            planet_model=self._data.get("planet_model"),
+            working_dir=self.working_dir,
         )
-        # simulate chem. structure environment
-        self.chem_env_params = SimulateChemEnv(
-            chem_input=chem_input,
-            planet_data=self.planetary_data["basic_info"],
-            stellar_data=self.stellar_data,
-            atmosphere_data=self.planetary_data["basic_info"].atmosphere,
-            output_dir=self.working_dir
-        ).run()
-        exit()
-        # set derived planetary data
-        derived_planet_data = derive_planet_env_data(
-            self.env_model,
-            self.local_env_data,
-            self.planetary_data["basic_info"],
-            self.chem_env_params
-        )
-        self.planetary_data["derived_params"] = derived_planet_data
-        self._update_env_data_based_on_planet_data()
-    # update environment data from derived planetary data
-    def _update_env_data_based_on_planet_data(self):
-        derived_params = self.planetary_data.get("derived_params")
-        if derived_params is None:
-            return
-        self.local_env_data["gravity"] = derived_params.gravity
-        solvent_data = self.local_env_data.get("solvent_data")
-        liquid_level_params = solvent_data.liquid_level_params if solvent_data is not None else None
-        if liquid_level_params is not None:
-            if liquid_level_params.base_level is None:
-                liquid_level_params.base_level = derived_params.water_base_factor
-            if liquid_level_params.amplitude is None:
-                liquid_level_params.amplitude = derived_params.water_amplitude_factor
-            if liquid_level_params.period is None:
-                liquid_level_params.period = derived_params.day_night_period
     #
     #    validation section
     #
@@ -201,7 +167,32 @@ class parameters_class(AbstractInput, PlanetInputBuilder, EnvironmentInputBuilde
                 f"Valid options: {sorted(self._ALLOWED_ENV_SOURCES)}"
             )
         self._validate_planet_data()
+        self._validate_time_grid()
         self._validate_environment_data()
+    # parse time grid
+    def _parse_time_grid(self, data):
+        start = self._parse_quantity_from_dict(data.get("start"), desc="time_grid.start")
+        end = self._parse_quantity_from_dict(data.get("end"), desc="time_grid.end")
+        dt = self._parse_quantity_from_dict(data.get("dt"), desc="time_grid.dt")
+        nt = int(round(((end - start) / dt).to_base_units().magnitude))
+        return TimeGrid(T=end - start, dt=dt, nt=nt, start=start)
+    # validate time grid
+    def _validate_time_grid(self):
+        if self.time_grid is None:
+            return
+        start = self.time_grid.start
+        end = self.time_grid.start + self.time_grid.T
+        dt = self.time_grid.dt
+        if start is None:
+            log.error("time_grid.start is required")
+        if end is None:
+            log.error("time_grid.end is required")
+        if dt is None:
+            log.error("time_grid.dt is required")
+        if start is not None and end is not None and end <= start:
+            log.error("time_grid.end must be greater than time_grid.start")
+        if dt is not None and dt <= 0:
+            log.error("time_grid.dt must be > 0")
     # validate planet input
     def _validate_planet_data(self):
         planet_model = self._data.get("planet_model")
@@ -215,45 +206,65 @@ class parameters_class(AbstractInput, PlanetInputBuilder, EnvironmentInputBuilde
             log.error("planetary_data is required when planet_model is custom or missing")
     # validate environment data
     def _validate_environment_data(self):
-        """
-        Validate environment input dictionary.
-        Raises ValueError if something is wrong.
-        """
         if self.local_env_data is None:
             return
         if self.environment_config.is_explicit:
             self._validate_explicit_environment_data()
             return
+        # validate common data
+        self._validate_common_environment_data()
+        # validate separate environments
         if self.env_model == "volcanic_rock":
-            # check keys
-            missing = self._REQUIRED_ENV_VOLCROCK_KEYS - set(self.local_env_data.keys())
-            if missing:
-                log.error(f"Missing environment keys: {missing}")
-            # number of pores
-            n_pores = self.local_env_data["num_pores"]
-            if not isinstance(n_pores, int) or n_pores <= 0:
-                log.error("number_pores must be a positive integer")
-            # pore geometry
-            pore_radius = self.local_env_data["pore_radius"]
-            pore_height = self.local_env_data["pore_height"]
-            if pore_radius <= 0:
-                log.error("pore_radius must be > 0")
-            if pore_height <= 0:
-                log.error("pore_height must be > 0")
-            # distance between closest neighbors
-            min_distance = self.local_env_data["distance_neigh_pores"]
-            if min_distance <= 0:
-                log.error("min_distance must be > 0")
-        # ----------------------------
-        # temperature / pressure
-        # ----------------------------
-        T = self.local_env_data["temperature"]
-        P = self.local_env_data["pressure"]
-        if T <= 0:
+            self._validate_volcanic_rock_environment_data()
+        elif self.env_model == "surface_pond":
+            self._validate_surface_pond_environment_data()
+    # validate common local environment data
+    def _validate_common_environment_data(self):
+        if self.local_env_data.get("solvent_data") is not None:
+            self._validate_liquid_level_params()
+    # validate volcanic rock environment data
+    def _validate_volcanic_rock_environment_data(self):
+        missing = self._REQUIRED_ENV_VOLCROCK_KEYS - set(self.local_env_data.keys())
+        if missing:
+            log.error(f"Missing volcanic rock environment keys: {missing}")
+        self._validate_temperature_pressure()
+        n_pores = self.local_env_data.get("num_pores")
+        if not isinstance(n_pores, int) or n_pores <= 0:
+            log.error("number_pores must be a positive integer")
+        # LOCAL VARIABLES
+        pore_radius = self.local_env_data.get("pore_radius")
+        pore_height = self.local_env_data.get("pore_height")
+        min_distance = self.local_env_data.get("distance_neigh_pores")
+        if pore_radius is None or pore_radius <= 0:
+            log.error("pore_radius must be > 0")
+        if pore_height is None or pore_height <= 0:
+            log.error("pore_height must be > 0")
+        if min_distance is None or min_distance <= 0:
+            log.error("min_distance must be > 0")
+    # validate surface pond environment data
+    def _validate_surface_pond_environment_data(self):
+        self._validate_temperature_pressure()
+        pool_geometry = self.local_env_data.get("pool_geometry")
+        if pool_geometry is None:
+            return
+        height = pool_geometry.get("height")
+        surface_area_z0 = pool_geometry.get("surface_area_z0")
+        if height is None or height <= 0:
+            log.error("pool_geometry.height must be > 0")
+        if surface_area_z0 is None or surface_area_z0 <= 0:
+            log.error("pool_geometry.surface_area_z0 must be > 0")
+    # validate single temperature / pressure environments
+    def _validate_temperature_pressure(self):
+        T = self.local_env_data.get("temperature")
+        P = self.local_env_data.get("pressure")
+        if T is None:
+            log.error("Missing environment temperature")
+        if P is None:
+            log.error("Missing environment pressure")
+        if T is not None and T <= 0:
             log.error("temperature must be > 0")
-        if P <= 0:
+        if P is not None and P <= 0:
             log.error("pressure must be > 0")
-        self._validate_liquid_level_params()
     # validate explicit environment data
     def _validate_explicit_environment_data(self):
         if not self.local_env_data:
@@ -261,7 +272,7 @@ class parameters_class(AbstractInput, PlanetInputBuilder, EnvironmentInputBuilde
         if self.env_model == "hydro_vent":
             required_keys = {"T_hot", "T_cold", "pressure", "pH_hot", "pH_cold"}
         elif self.env_model == "surface_pond":
-            required_keys = {"temperature", "pressure", "pH"}
+            required_keys = {"temperature", "pressure"}
         else:
             required_keys = set()
         missing = required_keys - set(self.local_env_data.keys())
@@ -269,16 +280,9 @@ class parameters_class(AbstractInput, PlanetInputBuilder, EnvironmentInputBuilde
             log.error(f"Missing explicit environment keys: {missing}")
     # validate liquid level parameters
     def _validate_liquid_level_params(self):
-        solvent_data = self.local_env_data.get("solvent_data")
-        params = solvent_data.liquid_level_params if solvent_data is not None else None
+        params = self.local_env_data.get("liquid_level_params")
         if params is None:
-            log.error("Missing solvent_data.liquid_level_params in environment data")
-        if params.model_type not in {"constant", "sinusoidal", "piecewise"}:
-            log.error(f"Unknown liquid level model_type: {params.model_type}")
+            log.error("Missing liquid_level_params in environment data")
+            return
         if params.base_level is None:
             log.error("liquid_level_params: 'base_level' is required")
-        if params.period is not None and params.period <= 0:
-            log.error("liquid_level_params: 'period' must be > 0 when provided")
-
-p = parameters_class()
-p.sep = "*"*94
