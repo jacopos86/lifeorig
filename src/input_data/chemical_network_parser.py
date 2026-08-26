@@ -59,20 +59,26 @@ class ChemicalNetworkParser:
         fields = [field.strip() for field in line.split("|")]
         if len(fields) < 3:
             return None
-        reactants, products, reversible = self._parse_chemical_reaction(fields[2])
+        equation_index = 2
+        if not self._has_reaction_arrow(fields[equation_index]) and len(fields) > 3:
+            equation_index = 3
+        reactants, products, reversible = self._parse_chemical_reaction(fields[equation_index])
         return ParsedReaction(
             reaction_id=fields[0],
             module=fields[1],
-            equation=fields[2],
+            equation=fields[equation_index],
             reactants=reactants,
             products=products,
             reversible=reversible,
-            catalyst_or_control=fields[3] if len(fields) > 3 else None,
-            rate_template=fields[4] if len(fields) > 4 else None,
-            role=fields[5] if len(fields) > 5 else None,
-            refs=fields[6] if len(fields) > 6 else None,
-            confidence=fields[7] if len(fields) > 7 else None,
+            catalyst_or_control=fields[equation_index + 1] if len(fields) > equation_index + 1 else None,
+            rate_template=fields[equation_index + 2] if len(fields) > equation_index + 2 else None,
+            role=fields[equation_index + 3] if len(fields) > equation_index + 3 else None,
+            refs=fields[equation_index + 4] if len(fields) > equation_index + 4 else None,
+            confidence=fields[equation_index + 5] if len(fields) > equation_index + 5 else None,
         )
+
+    def _has_reaction_arrow(self, text):
+        return any(arrow in text for arrow in ("<=>", "->", "=>"))
     # parse chemical equation
     def _parse_chemical_reaction(self, equation):
         for arrow in ("<=>", "->", "=>"):
@@ -98,6 +104,9 @@ class ChemicalNetworkParser:
     # stochiometry
     def _strip_stoichiometry(self, species_token):
         match = re.match(r"^\d+(?:\.\d+)?\s+(.+)$", species_token)
+        if match:
+            return match.group(1).strip()
+        match = re.match(r"^\d+(?:\.\d+)?(?=[A-Za-z_(])(.+)$", species_token)
         if match:
             return match.group(1).strip()
         return species_token
