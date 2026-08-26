@@ -5,7 +5,6 @@
 import numpy as np
 import logging
 from src.input_data.parser import parser
-from src.input_data.read_input import p
 from src.mutations.mutation_rate import zero_mutation, dist_mutation
 from src.QSP.fitness_distr import fitness_distr, fitness_distr_game_dyn
 from src.QSP.quasi_species_solver import BuildQuasiSpeciesSolver
@@ -18,9 +17,16 @@ from src.utilities.logging_module import log
 from src.metabolites.metabolite_builder import build_metabolites
 from src.catalysts.catalysts_set import build_catalyst_set
 from src.environment.setup_environment import set_simulation_environment
+from src.input_data.read_input import parameters_class
+from src.environment.setup_environment import setup_environment
+from src.environment.planetary_driver import planetary_solver_driver
+from src.network_generation.reaction_database_driver import reaction_database_driver
+from src.network_generation.reaction_mysql_db import open_reaction_database, log_species_summary
+from src.chemical_types.define_molecule_set import build_molecular_species_set
 
 args = parser.parse_args()
 calc_type = args.ct[0]
+p = parameters_class()
 p.read_input_json(args.json_input[0])
 
 log.info("\t ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
@@ -42,10 +48,47 @@ if log.level <= logging.DEBUG:
 # build chemical networks section
 
 if calc_type == "set_initial_state":
+
+    if p.environment_config.uses_planetary_solver:
+        log.info("\t " + p.sep)
+        log.info("\t STARTING PLANETARY SOLVER")
+        planet_params = planetary_solver_driver(p)
+        p.planetary_data = planet_params
+        log.info("\n")
+    else:
+        log.info("\t SKIPPING PLANETARY SOLVER: environment_source is explicit")
+
+    # reaction database driver
+
+    reaction_source_files = reaction_database_driver(p)
+    db = open_reaction_database()
+    try:
+        log_species_summary(db, reaction_source_files)
+    finally:
+        db.close()
+    
+    # set up full chemical set
+
+    species_set = build_molecular_species_set(p, reaction_source_files=reaction_source_files)
+    for x in species_set.molecules:
+        print(x)
+    print("\n")
+    for x in species_set.templates:
+        print(x)
+    print("\n")
+    print(species_set.minerals)
+    exit()
+    # set up local environment
+
+    log.info("\t " + p.sep)
+    log.info("\t SETTING UP ENVIRONMENT")
+    env_setup = setup_environment(p, species_set)
+    log.info("\n")
+    exit()
     
     # set list molecular types
     
-    X_set, X_set_map, X_init = build_metabolites(p.metabolites_params)
+    X_set, X_set_map, X_init = build_metabolites(p.metabolites_params, species_set)
     exit()
     # build catalysts set: Y set
 
