@@ -6,20 +6,24 @@ from src.utilities.logging_module import log
 #    build local environment
 #
 
-def build_local_env_data(input_parser):
-    env_model = input_parser.environment_config.env_type
-    planet_model = input_parser._data.get("planet_model")
-    if input_parser.environment_config.is_explicit:
-        return input_parser.environment_config.data
+def build_local_env_data(
+    environment_config,
+    planet_model,
+    working_dir=None,
+):
+    env_model = environment_config.env_type
+    env_data = environment_config.data
+    if environment_config.is_explicit:
+        return env_data
     if planet_model == "Titan":
         return TitanLocalEnvironmentParser(
-            input_parser=input_parser,
-            env_data=input_parser._data.get("environment_data")
+            env_data=env_data,
+            working_dir=working_dir,
         )._build_local_env()
     if env_model == "volcanic_rock":
         return VolcanicRockLocalEnvironmentParser(
-            input_parser=input_parser,
-            env_data=input_parser._data.get("environment_data")
+            env_data=env_data,
+            working_dir=working_dir,
         )._build_local_env()
     if env_model == "hydro_vent":
         # TODO
