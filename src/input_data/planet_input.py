@@ -58,7 +58,7 @@ class PlanetInputBuilder:
             eccentricity=float(planetary_data.get("eccentricity", 0.0)),
             tidal_locked=bool(planetary_data.get("tidal_locked", False)),
             day_night_contrast=float(planetary_data.get("day_night_contrast", 0.0)),
-            chemical_env=planetary_data.get("exo_chemistry"),
+            chemistry=planetary_data.get("exo_chemistry"),
             atmosphere=self._build_atmosphere_params(planetary_data.get("atmosphere"))
         )
     # apply JSON overrides on top of preset planetary parameters
@@ -69,6 +69,8 @@ class PlanetInputBuilder:
     ) -> PlanetaryEnvironmentParams:
         if planetary_data is None:
             return preset_data
+        if planetary_data.get("exo_chemistry") is not None:
+            preset_data.chemistry = planetary_data.get("exo_chemistry")
         atmosphere_override = self._build_atmosphere_params(planetary_data.get("atmosphere"))
         if atmosphere_override is not None:
             preset_data.atmosphere = self._merge_atmosphere_data(
