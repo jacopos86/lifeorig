@@ -1,0 +1,73 @@
+# Selected Hadean/Archean photolysis network.
+# Source: reference_reactions/ATMOSPHERIC/VPL_ATMOS/PHOTOCHEM/INPUTFILES/TEMPLATES/Archean+haze/reactions.rx
+# Columns: ID | MODULE | REACTION | CATALYST_OR_CONTROL | RATE_TEMPLATE | ROLE | REFS | CONFIDENCE
+EAPH001 | hadean_archean_photolysis | O2 + hnu -> O + O1D | photochemical | PHOTP | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:24 | medium
+EAPH002 | hadean_archean_photolysis | O2 + hnu -> O + O | photochemical | PHOTP | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:25 | medium
+EAPH003 | hadean_archean_photolysis | H2O + hnu -> H + OH | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:26 | medium
+EAPH004 | hadean_archean_photolysis | O3 + hnu -> O2 + O1D | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:27 | medium
+EAPH005 | hadean_archean_photolysis | O3 + hnu -> O2 + O | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:28 | medium
+EAPH006 | hadean_archean_photolysis | H2O2 + hnu -> OH + OH | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:29 | medium
+EAPH007 | hadean_archean_photolysis | CO2 + hnu -> CO + O | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:30 | medium
+EAPH008 | hadean_archean_photolysis | CO2 + hnu -> CO + O1D | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:31 | medium
+EAPH009 | hadean_archean_photolysis | H2CO + hnu -> H2 + CO | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:40 | medium
+EAPH010 | hadean_archean_photolysis | H2CO + hnu -> HCO + H | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:41 | medium
+EAPH011 | hadean_archean_photolysis | HCO + hnu -> H + CO | photochemical | 2BODY | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:42 | medium
+EAPH012 | hadean_archean_photolysis | HO2 + hnu -> OH + O | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:51 | medium
+EAPH013 | hadean_archean_photolysis | HNO2 + hnu -> NO + OH | photochemical | 2BODY | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:52 | medium
+EAPH014 | hadean_archean_photolysis | HNO3 + hnu -> NO2 + OH | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:53 | medium
+EAPH015 | hadean_archean_photolysis | NO + hnu -> N + O | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:54 | medium
+EAPH016 | hadean_archean_photolysis | NO2 + hnu -> NO + O | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:55 | medium
+EAPH017 | hadean_archean_photolysis | CH3 + hnu -> CH23 + H | photochemical | 2BODY | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:70 | medium
+EAPH018 | hadean_archean_photolysis | HNO + hnu -> NO + H | photochemical | 2BODY | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:89 | medium
+EAPH019 | hadean_archean_photolysis | SO + hnu -> S + O | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:111 | medium
+EAPH020 | hadean_archean_photolysis | H2S + hnu -> HS + H | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:112 | medium
+EAPH021 | hadean_archean_photolysis | SO2 + hnu -> SO + O | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:113 | medium
+EAPH022 | hadean_archean_photolysis | SO2 + hnu -> SO21 | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:114 | medium
+EAPH023 | hadean_archean_photolysis | SO2 + hnu -> SO23 | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:115 | medium
+EAPH024 | hadean_archean_photolysis | S2 + hnu -> S + S | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:145 | medium
+EAPH025 | hadean_archean_photolysis | S4 + hnu -> S2 + S2 | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:150 | medium
+EAPH026 | hadean_archean_photolysis | S3 + hnu -> S2 + S | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:151 | medium
+EAPH027 | hadean_archean_photolysis | SO3 + hnu -> SO2 + O | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:152 | medium
+EAPH028 | hadean_archean_photolysis | SO21 + hnu -> SO23 | photochemical | 2BODY | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:153 | medium
+EAPH029 | hadean_archean_photolysis | SO21 + hnu -> SO2 | photochemical | 2BODY | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:154 | medium
+EAPH030 | hadean_archean_photolysis | SO21 + hnu -> SO23 | photochemical | 2BODY | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:155 | medium
+EAPH031 | hadean_archean_photolysis | SO21 + hnu -> SO2 | photochemical | 2BODY | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:156 | medium
+EAPH032 | hadean_archean_photolysis | SO23 + hnu -> SO2 | photochemical | 2BODY | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:159 | medium
+EAPH033 | hadean_archean_photolysis | SO23 + hnu -> SO2 | photochemical | 2BODY | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:160 | medium
+EAPH034 | hadean_archean_photolysis | HSO + hnu -> HS + O | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:174 | medium
+EAPH035 | hadean_archean_photolysis | OCS + hnu -> CO + S | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:191 | medium
+EAPH036 | hadean_archean_photolysis | CS2 + hnu -> CS + S | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:214 | medium
+EAPH037 | hadean_archean_photolysis | CS2 + hnu -> CS2X | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:215 | medium
+EAPH038 | hadean_archean_photolysis | CH4 + hnu -> CH21 + H2 | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:235 | medium
+EAPH039 | hadean_archean_photolysis | CH4 + hnu -> CH3 + H | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:236 | medium
+EAPH040 | hadean_archean_photolysis | CH4 + hnu -> CH23 + H + H | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:237 | medium
+EAPH041 | hadean_archean_photolysis | CH + hnu -> C + H | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:249 | medium
+EAPH042 | hadean_archean_photolysis | CH2CO + hnu -> CH23 + CO | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:271 | medium
+EAPH043 | hadean_archean_photolysis | C2H2 + hnu -> C2H + H | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:281 | medium
+EAPH044 | hadean_archean_photolysis | C2H2 + hnu -> C2 + H2 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:282 | medium
+EAPH045 | hadean_archean_photolysis | C2H4 + hnu -> C2H2 + H2 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:295 | medium
+EAPH046 | hadean_archean_photolysis | C2H4 + hnu -> C2H2 + H + H | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:296 | medium
+EAPH047 | hadean_archean_photolysis | CH3CHO + hnu -> CH3 + HCO | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:334 | medium
+EAPH048 | hadean_archean_photolysis | CH3CHO + hnu -> CH4 + CO | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:335 | medium
+EAPH049 | hadean_archean_photolysis | C3H8 + hnu -> C3H6 + H2 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:341 | medium
+EAPH050 | hadean_archean_photolysis | C3H8 + hnu -> C2H6 + CH21 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:342 | medium
+EAPH051 | hadean_archean_photolysis | C3H8 + hnu -> C2H4 + CH4 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:343 | medium
+EAPH052 | hadean_archean_photolysis | C3H8 + hnu -> C2H5 + CH3 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:344 | medium
+EAPH053 | hadean_archean_photolysis | C3H6 + hnu -> C2H2 + CH3 + H | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:346 | medium
+EAPH054 | hadean_archean_photolysis | C3H6 + hnu -> CH2CCH2 + H2 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:347 | medium
+EAPH055 | hadean_archean_photolysis | C3H6 + hnu -> C2H4 + CH23 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:348 | medium
+EAPH056 | hadean_archean_photolysis | C3H6 + hnu -> C2H + CH4 + H | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:349 | medium
+EAPH057 | hadean_archean_photolysis | C2H5CHO + hnu -> C2H5 + HCO | photochemical | PHOTX | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:350 | medium
+EAPH058 | hadean_archean_photolysis | C3H3 + hnu -> C3H2 + H | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:379 | medium
+EAPH059 | hadean_archean_photolysis | CH3C2H + hnu -> C3H3 + H | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:380 | medium
+EAPH060 | hadean_archean_photolysis | CH3C2H + hnu -> C3H2 + H2 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:381 | medium
+EAPH061 | hadean_archean_photolysis | CH3C2H + hnu -> CH3 + C2H | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:382 | medium
+EAPH062 | hadean_archean_photolysis | CH2CCH2 + hnu -> C3H3 + H | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:383 | medium
+EAPH063 | hadean_archean_photolysis | CH2CCH2 + hnu -> C3H2 + H2 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:384 | medium
+EAPH064 | hadean_archean_photolysis | CH2CCH2 + hnu -> C2H2 + CH23 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:385 | medium
+EAPH065 | hadean_archean_photolysis | C2H6 + hnu -> CH23 + CH23 + H2 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:386 | medium
+EAPH066 | hadean_archean_photolysis | C2H6 + hnu -> CH4 + CH21 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:387 | medium
+EAPH067 | hadean_archean_photolysis | C2H6 + hnu -> C2H2 + H2 + H2 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:388 | medium
+EAPH068 | hadean_archean_photolysis | C2H6 + hnu -> C2H4 + H + H | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:389 | medium
+EAPH069 | hadean_archean_photolysis | C2H6 + hnu -> C2H4 + H2 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:390 | medium
+EAPH070 | hadean_archean_photolysis | C2H6 + hnu -> CH3 + CH3 | photochemical | PHOTO | VPL Archean+haze photolysis branch | VPL_ATMOS/Archean+haze/reactions.rx:391 | medium

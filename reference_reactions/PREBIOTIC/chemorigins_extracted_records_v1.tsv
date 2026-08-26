@@ -1,0 +1,10 @@
+# ChemOrigins records manually extracted from public indexed ChemOrigins pages on 2026-08-16.
+# This is a local audit/cache file, not the full ChemOrigins database.
+# Columns: chemorigins_reaction_id	source_doi	reactants	products	agents_or_conditions	chemorigins_url	notes
+pbr-000032	10.1038/nchem.2202	formaldehyde + hydrogen cyanide	glycolonitrile	conditions not shown in indexed molecule page	https://chemorigins.bact.wisc.edu/molecules/pbm-000036	Inferred from glycolonitrile product listing; exact reaction page not indexed in search result.
+pbr-000034	10.1038/nchem.2202	glycolonitrile + H2O	Glycolaldehyde + Ammonia	conditions not shown	https://chemorigins.bact.wisc.edu/reactions/pbr-000034	Also indexed with 10.1073/pnas.1922139117 and 10.1038/s41467-018-04147-2 conditions.
+pbr-000041	10.1038/nchem.2202	hydrogen cyanide + lactaldehyde	unnamed cyanohydrin product	conditions not shown	https://chemorigins.bact.wisc.edu/reactions/pbr-000041	Product SMILES CC(O)CC(O)C#N.
+pbr-000064	10.1038/nchem.2202	cyanamide + 3-aminopropanenitrile	2-(2-cyanoethyl)guanidine	conditions not shown	https://chemorigins.bact.wisc.edu/reactions/pbr-000064	Indexed ChemOrigins reaction from Patel/Sutherland cyanosulfidic network.
+pbr-000069	10.1038/nchem.2202	hydrogen sulfide + amino((3-cyano-3-hydroxypropyl)amino)methaniminium	4-(diaminomethylideneamino)-2-hydroxybutanethioamide	conditions not shown	https://chemorigins.bact.wisc.edu/reactions/pbr-000069	Indexed ChemOrigins sulfur incorporation reaction.
+pbr-000091	10.1038/nchem.2202	2-amino-4-methylpentanenitrile + H2O	L-Valine + Ammonia	conditions not shown	https://chemorigins.bact.wisc.edu/reactions/pbr-000091	Indexed ChemOrigins amino-acid hydrolysis reaction.
+pbr-000701	10.1038/nchem.2202	2-(2-cyanoethyl)guanidine	4-hydroxy-2-imino-hexahydropyrimidine	Sulfidic acid; elemental copper	https://chemorigins.bact.wisc.edu/reactions/pbr-000701	Indexed ChemOrigins pyrimidine precursor reaction.

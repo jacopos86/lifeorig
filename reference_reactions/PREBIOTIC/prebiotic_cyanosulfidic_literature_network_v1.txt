@@ -1,0 +1,39 @@
+# Literature-backed prebiotic reaction network v1.
+# Focus: non-hydrothermal cyanosulfidic / HCN chemistry for Earth-like prebiotic evolution.
+# Hydrothermal peptide/FeNiS reactions should remain in the hydro_vent environment module.
+# Columns: ID | MODULE | REACTION | CATALYST_OR_CONTROL | RATE_TEMPLATE | ROLE | REFS | CONFIDENCE
+PBV1-001 | cyanosulfidic_feedstock | H2CO + HCN -> glycolonitrile | aqueous cyanide addition | addition | cyanohydrin entry point | ChemOrigins pbr-000032; Patel et al. 2015 10.1038/nchem.2202 | medium
+PBV1-002 | cyanosulfidic_feedstock | glycolonitrile + H2O -> glycolaldehyde + NH3 | hydrolysis/reduction sequence | hydrolysis | glycolaldehyde source | ChemOrigins pbr-000034; Patel et al. 2015 10.1038/nchem.2202 | medium
+PBV1-003 | cyanosulfidic_feedstock | HCN + hnu + HS- -> reduced_HCN_intermediates + SCN- | Cu(I)/Cu(II) photoredox | photoredox | reductive homologation driving step | Patel et al. 2015 10.1038/nchem.2202; Ritson & Sutherland 2012 10.1038/nchem.1467 | medium
+PBV1-004 | cyanosulfidic_feedstock | glycolonitrile + hnu + HS- -> glycolaldehyde + NH3 + SCN- | Cu(I)/Cu(II) photoredox | photoredox | sugar precursor production | Ritson & Sutherland 2012 10.1038/nchem.1467 | medium
+PBV1-005 | cyanosulfidic_feedstock | glycolaldehyde + HCN -> glyceronitrile | cyanide addition | addition | homologated cyanohydrin | Ritson & Sutherland 2012 10.1038/nchem.1467 | medium
+PBV1-006 | cyanosulfidic_feedstock | glyceronitrile + hnu + HS- -> glyceraldehyde + NH3 + SCN- | Cu(I)/Cu(II) photoredox | photoredox | C3 sugar precursor | Ritson & Sutherland 2012 10.1038/nchem.1467 | medium
+PBV1-007 | cyanosulfidic_feedstock | glycolaldehyde + hnu + HS- -> acetaldehyde | Cu(I)/Cu(II) photoredox | photoreduction | aldehyde diversification | Ritson & Sutherland 2013 10.1002/anie.201300321 | medium
+PBV1-008 | cyanosulfidic_feedstock | acetaldehyde + HCN -> lactonitrile | cyanide addition | addition | alanine/threonine precursor branch | Patel et al. 2015 10.1038/nchem.2202 | medium
+PBV1-009 | cyanosulfidic_feedstock | lactaldehyde + HCN -> lactaldehyde_cyanohydrin | cyanide addition | addition | branched cyanohydrin precursor | ChemOrigins pbr-000041; Patel et al. 2015 10.1038/nchem.2202 | medium
+PBV1-010 | cyanosulfidic_feedstock | cyanamide + 3-aminopropanenitrile -> 2-(2-cyanoethyl)guanidine | aqueous condensation | condensation | pyrimidine precursor branch | ChemOrigins pbr-000064; Patel et al. 2015 10.1038/nchem.2202 | high
+PBV1-011 | cyanosulfidic_feedstock | 2-(2-cyanoethyl)guanidine -> 4-hydroxy-2-imino-hexahydropyrimidine | sulfidic acid; elemental copper | cyclization | pyrimidine precursor branch | ChemOrigins pbr-000701; Patel et al. 2015 10.1038/nchem.2202 | high
+PBV1-012 | cyanosulfidic_sulfur | amino_cyano_hydroxypropyl_methaniminium + H2S -> hydroxybutanethioamide_derivative | sulfide addition | thiolation | sulfur incorporation into nitrile precursor | ChemOrigins pbr-000069; Patel et al. 2015 10.1038/nchem.2202 | high
+PBV1-013 | amino_acid_precursors | H2CO + HCN + NH3 -> glycinonitrile + H2O | Strecker chemistry | Strecker | glycine aminonitrile precursor | Patel et al. 2015 10.1038/nchem.2202; ChemOrigins source family | medium
+PBV1-014 | amino_acid_precursors | glycinonitrile + 2 H2O -> glycine + NH3 | hydrolysis | hydrolysis | amino acid product | Patel et al. 2015 10.1038/nchem.2202 | medium
+PBV1-015 | amino_acid_precursors | acetaldehyde + HCN + NH3 -> alaninonitrile + H2O | Strecker chemistry | Strecker | alanine aminonitrile precursor | Patel et al. 2015 10.1038/nchem.2202 | medium
+PBV1-016 | amino_acid_precursors | alaninonitrile + 2 H2O -> alanine + NH3 | hydrolysis | hydrolysis | amino acid product | Patel et al. 2015 10.1038/nchem.2202 | medium
+PBV1-017 | amino_acid_precursors | lactonitrile + NH3 -> alaninonitrile + H2O | cyanohydrin_aminonitrile_equilibrium | amination | alanine precursor equilibration | Patel et al. 2015 10.1038/nchem.2202 | medium
+PBV1-018 | amino_acid_precursors | 2-amino-4-methylpentanenitrile + H2O -> L-Valine + NH3 | hydrolysis | hydrolysis | valine product | ChemOrigins pbr-000091; Patel et al. 2015 10.1038/nchem.2202 | high
+PBV1-019 | amino_acid_precursors | serine_nitrile + 2 H2O -> serine + NH3 | hydrolysis | hydrolysis | amino acid product | Ritson & Sutherland 2012 10.1038/nchem.1467; Patel et al. 2015 10.1038/nchem.2202 | medium
+PBV1-020 | amino_acid_precursors | threonine_nitrile + 2 H2O -> threonine + NH3 | hydrolysis | hydrolysis | amino acid product | Patel et al. 2015 10.1038/nchem.2202 | medium
+PBV1-021 | hcn_purines | HCN + HCN -> iminoacetonitrile | aqueous HCN oligomerization | oligomerization | HCN dimer / adenine precursor | Oro & Kimball 1961 10.1016/0003-9861(61)90033-9; Oro 1961 10.1038/1911193a0 | medium
+PBV1-022 | hcn_purines | iminoacetonitrile + HCN -> aminomalononitrile | aqueous HCN oligomerization | addition | HCN trimer precursor | Oro 1961 10.1038/1911193a0 | medium
+PBV1-023 | hcn_purines | aminomalononitrile + HCN -> diaminomaleonitrile | aqueous HCN oligomerization | addition | DAMN precursor | Oro 1961 10.1038/1911193a0 | medium
+PBV1-024 | hcn_purines | diaminomaleonitrile + hnu -> diaminofumaronitrile | UV | photoisomerization | HCN tetramer isomerization | Oro chemistry review; Patel et al. 2015 context | low
+PBV1-025 | hcn_purines | diaminomaleonitrile + HCN -> aminoimidazole_carbonitrile | heat/UV | cyclization | AICN purine precursor | Oro 1961 10.1038/1911193a0 | medium
+PBV1-026 | hcn_purines | 5 HCN -> adenine | concentrated aqueous HCN/NH3 | net_oligomerization | purine product | Oro & Kimball 1961 10.1016/0003-9861(61)90033-9 | high
+PBV1-027 | pyrimidine_ribonucleotide | glycolaldehyde + cyanamide -> 2-aminooxazole | phosphate compatible aqueous chemistry | condensation | activated pyrimidine pathway precursor | Powner et al. 2009 10.1038/nature08013 | high
+PBV1-028 | pyrimidine_ribonucleotide | 2-aminooxazole + glyceraldehyde -> pentose_aminooxazoline | phosphate compatible aqueous chemistry | addition/cyclization | ribonucleotide sugar-base precursor | Powner et al. 2009 10.1038/nature08013 | high
+PBV1-029 | pyrimidine_ribonucleotide | pentose_aminooxazoline + cyanoacetylene -> anhydronucleoside | aqueous cyanoacetylene addition | addition | pyrimidine nucleoside precursor | Powner et al. 2009 10.1038/nature08013 | high
+PBV1-030 | pyrimidine_ribonucleotide | anhydronucleoside + phosphate -> activated_pyrimidine_ribonucleotide | phosphate | phosphorylation | RNA precursor | Powner et al. 2009 10.1038/nature08013 | high
+PBV1-031 | lipid_precursors | glyceraldehyde + hnu + HS- -> glycerol_derivative | Cu(I)/Cu(II) photoredox | photoreduction | lipid-headgroup precursor branch | Patel et al. 2015 10.1038/nchem.2202 | low
+PBV1-032 | lipid_precursors | acetaldehyde + glycolonitrile -> lipid_precursor_pool | cyanosulfidic network | lumped_synthesis | lipid precursor branch | Patel et al. 2015 10.1038/nchem.2202 | low
+PBV1-033 | network_coupling | HCN + H2CO + HS- + hnu -> amino_acid_precursor_pool | Cu(I)/Cu(II) photoredox | lumped_branch | protein precursor subsystem | Patel et al. 2015 10.1038/nchem.2202 | medium
+PBV1-034 | network_coupling | HCN + H2CO + cyanamide + phosphate -> ribonucleotide_precursor_pool | phosphate; UV-compatible chemistry | lumped_branch | informational precursor subsystem | Powner et al. 2009 10.1038/nature08013; Patel et al. 2015 10.1038/nchem.2202 | medium
+PBV1-035 | network_coupling | HCN + H2CO + HS- + phosphate + hnu -> lipid_precursor_pool | Cu(I)/Cu(II) photoredox | lumped_branch | compartment precursor subsystem | Patel et al. 2015 10.1038/nchem.2202 | low

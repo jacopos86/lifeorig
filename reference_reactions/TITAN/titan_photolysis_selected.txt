@@ -1,0 +1,57 @@
+# Titan photolysis reaction network.
+# Built from titan_reaction_network_v0 photolysis entries plus selected VPL Titan photolysis branches.
+# Photon notation normalized to hnu.
+# Columns: ID | MODULE | REACTION | CATALYST_OR_CONTROL | RATE_TEMPLATE | ROLE | REFS | CONFIDENCE
+
+TP0001 | titan_photolysis | N2 + hnu -> N(4S) + N(2D) | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R001 | medium
+TP0002 | titan_photolysis | CH4 + hnu -> CH3 + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R004 | medium
+TP0003 | titan_photolysis | CH4 + hnu -> 1CH2 + H2 | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R005 | medium
+TP0004 | titan_photolysis | CH4 + hnu -> 3CH2 + 2 H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R006 | medium
+TP0005 | titan_photolysis | CH4 + hnu -> CH + H2 + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R007 | medium
+TP0006 | titan_photolysis | H2 + hnu -> H + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R010 | medium
+TP0007 | titan_photolysis | C2H2 + hnu -> C2H + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R012 | medium
+TP0008 | titan_photolysis | C2H2 + hnu -> C2 + H2 | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R013 | medium
+TP0009 | titan_photolysis | C2H2 + hnu -> C2 + H + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R014 | medium
+TP0010 | titan_photolysis | C2H4 + hnu -> C2H2 + H2 | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R015 | medium
+TP0011 | titan_photolysis | C2H4 + hnu -> C2H3 + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R016 | medium
+TP0012 | titan_photolysis | C2H6 + hnu -> C2H5 + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R017 | medium
+TP0013 | titan_photolysis | C2H6 + hnu -> CH3 + CH3 | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R018 | medium
+TP0014 | titan_photolysis | C3H4 + hnu -> C3H3 + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R019 | medium
+TP0015 | titan_photolysis | C3H6 + hnu -> C3H5 + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R020 | medium
+TP0016 | titan_photolysis | C3H8 + hnu -> C3H7 + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R021 | medium
+TP0017 | titan_photolysis | C4H2 + hnu -> C4H + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R022 | medium
+TP0018 | titan_photolysis | C4H2 + hnu -> C2H + C2H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R023 | medium
+TP0019 | titan_photolysis | C4H4 + hnu -> C4H3 + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R024 | medium
+TP0020 | titan_photolysis | C4H6 + hnu -> C4H5 + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R025 | medium
+TP0021 | titan_photolysis | C6H6 + hnu -> C6H5 + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R026 | medium
+TP0022 | titan_photolysis | HCN + hnu -> CN + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R027 | medium
+TP0023 | titan_photolysis | HCN + hnu -> H + C + N | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R028 | medium
+TP0024 | titan_photolysis | HC3N + hnu -> C3N + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R029 | medium
+TP0025 | titan_photolysis | HC3N + hnu -> CN + C2H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R030 | medium
+TP0026 | titan_photolysis | C2N2 + hnu -> CN + CN | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R031 | medium
+TP0027 | titan_photolysis | C4N2 + hnu -> C3N + CN | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R032 | medium
+TP0028 | titan_photolysis | CH3CN + hnu -> CH3 + CN | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R033 | medium
+TP0029 | titan_photolysis | CH2NH + hnu -> H2CN + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R034 | medium
+TP0030 | titan_photolysis | NH3 + hnu -> NH2 + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R035 | medium
+TP0031 | titan_photolysis | NH2 + hnu -> NH + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R036 | medium
+TP0032 | titan_photolysis | NH + hnu -> N + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R037 | medium
+TP0033 | titan_photolysis | H2O + hnu -> H + OH | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R038 | medium
+TP0034 | titan_photolysis | CO2 + hnu -> CO + O | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R039 | medium
+TP0035 | titan_photolysis | CO + hnu -> C + O | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R040 | medium
+TP0036 | titan_photolysis | O2 + hnu -> O + O | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R041 | medium
+TP0037 | titan_photolysis | NO + hnu -> N + O | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R042 | medium
+TP0038 | titan_photolysis | HCO + hnu -> H + CO | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R043 | medium
+TP0039 | titan_photolysis | H2CO + hnu -> HCO + H | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R044 | medium
+TP0040 | titan_photolysis | H2CO + hnu -> CO + H2 | photo | titan_kinetic_rate | Titan photolysis reaction | Yung1984_Clarke1997_Titan_models; carried_from=titan_reaction_network_v0.txt:R045 | medium
+TP0041 | titan_photolysis | C2H6 + hnu -> C2H4 + H2 | photo | vpl_photo_branch | Titan photolysis reaction | VPL_ATMOS_BROKEN_TEMPLATES_Titan; carried_from=titan_vpl_photolysis_selected.txt:VP001 | medium
+TP0042 | titan_photolysis | C2H6 + hnu -> C2H4 + H + H | photo | vpl_photo_branch | Titan photolysis reaction | VPL_ATMOS_BROKEN_TEMPLATES_Titan; carried_from=titan_vpl_photolysis_selected.txt:VP002 | medium
+TP0043 | titan_photolysis | C2H6 + hnu -> C2H2 + H2 + H2 | photo | vpl_photo_branch | Titan photolysis reaction | VPL_ATMOS_BROKEN_TEMPLATES_Titan; carried_from=titan_vpl_photolysis_selected.txt:VP003 | medium
+TP0044 | titan_photolysis | C2H6 + hnu -> CH4 + 1CH2 | photo | vpl_photo_branch | Titan photolysis reaction | VPL_ATMOS_BROKEN_TEMPLATES_Titan; carried_from=titan_vpl_photolysis_selected.txt:VP004 | medium
+TP0045 | titan_photolysis | C3H6 + hnu -> C2H2 + CH3 + H | photo | vpl_photo_branch | Titan photolysis reaction | VPL_ATMOS_BROKEN_TEMPLATES_Titan; carried_from=titan_vpl_photolysis_selected.txt:VP005 | medium
+TP0046 | titan_photolysis | C3H6 + hnu -> CH2CCH2 + H2 | photo | vpl_photo_branch | Titan photolysis reaction | VPL_ATMOS_BROKEN_TEMPLATES_Titan; carried_from=titan_vpl_photolysis_selected.txt:VP006 | medium
+TP0047 | titan_photolysis | C3H6 + hnu -> C2H4 + 3CH2 | photo | vpl_photo_branch | Titan photolysis reaction | VPL_ATMOS_BROKEN_TEMPLATES_Titan; carried_from=titan_vpl_photolysis_selected.txt:VP007 | medium
+TP0048 | titan_photolysis | C3H8 + hnu -> C3H6 + H2 | photo | vpl_photo_branch | Titan photolysis reaction | VPL_ATMOS_BROKEN_TEMPLATES_Titan; carried_from=titan_vpl_photolysis_selected.txt:VP008 | medium
+TP0049 | titan_photolysis | C3H8 + hnu -> C2H6 + 1CH2 | photo | vpl_photo_branch | Titan photolysis reaction | VPL_ATMOS_BROKEN_TEMPLATES_Titan; carried_from=titan_vpl_photolysis_selected.txt:VP009 | medium
+TP0050 | titan_photolysis | C3H8 + hnu -> C2H4 + CH4 | photo | vpl_photo_branch | Titan photolysis reaction | VPL_ATMOS_BROKEN_TEMPLATES_Titan; carried_from=titan_vpl_photolysis_selected.txt:VP010 | medium
+TP0051 | titan_photolysis | CH3C2H + hnu -> C2H + CH3 | photo | vpl_photo_branch | Titan photolysis reaction | VPL_ATMOS_BROKEN_TEMPLATES_Titan; carried_from=titan_vpl_photolysis_selected.txt:VP011 | medium
+TP0052 | titan_photolysis | CH2CCH2 + hnu -> C2H2 + 3CH2 | photo | vpl_photo_branch | Titan photolysis reaction | VPL_ATMOS_BROKEN_TEMPLATES_Titan; carried_from=titan_vpl_photolysis_selected.txt:VP012 | medium

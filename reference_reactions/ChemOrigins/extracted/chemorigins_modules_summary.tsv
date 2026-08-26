@@ -1,0 +1,11 @@
+module_id	module_name	description	reaction_count
+pbmdl-000001	Alanine-synthesis	Prebiotic synthesis of Alanine, following four different pathways	8
+pbmdl-000002	Serine-synthesis	Prebiotic synthesis of Serine, following three different pathways	3
+pbmdl-000003	Glycine-synthesis	Prebiotic synthesis of Glycine	12
+pbmdl-000004	Glutamate-synthesis	Prebiotic synthesis of Glutamate	11
+pbmdl-000005	Glutamate-synthesis	Prebiotic synthesis of Glutamate	5
+pbmdl-000006	Arginine-synthesis	Prebiotic synthesis of Arginine	12
+pbmdl-000007	Threonine-synthesis	Prebiotic synthesis of Threonine	4
+pbmdl-000008	Valine-synthesis	Prebiotic synthesis of Valine	8
+pbmdl-000009	C3-synth	Synthesis by heterogeneous habitats	6
+pbmdl-000010	Oxazole pathway	Pathways around 1,3-amino-2-oxazole	14

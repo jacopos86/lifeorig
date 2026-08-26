@@ -1,0 +1,321 @@
+reaction_id	prebiotic	surface_pond	volcanic_rock	hydro_vent	reason
+pbr-000001	False	False	True	False	mineral/metal/surface chemistry
+pbr-000002	False	False	True	False	mineral/metal/surface chemistry
+pbr-000003	False	False	True	False	mineral/metal/surface chemistry
+pbr-000004	False	False	True	False	mineral/metal/surface chemistry
+pbr-000005	False	False	True	False	mineral/metal/surface chemistry
+pbr-000006	False	False	True	False	mineral/metal/surface chemistry
+pbr-000007	False	False	True	False	mineral/metal/surface chemistry
+pbr-000008	False	False	True	False	mineral/metal/surface chemistry
+pbr-000009	False	False	True	False	mineral/metal/surface chemistry
+pbr-000010	False	False	True	False	mineral/metal/surface chemistry
+pbr-000011	False	False	True	False	mineral/metal/surface chemistry
+pbr-000012	False	False	True	False	mineral/metal/surface chemistry
+pbr-000013	False	False	True	False	mineral/metal/surface chemistry
+pbr-000014	False	False	True	False	mineral/metal/surface chemistry
+pbr-000015	False	False	True	False	mineral/metal/surface chemistry
+pbr-000016	False	False	True	False	mineral/metal/surface chemistry
+pbr-000017	False	False	True	False	mineral/metal/surface chemistry
+pbr-000018	False	False	True	False	mineral/metal/surface chemistry
+pbr-000019	False	False	True	False	mineral/metal/surface chemistry
+pbr-000020	False	False	True	False	mineral/metal/surface chemistry
+pbr-000021	False	False	True	False	mineral/metal/surface chemistry
+pbr-000022	False	False	True	False	mineral/metal/surface chemistry
+pbr-000023	False	False	True	False	mineral/metal/surface chemistry
+pbr-000025	False	False	True	False	mineral/metal/surface chemistry
+pbr-000026	False	False	True	False	mineral/metal/surface chemistry
+pbr-000027	False	False	True	False	mineral/metal/surface chemistry
+pbr-000028	False	False	True	False	mineral/metal/surface chemistry
+pbr-000029	True	False	False	False	prebiotic synthesis/source module
+pbr-000030	True	False	False	False	prebiotic synthesis/source module
+pbr-000031	True	False	False	False	prebiotic synthesis/source module
+pbr-000032	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000033	True	False	False	False	prebiotic synthesis/source module
+pbr-000034	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000035	True	False	False	False	prebiotic synthesis/source module
+pbr-000036	True	False	False	False	prebiotic synthesis/source module
+pbr-000037	True	False	False	False	prebiotic synthesis/source module
+pbr-000038	True	False	False	False	prebiotic synthesis/source module
+pbr-000039	True	False	False	False	prebiotic synthesis/source module
+pbr-000040	True	False	False	False	prebiotic synthesis/source module
+pbr-000041	True	False	False	False	prebiotic synthesis/source module
+pbr-000042	True	False	False	False	prebiotic synthesis/source module
+pbr-000043	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000044	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000045	True	False	False	False	prebiotic synthesis/source module
+pbr-000046	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000048	True	False	False	False	prebiotic synthesis/source module
+pbr-000049	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000055	True	False	False	False	prebiotic synthesis/source module
+pbr-000056	True	False	False	False	prebiotic synthesis/source module
+pbr-000057	True	False	False	False	prebiotic synthesis/source module
+pbr-000058	True	False	False	False	prebiotic synthesis/source module
+pbr-000060	True	False	False	False	prebiotic synthesis/source module
+pbr-000061	True	False	False	False	prebiotic synthesis/source module
+pbr-000062	True	False	False	False	prebiotic synthesis/source module
+pbr-000063	True	False	False	False	prebiotic synthesis/source module
+pbr-000064	True	False	False	False	prebiotic synthesis/source module
+pbr-000068	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000069	True	False	False	False	prebiotic synthesis/source module
+pbr-000072	True	False	False	False	prebiotic synthesis/source module
+pbr-000073	True	False	False	False	prebiotic synthesis/source module
+pbr-000074	True	False	False	False	prebiotic synthesis/source module
+pbr-000075	True	False	False	False	prebiotic synthesis/source module
+pbr-000077	True	False	False	False	prebiotic synthesis/source module
+pbr-000078	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000079	True	False	False	False	prebiotic synthesis/source module
+pbr-000080	True	False	False	False	prebiotic synthesis/source module
+pbr-000081	True	False	False	False	prebiotic synthesis/source module
+pbr-000082	True	False	False	False	prebiotic synthesis/source module
+pbr-000083	True	False	False	False	prebiotic synthesis/source module
+pbr-000084	True	False	False	False	prebiotic synthesis/source module
+pbr-000085	True	False	False	False	prebiotic synthesis/source module
+pbr-000086	True	False	False	False	prebiotic synthesis/source module
+pbr-000087	True	False	False	False	prebiotic synthesis/source module
+pbr-000088	True	False	False	False	prebiotic synthesis/source module
+pbr-000089	True	False	False	False	prebiotic synthesis/source module
+pbr-000090	True	False	False	False	prebiotic synthesis/source module
+pbr-000091	True	False	False	False	prebiotic synthesis/source module
+pbr-000092	True	False	False	False	prebiotic synthesis/source module
+pbr-000093	True	False	False	False	prebiotic synthesis/source module
+pbr-000094	True	False	False	False	prebiotic synthesis/source module
+pbr-000095	True	False	False	False	prebiotic synthesis/source module
+pbr-000096	True	False	False	False	prebiotic synthesis/source module
+pbr-000097	True	False	False	False	prebiotic synthesis/source module
+pbr-000098	True	False	False	False	prebiotic synthesis/source module
+pbr-000099	True	False	False	False	prebiotic synthesis/source module
+pbr-000100	True	False	False	False	prebiotic synthesis/source module
+pbr-000101	True	False	False	False	prebiotic synthesis/source module
+pbr-000102	True	False	False	False	prebiotic synthesis/source module
+pbr-000103	True	False	False	False	prebiotic synthesis/source module
+pbr-000104	True	False	False	False	prebiotic synthesis/source module
+pbr-000105	True	False	False	False	prebiotic synthesis/source module
+pbr-000106	True	False	False	False	prebiotic synthesis/source module
+pbr-000107	True	False	False	False	prebiotic synthesis/source module
+pbr-000108	True	False	False	False	prebiotic synthesis/source module
+pbr-000109	True	False	False	False	prebiotic synthesis/source module
+pbr-000110	True	False	False	False	prebiotic synthesis/source module
+pbr-000111	True	False	False	False	prebiotic synthesis/source module
+pbr-000112	True	False	False	False	prebiotic synthesis/source module
+pbr-000113	True	False	False	False	prebiotic synthesis/source module
+pbr-000114	True	False	False	False	prebiotic synthesis/source module
+pbr-000115	True	False	False	False	prebiotic synthesis/source module
+pbr-000116	True	False	False	False	prebiotic synthesis/source module
+pbr-000117	True	False	False	False	prebiotic synthesis/source module
+pbr-000118	True	False	False	False	prebiotic synthesis/source module
+pbr-000119	True	False	False	False	prebiotic synthesis/source module
+pbr-000120	True	False	False	False	prebiotic synthesis/source module
+pbr-000121	True	False	False	False	prebiotic synthesis/source module
+pbr-000122	True	False	False	False	prebiotic synthesis/source module
+pbr-000123	False	False	False	True	hydrothermal/vent source or condition
+pbr-000124	False	False	False	True	hydrothermal/vent source or condition
+pbr-000125	False	False	False	True	hydrothermal/vent source or condition
+pbr-000126	False	False	False	True	hydrothermal/vent source or condition
+pbr-000127	False	False	False	True	hydrothermal/vent source or condition
+pbr-000128	False	False	False	True	hydrothermal/vent source or condition
+pbr-000129	False	False	False	True	hydrothermal/vent source or condition
+pbr-000130	False	False	False	True	hydrothermal/vent source or condition
+pbr-000131	False	False	False	True	hydrothermal/vent source or condition
+pbr-000132	False	False	False	True	hydrothermal/vent source or condition
+pbr-000133	False	False	False	True	hydrothermal/vent source or condition
+pbr-000134	False	False	False	True	hydrothermal/vent source or condition
+pbr-000135	False	False	False	True	hydrothermal/vent source or condition
+pbr-000136	False	False	False	True	hydrothermal/vent source or condition
+pbr-000137	False	False	False	True	hydrothermal/vent source or condition
+pbr-000138	False	False	False	True	hydrothermal/vent source or condition
+pbr-000139	False	False	False	True	hydrothermal/vent source or condition
+pbr-000140	False	False	False	True	hydrothermal/vent source or condition
+pbr-000141	False	False	False	True	hydrothermal/vent source or condition
+pbr-000142	False	False	False	True	hydrothermal/vent source or condition
+pbr-000143	False	False	False	True	hydrothermal/vent source or condition
+pbr-000144	False	False	False	True	hydrothermal/vent source or condition
+pbr-000145	False	False	False	True	hydrothermal/vent source or condition
+pbr-000146	False	False	False	True	hydrothermal/vent source or condition
+pbr-000147	False	False	False	True	hydrothermal/vent source or condition
+pbr-000149	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000153	False	False	False	False	unclassified
+pbr-000154	True	False	False	False	prebiotic synthesis/source module
+pbr-000162	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000165	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000166	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000167	False	False	False	True	hydrothermal/vent source or condition
+pbr-000168	False	False	False	True	hydrothermal/vent source or condition
+pbr-000169	False	False	False	True	hydrothermal/vent source or condition
+pbr-000170	False	False	False	True	hydrothermal/vent source or condition
+pbr-000173	False	False	False	True	hydrothermal/vent source or condition
+pbr-000174	False	False	False	True	hydrothermal/vent source or condition
+pbr-000176	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000177	False	False	False	True	hydrothermal/vent source or condition
+pbr-000178	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000179	False	False	False	True	hydrothermal/vent source or condition
+pbr-000182	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000183	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000184	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000185	False	False	False	True	hydrothermal/vent source or condition
+pbr-000186	False	False	True	False	mineral/metal/surface chemistry
+pbr-000187	False	False	True	False	mineral/metal/surface chemistry
+pbr-000188	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000189	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000190	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000192	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000194	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000197	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000198	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000199	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000200	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000201	True	False	False	False	prebiotic synthesis/source module
+pbr-000202	True	False	False	False	prebiotic synthesis/source module
+pbr-000204	True	False	False	False	prebiotic synthesis/source module
+pbr-000205	True	False	False	False	prebiotic synthesis/source module
+pbr-000206	True	False	False	False	prebiotic synthesis/source module
+pbr-000207	True	False	False	False	prebiotic synthesis/source module
+pbr-000208	True	False	False	False	prebiotic synthesis/source module
+pbr-000209	True	False	False	False	prebiotic synthesis/source module
+pbr-000210	True	False	False	False	prebiotic synthesis/source module
+pbr-000211	True	False	False	False	prebiotic synthesis/source module
+pbr-000212	True	False	False	False	prebiotic synthesis/source module
+pbr-000213	True	False	False	False	prebiotic synthesis/source module
+pbr-000214	True	False	False	False	prebiotic synthesis/source module
+pbr-000215	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000217	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000218	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000230	False	False	False	True	hydrothermal/vent source or condition
+pbr-000231	True	False	False	True	hydrothermal/vent source or condition; ChemOrigins prebiotic module membership
+pbr-000232	False	False	False	True	hydrothermal/vent source or condition
+pbr-000233	False	False	False	True	hydrothermal/vent source or condition
+pbr-000234	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000236	False	False	False	True	hydrothermal/vent source or condition
+pbr-000237	False	False	False	True	hydrothermal/vent source or condition
+pbr-000238	False	False	False	True	hydrothermal/vent source or condition
+pbr-000240	True	False	False	False	prebiotic synthesis/source module
+pbr-000241	True	False	False	False	prebiotic synthesis/source module
+pbr-000242	True	False	False	False	prebiotic synthesis/source module
+pbr-000243	True	False	False	False	prebiotic synthesis/source module
+pbr-000244	True	False	False	False	prebiotic synthesis/source module
+pbr-000245	True	False	False	False	prebiotic synthesis/source module
+pbr-000246	True	False	False	False	prebiotic synthesis/source module
+pbr-000247	True	False	False	False	prebiotic synthesis/source module
+pbr-000248	True	False	False	False	prebiotic synthesis/source module
+pbr-000249	True	False	False	False	prebiotic synthesis/source module
+pbr-000250	True	False	False	False	prebiotic synthesis/source module
+pbr-000251	True	False	False	False	prebiotic synthesis/source module
+pbr-000252	True	False	False	False	prebiotic synthesis/source module
+pbr-000253	True	False	False	False	prebiotic synthesis/source module
+pbr-000254	True	False	False	False	prebiotic synthesis/source module
+pbr-000255	True	False	False	False	prebiotic synthesis/source module
+pbr-000256	True	False	False	False	prebiotic synthesis/source module
+pbr-000257	True	False	False	False	prebiotic synthesis/source module
+pbr-000258	True	False	False	False	prebiotic synthesis/source module
+pbr-000259	True	False	False	False	prebiotic synthesis/source module
+pbr-000260	True	False	False	False	prebiotic synthesis/source module
+pbr-000261	True	False	False	False	prebiotic synthesis/source module
+pbr-000262	False	False	True	False	mineral/metal/surface chemistry
+pbr-000264	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000265	True	False	True	False	mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000266	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000267	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000268	True	False	True	False	mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000269	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000270	True	False	False	False	prebiotic synthesis/source module
+pbr-000271	True	False	False	False	prebiotic synthesis/source module
+pbr-000272	True	False	False	False	prebiotic synthesis/source module
+pbr-000273	True	False	False	False	prebiotic synthesis/source module
+pbr-000274	True	False	False	False	prebiotic synthesis/source module
+pbr-000275	True	False	False	False	prebiotic synthesis/source module
+pbr-000276	True	False	False	False	prebiotic synthesis/source module
+pbr-000277	True	False	False	False	prebiotic synthesis/source module
+pbr-000278	True	False	False	False	prebiotic synthesis/source module
+pbr-000279	True	False	False	False	prebiotic synthesis/source module
+pbr-000280	True	False	False	False	prebiotic synthesis/source module
+pbr-000281	False	False	True	False	mineral/metal/surface chemistry
+pbr-000282	True	False	False	False	prebiotic synthesis/source module
+pbr-000283	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000284	True	False	False	False	prebiotic synthesis/source module
+pbr-000285	True	False	False	False	prebiotic synthesis/source module
+pbr-000286	True	False	False	False	prebiotic synthesis/source module
+pbr-000287	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000288	False	False	False	False	unclassified
+pbr-000289	False	False	False	False	unclassified
+pbr-000290	False	False	False	False	unclassified
+pbr-000291	False	False	False	False	unclassified
+pbr-000292	False	False	False	False	unclassified
+pbr-000293	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000294	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000295	False	False	False	True	hydrothermal/vent source or condition
+pbr-000296	False	False	False	True	hydrothermal/vent source or condition
+pbr-000297	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000298	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000299	False	False	False	True	hydrothermal/vent source or condition
+pbr-000300	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000301	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000302	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000303	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000304	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000306	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000307	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000308	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000309	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000310	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000311	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000312	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000313	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000314	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000315	True	False	False	True	hydrothermal/vent source or condition; prebiotic synthesis/source module
+pbr-000316	False	False	False	True	hydrothermal/vent source or condition
+pbr-000691	True	False	False	False	prebiotic synthesis/source module
+pbr-000692	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000693	False	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry
+pbr-000694	False	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry
+pbr-000695	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000696	True	False	False	False	prebiotic synthesis/source module
+pbr-000697	True	False	False	False	prebiotic synthesis/source module
+pbr-000698	True	False	False	False	prebiotic synthesis/source module
+pbr-000699	True	False	False	False	prebiotic synthesis/source module
+pbr-000700	True	False	False	False	prebiotic synthesis/source module
+pbr-000701	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000702	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000703	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000704	True	False	False	False	prebiotic synthesis/source module
+pbr-000705	True	False	False	False	prebiotic synthesis/source module
+pbr-000706	True	False	False	False	prebiotic synthesis/source module
+pbr-000707	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000708	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000709	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000710	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000711	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000712	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000713	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000714	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000715	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000716	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000717	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000718	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000719	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000720	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000721	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000722	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000723	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000724	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000725	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000726	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000727	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000728	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000729	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000730	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000731	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000732	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000733	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000734	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000735	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000736	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000737	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000738	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000739	False	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry
+pbr-000740	False	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry
+pbr-000741	False	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry
+pbr-000742	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000743	True	True	False	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; prebiotic synthesis/source module
+pbr-000744	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000745	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000746	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module
+pbr-000747	True	True	True	False	pond/wet-dry/nucleotide or phosphate-compatible chemistry; mineral/metal/surface chemistry; prebiotic synthesis/source module

@@ -1,0 +1,28 @@
+# Earth-like atmospheric photochemistry selected network.
+# Purpose:
+#   Minimal gas-phase photochemical source/loss network for Earth-like
+#   primitive atmospheres feeding volcanic-rock and prebiotic surface chemistry.
+#
+# Columns:
+#   ID | MODULE | REACTION | CATALYST_OR_CONTROL | RATE_TEMPLATE | ROLE | REFS | CONFIDENCE
+
+EA0001 | earth_like_photolysis | H2O + hnu -> H + OH | photo | photolysis_J_H2O | water photolysis radical source | VPL_ATMOS; volcanic_rock_reaction_network_v1:VR | medium
+EA0002 | earth_like_photolysis | CO2 + hnu -> CO + O | photo | photolysis_J_CO2 | CO and oxygen radical source | VPL_ATMOS; volcanic_rock_reaction_network_v1:VR | medium
+EA0003 | earth_like_photolysis | CO + hnu -> C + O | photo | photolysis_J_CO | carbon radical source | VPL_ATMOS | low
+EA0004 | earth_like_photolysis | CH4 + hnu -> CH3 + H | photo | photolysis_J_CH4 | hydrocarbon radical source | volcanic_rock_reaction_network_v1:VR018 | medium
+EA0005 | earth_like_photolysis | NH3 + hnu -> NH2 + H | photo | photolysis_J_NH3 | reduced nitrogen radical source | volcanic_rock_reaction_network_v1:VR019 | medium
+EA0006 | earth_like_photolysis | HCN + hnu -> CN + H | photo | photolysis_J_HCN | cyanide radical source/loss | volcanic_rock_reaction_network_v1:VR023 | medium
+EA0007 | earth_like_photolysis | H2CO + hnu -> HCO + H | photo | photolysis_J_H2CO | aldehyde radical source | volcanic_rock_reaction_network_v1:VR024 | medium
+EA0008 | earth_like_photolysis | H2CO + hnu -> CO + H2 | photo | photolysis_J_H2CO | aldehyde photolysis branch | VPL_ATMOS | medium
+EA0009 | earth_like_photolysis | H2S + hnu -> HS + H | photo | photolysis_J_H2S | sulfur radical source | volcanic_rock_reaction_network_v1:VR020 | medium
+EA0010 | earth_like_photolysis | SO2 + hnu -> SO + O | photo | photolysis_J_SO2 | sulfur oxide photochemistry | VPL_ATMOS | low
+EA0011 | earth_like_photolysis | NO + hnu -> N + O | photo | photolysis_J_NO | fixed nitrogen photolysis | VPL_ATMOS | medium
+EA0012 | earth_like_photolysis | NO2 + hnu -> NO + O | photo | photolysis_J_NO2 | nitrogen oxide photochemistry | VPL_ATMOS | medium
+EA0013 | earth_like_photolysis | O2 + hnu -> O + O | photo | photolysis_J_O2 | oxygen photolysis branch | VPL_ATMOS | medium
+EA0014 | earth_like_photolysis | O3 + hnu -> O2 + O | photo | photolysis_J_O3 | ozone photolysis branch | VPL_ATMOS | medium
+EA0015 | earth_like_radical_chemistry | O + H2 -> OH + H | radical | gas_phase_rate | OH production | VPL_ATMOS | medium
+EA0016 | earth_like_radical_chemistry | OH + CO -> CO2 + H | radical | gas_phase_rate | CO oxidation | VPL_ATMOS | medium
+EA0017 | earth_like_radical_chemistry | CH3 + H -> CH4 | radical_recombination | gas_phase_rate | methane radical recombination | VPL_ATMOS | low
+EA0018 | earth_like_radical_chemistry | CN + H2 -> HCN + H | radical | gas_phase_rate | HCN regeneration | VPL_ATMOS; KIDA | low
+EA0019 | earth_like_radical_chemistry | H + H -> H2 | radical_recombination | gas_phase_rate | hydrogen recombination | VPL_ATMOS | medium
+EA0020 | earth_like_radical_chemistry | O + O -> O2 | radical_recombination | gas_phase_rate | oxygen recombination | VPL_ATMOS | medium

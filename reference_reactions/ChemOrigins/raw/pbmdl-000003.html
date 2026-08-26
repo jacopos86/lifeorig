@@ -1,0 +1,715 @@
+
+<!DOCTYPE html>
+
+<style>
+  .custom-search-input {
+    max-width: 800px; /* Adjust the width as necessary */
+    margin: 0 auto; /* Center the input */
+    width: 600px;
+  }
+  .custom-container {
+    max-width: 1000px; /* Set your custom width */
+    margin: 0 auto;  /* Center it horizontally */
+  }
+  .colored-banner {
+      background-color: rgb(0,21,40);
+      background-image: url('/static/cubes.png'), linear-gradient(90deg, rgba(124,21,40,1) 0%, rgba(124,45,89,1) 25%, rgba(4,45,89,1) 48%, rgba(4,45,89,1) 75%, rgba(124,21,40,1) 100%); !important
+      background-repeat: repeat;
+      background-size: auto;
+      background-position: center;
+  }
+  .custom-texture {
+      background-color: linear-gradient(90deg, rgba(0,21,40,1) 0%, rgba(4,45,89,1) 25%, rgba(4,45,89,1) 48%, rgba(4,45,89,1) 75%, rgba(0,21,40,1) 100%);
+      background-image: url('path-to-your-texture.png'), linear-gradient(90deg, rgba(124,21,40,1) 0%, rgba(124,45,89,1) 25%, rgba(4,45,89,1) 48%, rgba(4,45,89,1) 75%, rgba(124,21,40,1) 100%);; /* Path to your PNG file */
+      background-repeat: repeat; /* Repeats the pattern */
+      background-size: auto; /* Keeps the original size of the texture */
+      background-position: center; /* Centers the pattern */
+      background-color: #f5f5f5; /* Fallback background color */
+      background-repeat: repeat; /* Repeats the pattern */
+      background-size: 100px, 100px; /* Keeps the original size of the texture */
+      background-position: center; /* Centers the pattern */
+  }
+
+ </style>
+
+<!--<link href="/static//bulma/css/bulma.css" rel="stylesheet">-->
+<link rel="stylesheet" href="https://unpkg.com/bulmaswatch/Lumen/bulmaswatch.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en" data-theme="light">
+  <head>
+    
+    <title></title>
+    
+  </head>
+  <body class="has-navbar-fixed-top">
+    <nav class="navbar is-black is-fixed-top" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+          <img src="/static/ChemOrigins-Logo-White.png" alt="">
+        </a>
+        <a class="navbar-item" href="/">
+          ChemOrigins
+          
+          
+        </a>
+        <div class="navbar-burger js-burger" data-target="mainnavbar">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+      </div>
+      <div id="mainnavbar" class="navbar-menu">
+        <div class="navbar-start">
+          <!-- <a class="navbar-item" href="/">
+            Search 
+          </a> -->
+          <a class="navbar-item" href="/modules">
+            Modules
+          </a>
+          <a class="navbar-item" href="/expansion/">
+            Expansion
+          </a>
+          <a class="navbar-item" href="/info/docs/">
+            Docs
+          </a>
+          <a class="navbar-item" href="/up/">
+            Annotate
+          </a>
+          
+        </div>
+        
+        <div class="navbar-end">
+          <div class="navbar-item" style="width: 100%">
+            <form method="post">
+              <div class="field has-addons">
+                <div class="control is-expanded">
+                  <input class="input" id="query" name="query" placeholder="Search..." style="width: 400px;" type="search" value="">
+                </div>
+                <div class="control">
+                  <button class="button is-info" type="submit">
+                    Search
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      
+    
+      
+
+      <!-- <div class="navbar-end">
+        <div class="navbar-item is-flex">
+          <form method="post" class="is-flex">
+            <div class="field has-addons">
+              
+              <div class="control">
+                
+                    <input class="input is-fullwidth" id="query" name="query" placeholder="Search..." type="search" value="">
+              </div>                
+            </div>
+          </form>
+        </div>
+        
+      </div> -->
+      
+
+    </nav>
+    <div class="hero is-small is-warning">
+      <div class="hero-body">
+          <p>
+             ChemOrigins will undergo some important updates in the following weeks to include the critical feedback. Thanks for the patience! 
+          </p>
+      </div>
+    </div>
+  
+    <div id="content">
+
+<style>
+    .custom-container {
+      max-width: 1000px; /* Set your custom width */
+      margin: 0 auto;  /* Center it horizontally */
+    }
+    .colored-banner {
+        background-color: rgb(0,21,40);
+        background-image: url('/static/cubes.png'), linear-gradient(90deg, rgba(124,21,40,1) 0%, rgba(124,45,89,1) 25%, rgba(4,45,89,1) 48%, rgba(4,45,89,1) 75%, rgba(124,21,40,1) 100%); !important
+        background-repeat: repeat;
+        background-size: auto;
+        background-position: center;
+        
+    }
+    .custom-texture {
+        background-color: linear-gradient(90deg, rgba(0,21,40,1) 0%, rgba(4,45,89,1) 25%, rgba(4,45,89,1) 48%, rgba(4,45,89,1) 75%, rgba(0,21,40,1) 100%);
+        background-image: url('path-to-your-texture.png'), linear-gradient(90deg, rgba(124,21,40,1) 0%, rgba(124,45,89,1) 25%, rgba(4,45,89,1) 48%, rgba(4,45,89,1) 75%, rgba(124,21,40,1) 100%);; /* Path to your PNG file */
+        background-repeat: repeat; /* Repeats the pattern */
+        background-size: auto; /* Keeps the original size of the texture */
+        background-position: center; /* Centers the pattern */
+        background-color: #f5f5f5; /* Fallback background color */
+        background-repeat: repeat; /* Repeats the pattern */
+        background-size: 100px, 100px; /* Keeps the original size of the texture */
+        background-position: center; /* Centers the pattern */
+    }
+
+ </style>
+
+<div class="hero is-white">
+    <div class="hero-body">
+        <div class="custom-container">
+            <h1 class="title is-1">pbmdl-000003</h1>
+            <a class="button is-dark" href="/api/modules/pbmdl-000003">Download</a>
+        </div>
+    </div>
+</div> 
+
+<div class="container custom-container">
+    
+    <h2 class="title is-2">Module </h2>        
+    <table class="table is-fullwidth">
+        <thead>
+            <th scope="col">Variable</th>
+            <th scope="col">Value</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td scope="row"> Name </th>
+                <td>  Glycine-synthesis </a></td>
+            </tr>
+            <tr>
+                <td scope="row"> Description </td>
+                <td>  Prebiotic synthesis of Glycine </td>
+            </tr>
+        </tbody>
+    </table>
+    <img src="/static/pbmdl-000003.png" alt="" class="box">
+
+
+    
+    <h2 class="title is-2">Reactions</h2>
+    
+    <div class="card">
+        <div class="card-header">
+            <a href="/reactions/pbr-000086">
+                <h5 class="card-header-title"> pbr-000086 </h5>
+            </a>
+        </div>
+        
+        <img src="/static/pbr-000086.png" alt="" class="card-image">
+        
+        <div class="card-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Temperature</th>
+                        <th scope="col">pH</th>
+                        <th scope="col">Pressure</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">DOI</th>    
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+
+                        <td>pbc-000091</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td></td>
+                        <td><a href="/sources/10.1038/nchem.2202 ">10.1038/nchem.2202 </a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <a href="/reactions/pbr-000286">
+                <h5 class="card-header-title"> pbr-000286 </h5>
+            </a>
+        </div>
+        
+        <img src="/static/pbr-000286.png" alt="" class="card-image">
+        
+        <div class="card-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Temperature</th>
+                        <th scope="col">pH</th>
+                        <th scope="col">Pressure</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">DOI</th>    
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+
+                        <td>pbc-000160</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td></td>
+                        <td><a href="/sources/10.1016/0016-7037(93)90540-D">10.1016/0016-7037(93)90540-D</a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <a href="/reactions/pbr-000284">
+                <h5 class="card-header-title"> pbr-000284 </h5>
+            </a>
+        </div>
+        
+        <img src="/static/pbr-000284.png" alt="" class="card-image">
+        
+        <div class="card-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Temperature</th>
+                        <th scope="col">pH</th>
+                        <th scope="col">Pressure</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">DOI</th>    
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+
+                        <td>pbc-000156</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td></td>
+                        <td><a href="/sources/10.1016/0016-7037(64)90147-4">10.1016/0016-7037(64)90147-4</a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <a href="/reactions/pbr-000290">
+                <h5 class="card-header-title"> pbr-000290 </h5>
+            </a>
+        </div>
+        
+        <img src="/static/pbr-000290.png" alt="" class="card-image">
+        
+        <div class="card-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Temperature</th>
+                        <th scope="col">pH</th>
+                        <th scope="col">Pressure</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">DOI</th>    
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+
+                        <td>pbc-000164</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td></td>
+                        <td><a href="/sources/10.1016/0012-821X(78)90042-0">10.1016/0012-821X(78)90042-0</a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <a href="/reactions/pbr-000288">
+                <h5 class="card-header-title"> pbr-000288 </h5>
+            </a>
+        </div>
+        
+        <img src="/static/pbr-000288.png" alt="" class="card-image">
+        
+        <div class="card-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Temperature</th>
+                        <th scope="col">pH</th>
+                        <th scope="col">Pressure</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">DOI</th>    
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+
+                        <td>pbc-000162</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td></td>
+                        <td><a href="/sources/10.1016/0012-821X(78)90042-0">10.1016/0012-821X(78)90042-0</a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <a href="/reactions/pbr-000190">
+                <h5 class="card-header-title"> pbr-000190 </h5>
+            </a>
+        </div>
+        
+        <img src="/static/pbr-000190.png" alt="" class="card-image">
+        
+        <div class="card-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Temperature</th>
+                        <th scope="col">pH</th>
+                        <th scope="col">Pressure</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">DOI</th>    
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+
+                        <td>pbc-000196</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td></td>
+                        <td><a href="/sources/10.1007/s11084-008-9153-2">10.1007/s11084-008-9153-2</a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <a href="/reactions/pbr-000027">
+                <h5 class="card-header-title"> pbr-000027 </h5>
+            </a>
+        </div>
+        
+        <img src="/static/pbr-000027.png" alt="" class="card-image">
+        
+        <div class="card-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Temperature</th>
+                        <th scope="col">pH</th>
+                        <th scope="col">Pressure</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">DOI</th>    
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+
+                        <td>pbc-000027</td>
+                        <td>70.0</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td> <a href="/agents/pbg-000001">Elemental Iron</a>,  <a href="/agents/pbg-000000">Ferrous iron</a>, </td>
+                        <td><a href="/sources/10.1038/s41586-019-1151-1">10.1038/s41586-019-1151-1</a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <a href="/reactions/pbr-000189">
+                <h5 class="card-header-title"> pbr-000189 </h5>
+            </a>
+        </div>
+        
+        <img src="/static/pbr-000189.png" alt="" class="card-image">
+        
+        <div class="card-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Temperature</th>
+                        <th scope="col">pH</th>
+                        <th scope="col">Pressure</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">DOI</th>    
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+
+                        <td>pbc-000195</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td></td>
+                        <td><a href="/sources/10.1007/s11084-008-9153-2">10.1007/s11084-008-9153-2</a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <a href="/reactions/pbr-000214">
+                <h5 class="card-header-title"> pbr-000214 </h5>
+            </a>
+        </div>
+        
+        <img src="/static/pbr-000214.png" alt="" class="card-image">
+        
+        <div class="card-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Temperature</th>
+                        <th scope="col">pH</th>
+                        <th scope="col">Pressure</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">DOI</th>    
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+
+                        <td>pbc-000222</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td></td>
+                        <td><a href="/sources/10.1038/s41557-021-00789-w">10.1038/s41557-021-00789-w</a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <a href="/reactions/pbr-000021">
+                <h5 class="card-header-title"> pbr-000021 </h5>
+            </a>
+        </div>
+        
+        <img src="/static/pbr-000021.png" alt="" class="card-image">
+        
+        <div class="card-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Temperature</th>
+                        <th scope="col">pH</th>
+                        <th scope="col">Pressure</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">DOI</th>    
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+
+                        <td>pbc-000276</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td></td>
+                        <td><a href="/sources/10.1126/sciadv.abh3981">10.1126/sciadv.abh3981</a></td>
+                    </tr>
+                    
+                    <tr>
+
+                        <td>pbc-000020</td>
+                        <td>70.0</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td> <a href="/agents/pbg-000000">Ferrous iron</a>, </td>
+                        <td><a href="/sources/10.1038/s41586-019-1151-1">10.1038/s41586-019-1151-1</a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <a href="/reactions/pbr-000104">
+                <h5 class="card-header-title"> pbr-000104 </h5>
+            </a>
+        </div>
+        
+        <img src="/static/pbr-000104.png" alt="" class="card-image">
+        
+        <div class="card-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Temperature</th>
+                        <th scope="col">pH</th>
+                        <th scope="col">Pressure</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">DOI</th>    
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+
+                        <td>pbc-000109</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td> <a href="/agents/pbg-000006">Ultraviolet radiation</a>, </td>
+                        <td><a href="/sources/10.1038/s41557-021-00789-w">10.1038/s41557-021-00789-w</a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <a href="/reactions/pbr-000006">
+                <h5 class="card-header-title"> pbr-000006 </h5>
+            </a>
+        </div>
+        
+        <img src="/static/pbr-000006.png" alt="" class="card-image">
+        
+        <div class="card-content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Key</th>
+                        <th scope="col">Temperature</th>
+                        <th scope="col">pH</th>
+                        <th scope="col">Pressure</th>
+                        <th scope="col">Agent</th>
+                        <th scope="col">DOI</th>    
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+
+                        <td>pbc-000005</td>
+                        <td>70.0</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td> <a href="/agents/pbg-000000">Ferrous iron</a>, </td>
+                        <td><a href="/sources/10.1038/s41586-019-1151-1">10.1038/s41586-019-1151-1</a></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+    
+    
+
+</div>
+
+
+</div>
+
+    <footer class="footer is-dark">
+      <div class="content has-text-centered">
+        <div class="container is-white">
+        <p>
+          <strong>ChemOrigins</strong> was developed by Bruno Cuevas at Kaçar lab. The website content
+          is licensed <a href="https://spdx.org/licenses/MIT.html">MIT</a>.
+          
+        </p>
+        <p>
+            Contact address: cuevaszuviri@wisc.edu
+        </p>
+        <div class="columns">
+          <div class="column is-4"></div>
+          <div class="column is-4">
+            <div class="columns">
+
+              <div class="column is-4">
+                  <img src="/static/KacarLab-Logo_Circle-Black.png" alt="" width=60%>
+              </div>
+
+              <div class="column is-4">
+
+                  <img src="/static/MUSE-Logo_Patch-Black.png" alt="" width=60%>
+              </div>
+              <div class="column is-4">
+                  <img src="/static/black-center-UWlogo-print.png" alt="" width=100%>
+              </div>
+            </div>
+          </div>
+          <div class="column is-4"></div>
+        </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+  </html>
+
+</html>

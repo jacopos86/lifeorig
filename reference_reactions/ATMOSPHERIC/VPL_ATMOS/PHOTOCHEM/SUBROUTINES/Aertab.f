@@ -1,0 +1,59 @@
+      SUBROUTINE AERTAB
+      INCLUDE 'PHOTOCHEM/INPUTFILES/parameters.inc'
+      implicit real*8(A-H,O-Z)
+      real*8 mass
+      character*8 PLANET
+      DIMENSION TTAB(NT),PH2O(NT,NF),PH2SO4(NT,NF)
+      INCLUDE 'PHOTOCHEM/DATA/INCLUDE/PHOTABLOK.inc'
+      INCLUDE 'PHOTOCHEM/DATA/INCLUDE/SULBLK.inc'
+      INCLUDE 'PHOTOCHEM/DATA/INCLUDE/AERBLK.inc'
+C
+C   THIS SUBROUTINE READS A TABLE OF SULFURIC ACID AND H2O VAPOR
+C   PRESSURES AS FUNCTIONS OF TEMPERATURE AND CONCENTRATION OF
+C   H2SO4 IN THE PARTICLES.  THEN IT PRODUCES A NEW TABLE IN WHICH
+C   THE LOG OF THE VAPOR PRESSURES IS STORED AT EACH VERTICAL GRID
+C   POINT OF THE MODEL.
+c
+c  to replace this i want a simple function
+C
+C   READ DATAFILE (VAPOR PRESSURES IN MM HG)
+      do i=1,NT
+        do j=1,NF
+          read(2,999) PH2O(i,j), PH2SO4(i,j),TTAB(i),FTAB(j)
+        enddo
+      enddo
+ 999  format(E13.5,2x,E13.5,2x,F4.0,1x,F6.2)
+
+C
+C   CONVERT VAPOR PRESSURES TO BARS
+      DO  K=1,NF
+      DO  J=1,NT
+      PH2O(J,K) = PH2O(J,K)*1.013/760.      !ACK - check if OK w.r.t pressure change - Kevin keeps this the same for Mars
+      PH2SO4(J,K) = PH2SO4(J,K)*1.013/760.
+      END DO
+      END DO
+C
+C   INTERPOLATE TABLE TO TEMPERATURE AT EACH VERTICAL GRID POINT
+      DO J=1,NZ
+      DO I=1,NT
+      IS = I
+      IF(TTAB(I) .GT. T(J)) GO TO 3
+      END DO
+   3  IS1 = max0(IS-1,1)
+C   T(J) LIES BETWEEN TTAB(IS) AND TTAB(IS1)
+      FR = 1.
+      IF(IS .GT. IS1) FR = (T(J) - TTAB(IS1))/(TTAB(IS) - TTAB(IS1))
+C
+C   INTERPOLATE PH2O AND PH2SO4 LOGARITHMICALLY
+      DO K=1,NF
+      H2OL = LOG(PH2O(IS,K))
+      H2OL1 = LOG(PH2O(IS1,K))
+      H2SO4L = LOG(PH2SO4(IS,K))
+      H2SOL1 = LOG(PH2SO4(IS1,K))
+      VH2O(K,J) = FR*H2OL + (1.-FR)*H2OL1
+      VH2SO4(K,J) = FR*H2SO4L + (1.-FR)*H2SOL1
+      END DO
+      END DO
+
+      RETURN
+      END

@@ -1,0 +1,22 @@
+# Selected Titan-relevant photolysis branches extracted from VPL Atmos PHOTOCHEM BROKEN_TEMPLATES/Titan/reactions.rx.
+# Purpose: supplemental candidate reactions to compare against titan_reaction_network_v0.txt.
+# Naming normalized to the current Titan network where obvious:
+#   HV -> hnu
+#   CH21 -> 1CH2
+#   CH23 -> 3CH2
+#   N4S -> N(4S)
+#   N2D -> N(2D)
+# Columns: ID | MODULE | REACTION | CATALYST_OR_CONTROL | RATE_TEMPLATE | ROLE | REFS | CONFIDENCE
+
+VP001 | vpl_titan_photolysis | C2H6 + hnu -> C2H4 + H2 | photo | vpl_photo_branch | VPL Titan photolysis candidate branch | VPL_ATMOS_BROKEN_TEMPLATES_Titan | medium
+VP002 | vpl_titan_photolysis | C2H6 + hnu -> C2H4 + H + H | photo | vpl_photo_branch | VPL Titan photolysis candidate branch | VPL_ATMOS_BROKEN_TEMPLATES_Titan | medium
+VP003 | vpl_titan_photolysis | C2H6 + hnu -> C2H2 + H2 + H2 | photo | vpl_photo_branch | VPL Titan photolysis candidate branch | VPL_ATMOS_BROKEN_TEMPLATES_Titan | medium
+VP004 | vpl_titan_photolysis | C2H6 + hnu -> CH4 + 1CH2 | photo | vpl_photo_branch | VPL Titan photolysis candidate branch | VPL_ATMOS_BROKEN_TEMPLATES_Titan | medium
+VP005 | vpl_titan_photolysis | C3H6 + hnu -> C2H2 + CH3 + H | photo | vpl_photo_branch | VPL Titan photolysis candidate branch | VPL_ATMOS_BROKEN_TEMPLATES_Titan | medium
+VP006 | vpl_titan_photolysis | C3H6 + hnu -> CH2CCH2 + H2 | photo | vpl_photo_branch | VPL Titan photolysis candidate branch | VPL_ATMOS_BROKEN_TEMPLATES_Titan | medium
+VP007 | vpl_titan_photolysis | C3H6 + hnu -> C2H4 + 3CH2 | photo | vpl_photo_branch | VPL Titan photolysis candidate branch | VPL_ATMOS_BROKEN_TEMPLATES_Titan | medium
+VP008 | vpl_titan_photolysis | C3H8 + hnu -> C3H6 + H2 | photo | vpl_photo_branch | VPL Titan photolysis candidate branch | VPL_ATMOS_BROKEN_TEMPLATES_Titan | medium
+VP009 | vpl_titan_photolysis | C3H8 + hnu -> C2H6 + 1CH2 | photo | vpl_photo_branch | VPL Titan photolysis candidate branch | VPL_ATMOS_BROKEN_TEMPLATES_Titan | medium
+VP010 | vpl_titan_photolysis | C3H8 + hnu -> C2H4 + CH4 | photo | vpl_photo_branch | VPL Titan photolysis candidate branch | VPL_ATMOS_BROKEN_TEMPLATES_Titan | medium
+VP011 | vpl_titan_photolysis | CH3C2H + hnu -> C2H + CH3 | photo | vpl_photo_branch | VPL Titan photolysis candidate branch | VPL_ATMOS_BROKEN_TEMPLATES_Titan | medium
+VP012 | vpl_titan_photolysis | CH2CCH2 + hnu -> C2H2 + 3CH2 | photo | vpl_photo_branch | VPL Titan photolysis candidate branch | VPL_ATMOS_BROKEN_TEMPLATES_Titan | medium
