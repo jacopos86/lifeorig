@@ -1,7 +1,7 @@
 from src.common.units import Q_
 from src.stellar_params.stellar_data import StellarParams
 from src.planet_params.planetary_params import PlanetaryEnvironmentParams
-from src.chemical_env.chemical_environment import ChemEnvResult
+from src.chemical_env.chem_env_data import ChemEnvResult
 from src.stellar_params.stellar_data import SOLAR_PARAMS
 
 #
@@ -50,7 +50,7 @@ EUROPA_PLANETARY_PARAMS = PlanetaryEnvironmentParams(
     planet_mass=Q_(4.7998e22, "kg"),
     orbital_distance=Q_(5.2044, "AU"),
     rotation_period=Q_(3.551, "day"),
-    chemical_env={
+    chemistry={
         "mode": "layered_equilibrium",
         "atomic_abundances": EUROPA_ATOMIC_ABUNDANCES,
         "chemical_species": EUROPA_CHEMICAL_SPECIES,

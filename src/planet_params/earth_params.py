@@ -1,7 +1,7 @@
 from src.common.units import Q_
 from src.stellar_params.stellar_data import StellarParams
 from src.planet_params.planetary_params import PlanetaryEnvironmentParams
-from src.chemical_env.chemical_environment import ChemEnvResult
+from src.chemical_env.chem_env_data import ChemEnvResult
 from src.stellar_params.stellar_data import SOLAR_PARAMS
 
 #
@@ -61,7 +61,7 @@ EARTH_PLANETARY_PARAMS = PlanetaryEnvironmentParams(
     planet_mass=Q_(5.972e24, "kg"),
     orbital_distance=Q_(1.0, "AU"),
     rotation_period=Q_(23.9344696, "hour"),
-    chemical_env={
+    chemistry={
         "mode": "layered_equilibrium",
         "atomic_abundances": EARTH_PRIMITIVE_ATOMIC_ABUNDANCES,
         "chemical_species": EARTH_CHEMICAL_SPECIES,

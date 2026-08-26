@@ -1,7 +1,7 @@
 from src.common.units import Q_
 from src.stellar_params.stellar_data import StellarParams
 from src.planet_params.planetary_params import PlanetaryEnvironmentParams
-from src.chemical_env.chemical_environment import ChemEnvResult
+from src.chemical_env.chem_env_data import ChemEnvResult
 from src.stellar_params.stellar_data import SOLAR_PARAMS
 
 #
@@ -47,7 +47,7 @@ MARS_PLANETARY_PARAMS = PlanetaryEnvironmentParams(
     planet_mass=Q_(6.4171e23, "kg"),
     orbital_distance=Q_(1.523679, "AU"),
     rotation_period=Q_(24.6229, "hour"),
-    chemical_env={
+    chemistry={
         "mode": "layered_equilibrium",
         "atomic_abundances": MARS_ATOMIC_ABUNDANCES,
         "chemical_species": MARS_CHEMICAL_SPECIES,

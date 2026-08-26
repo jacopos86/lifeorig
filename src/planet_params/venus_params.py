@@ -1,7 +1,7 @@
 from src.common.units import Q_
 from src.stellar_params.stellar_data import StellarParams
 from src.planet_params.planetary_params import PlanetaryEnvironmentParams
-from src.chemical_env.chemical_environment import ChemEnvResult
+from src.chemical_env.chem_env_data import ChemEnvResult
 from src.stellar_params.stellar_data import SOLAR_PARAMS
 
 #
@@ -48,7 +48,7 @@ VENUS_PLANETARY_PARAMS = PlanetaryEnvironmentParams(
     planet_mass=Q_(4.8675e24, "kg"),
     orbital_distance=Q_(0.723332, "AU"),
     rotation_period=Q_(243.025, "day"),
-    chemical_env={
+    chemistry={
         "mode": "layered_equilibrium",
         "atomic_abundances": VENUS_ATOMIC_ABUNDANCES,
         "chemical_species": VENUS_CHEMICAL_SPECIES,
