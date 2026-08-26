@@ -1,4 +1,3 @@
-from src.input_data.read_input import p
 import numpy as np
 from numpy.random import randint
 from numpy.random import rand

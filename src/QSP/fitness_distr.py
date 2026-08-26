@@ -1,7 +1,6 @@
 import numpy as np
 import math
 from abc import ABC
-from src.input_data.read_input import p
 from src.utilities.logging_module import log
 
 # BASE class

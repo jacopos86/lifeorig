@@ -1,5 +1,4 @@
 import numpy as np
-from src.input_data.read_input import p
 from src.mutations.mutation_rate import compute_hamm_dist_matrix
 #
 # The quasi species solver solves
