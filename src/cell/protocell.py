@@ -1,6 +1,6 @@
 import numpy as np
 from abc import ABC, abstractmethod
-from src.molecules.metabolite_class import Metabolite
+from src.metabolites.metabolite_class import Metabolite
 from src.catalysts.catalyst_class import CatalystState
 from src.chem_network.bin_reaction_network import BinaryReactionNetwork
 

@@ -1,5 +1,4 @@
 import numpy as np
-from src.input_data.read_input import p
 from src.utilities.logging_module import log
 from scipy.stats import truncnorm
 import pytest
