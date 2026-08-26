@@ -61,3 +61,12 @@ UNIT_TEST_DIR := $(ROOT)/tests
 
 PHREEQC_DIR := $(ROOT)/external/phreeqc
 PHREEQC_DB := $(PHREEQC_DIR)/database/phreeqc.dat
+
+# ===================
+#  Reaction MySQL DB
+# ===================
+
+LIFEORIG_REACTION_DB_HOST ?= localhost
+LIFEORIG_REACTION_DB_NAME ?= lifeorig_reactions
+LIFEORIG_REACTION_DB_USER ?= lifeorig
+LIFEORIG_REACTION_DB_PASSWORD ?=
