@@ -10,3 +10,4 @@ pint
 periodictable
 hitran-api
 phreeqpy
+pymysql
