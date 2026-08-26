@@ -1,23 +1,20 @@
 from itertools import product
-from src.input_data.chemical_network_parser import ChemicalNetworkParser
 from src.metabolites.metabolite_class import Metabolite
-from src.chemical_types.molecule_model import Molecule
 from src.chemical_types.molecule_model import MultiPolymer
-from src.input_data.chemical_species_parser import parse_species_into_chemicals
 from src.utilities.logging_module import log
 
 #
 #  1) build metabolites driver function
 #
 
-def build_metabolites(metabolites_params):
+def build_metabolites(metabolites_params, molecular_species_set=None):
     mol_type = metabolites_params.get("type")
     if mol_type == "binary":
         return build_binary_metabolites(metabolites_params)
     if mol_type == "multi":
         return build_multi_metabolites(metabolites_params)
     if mol_type == "reference_file":
-        return build_reference_file_metabolites(metabolites_params)
+        return build_reference_file_metabolites(metabolites_params, molecular_species_set)
     log.error(f"Unknown molecule type: {mol_type}")
 
 #
@@ -64,14 +61,11 @@ def build_multi_metabolites(metabolites_params):
 #  4)  build metabolites list from reference file
 #
 
-def build_reference_file_metabolites(metabolites_params):
-    reaction_file = metabolites_params.get("reaction_file")
-    network_data = ChemicalNetworkParser(reaction_file).parse()
-    log.info(f"\t species list: {network_data.species}")
-    species_names = network_data.species
-    chemical_set = parse_species_into_chemicals(species_names)
-    print(chemical_set)
-    exit()
+def build_reference_file_metabolites(metabolites_params, molecular_species_set):
+    if molecular_species_set is None:
+        log.error("reference_file metabolites require a MolecularSpeciesSet")
+    molecules = molecular_species_set.molecules
+    log.info("\t metabolites species list: " + str(molecular_species_set.molecule_names()))
     molecule_map = {molecule.show_sequence(): molecule for molecule in molecules}
     initial_population = build_uniform_initial_population(
         molecules,
