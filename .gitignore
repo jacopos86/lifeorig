@@ -6,6 +6,12 @@ lifeorig.egg-info
 TESTS
 TEST_OUTPUT
 
+# === DOC BUILD ARTIFACTS === #
+doc/**
+!doc/**/
+!doc/**/*.tex
+!doc/**/*.pdf
+
 # === python cache & compiled files === #
 __pycache__
 src/__pycache__
