@@ -1,7 +1,6 @@
 from src.environment.environment_base_class import Environment
 from src.environment.liquid_level_model import build_liquid_level_field
 from src.utilities.logging_module import log
-from src.input_data.read_input import p
 
 #
 #   Single rock pore
@@ -143,3 +142,48 @@ class VolcanicRock(Environment):
                 src.protocells.remove(proto)
                 dst.protocells.append(proto)
                 proto.interstice_id = dst.idx
+
+#
+#   USE THIS TO COMPLETE THE EVIRONMENT ROCK
+#
+
+def derive_planet_env_data(
+        env_model: str,
+        env_input_params: dict
+    ):
+    # water base factor evaluation
+    liquid_level_params = env_input_params.get("solvent_data").liquid_level_params
+    liquid_base_factor = liquid_level_params.base_level
+    if liquid_base_factor is None:
+        liquid_base_factor = derive_liquid_base_factor(
+            env_model=env_model,
+            env_data=env_input_params,
+            planet_data=planet_data,
+            chemical_env=chem_env_params,
+            vesc=vesc
+        )
+        log.info(f"\t liquid base factor: {liquid_base_factor}")
+    # water amplitude factor
+    liquid_amplitude_factor = liquid_level_params.amplitude
+    if liquid_amplitude_factor is None:
+        liquid_amplitude_factor = derive_liquid_amplitude_factor(
+            env_model=env_model,
+            planet_data=planet_data,
+            water_base_factor=liquid_base_factor
+        )
+        log.info(f"\t liquid amplitude factor: {liquid_amplitude_factor}")
+    radiation_amplitude_factor = (
+        1.0 + 3.0 * planet_data.eccentricity
+    ) * planet_data.day_night_contrast
+    # atmosphere retention proxy for shielding
+    radiation_base_factor = 1.0 / liquid_base_factor if liquid_base_factor else 1.0
+    return DerivedPlanetQuantities(
+        gravity=g,
+        escape_velocity=vesc,
+        water_base_factor=water_base_factor,
+        water_amplitude_factor=water_amplitude_factor,
+        radiation_base_factor=radiation_base_factor,
+        radiation_amplitude_factor=radiation_amplitude_factor,
+        day_night_period=None if planet_data.tidal_locked else planet_data.rotation_period,
+        seasonal_period=None,   # fill later if orbital period is added
+    )
