@@ -4,6 +4,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
+\usepackage{graphicx}
 \usepackage[hidelinks]{hyperref}
 
 \title{Titan Methane-Pool Protocell Design}
@@ -35,6 +36,28 @@ The central idea is that Titan surface protocells should be modeled as phase-sep
 \subsection{Novelty of the proposed calculation}
 
 The novelty of the proposed work is not the general statement that Titan has organic chemistry, and it is not the isolated idea that membrane analogs may exist in liquid methane. Those ideas already exist in the literature. The novel part is the construction of a phase-resolved dynamical model in which a Titan reaction network is coupled to physical reservoirs, phase transitions, compartment birth, and protocell-like persistence criteria.
+
+For the first Titan paper the intended calculation is deliberately local. The atmosphere is treated as a zero-dimensional non-equilibrium chemical reservoir at prescribed Titan surface temperature and pressure, with photolysis represented by an external radiation field. This atmospheric calculation supplies organic and nitrile feedstock abundances or fluxes to the local pond model. The pond itself is one-dimensional in depth because evaporation, rainfall, deposition, and sediment/surface reactions act at boundaries and therefore create vertical concentration gradients.
+
+The minimal paper-level chain is therefore
+\begin{equation}
+\text{0D Titan atmosphere chemistry}
+\rightarrow
+\text{organic reservoir and deposition/rainout}
+\rightarrow
+\text{1D methane/ethane pond chemistry}
+\rightarrow
+\text{surface/polymer/compartment dynamics}.
+\end{equation}
+
+Gravity, escape, and full vertical atmospheric dynamics are not required in this first local chemistry model unless atmospheric loss, scale height, or altitude-dependent photolysis is explicitly introduced. They remain planetary metadata rather than active terms in the zero-dimensional atmospheric reaction solver.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.96\linewidth]{FIGURES/titan_atmosphere_pond_protocell_architecture.pdf}
+\caption{Working architecture for the first Titan calculation. A zero-dimensional atmospheric chemistry reservoir at prescribed Titan surface temperature and pressure feeds a one-dimensional methane/ethane pond. Rainout, deposition, evaporation, sediment/surface chemistry, and optional cryovolcanic or impact aqueous pulses determine which chemical branches are active.}
+\label{fig:titan_atmosphere_pond_architecture}
+\end{figure}
 
 In computational form, the new object is
 \begin{equation}
@@ -112,6 +135,31 @@ z\in[0,L],
 \end{equation}
 where $z=0$ is the methane-atmosphere or photochemical/feed side, and $z=L$ is the reactive sediment, evaporite, tholin, or pore-wall side. The first implementation can keep $T$, $P$, $L$, $A_{\rm pool}$, and $A_{\rm surf}$ fixed while evolving concentration profiles and phase transfer. A later environmental model can evolve solvent composition, pool depth, evaporation, refill, and stratification.
 
+\subsection{Cryovolcanic and impact aqueous forcing}
+
+Bulk water is not the normal Titan lake solvent. The baseline pond solvent is methane/ethane/nitrogen-rich hydrocarbon liquid. Therefore aqueous reactions, denoted by species tags such as \texttt{(aq)}, should not be active in the ordinary methane-pool state.
+
+However, Titan may receive transient water/ammonia-water material and heat from cryovolcanism, impact melts, or other geological resurfacing events. In the first implementation this should be represented as an external forcing on the Titan pond, not as a separate full environment class. A cryovolcanic or impact pulse can inject a temporary aqueous microphase, heat, minerals, salts, and water/ammonia-reactive chemistry into the local column.
+
+Schematically,
+\begin{equation}
+F_{\rm cryo}(t)
+=
+\{Q_{\rm heat}(t), \Phi_{\rm H2O}(t), \Phi_{\rm NH3}(t),
+\Phi_{\rm mineral}(t), V_{\rm aq}(t)\}.
+\end{equation}
+
+When $V_{\rm aq}(t)>0$, the solver can activate the \texttt{impact\_water} or \texttt{aqueous} branches of the liquid/surface network. When the pulse decays, those reactions shut off or become transport-limited, and their products are repartitioned into the hydrocarbon liquid, evaporite, sediment, tholin, or dense organic reservoirs.
+
+This allows HCN hydrolysis, formamide/amides, and other oxygenated chemistry to be explored without assuming that Titan lakes are water ponds. The aqueous branch is therefore an optional geological-energy source coupled to the methane-pool model.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.96\linewidth]{FIGURES/titan_pond_cryovolcanic_pulse.pdf}
+\caption{Conceptual cross-section of a Titan methane/ethane pond receiving atmospheric organic deposition and a transient cryovolcanic or impact-generated aqueous pulse. The baseline liquid is hydrocarbon-rich; water/ammonia chemistry is treated as a temporary microphase and source of heat, minerals, and oxygenated reactions rather than as the permanent solvent.}
+\label{fig:titan_pond_cryovolcanic_pulse}
+\end{figure}
+
 \subsection{Chemical network}
 
 The reaction file should provide records of the form
@@ -119,6 +167,21 @@ The reaction file should provide records of the form
 \text{id} \mid \text{module} \mid \text{equation} \mid \text{catalyst/control}
 \mid \text{rate template} \mid \text{role} \mid \text{refs} \mid \text{confidence}.
 \end{equation}
+
+For the current Titan branch the canonical reaction inputs are split into three files:
+\begin{center}
+\begin{tabular}{p{0.34\linewidth}p{0.56\linewidth}}
+\toprule
+File & Role \\
+\midrule
+\texttt{titan\_gas\_phase\_hebrard2013.txt} & KIDA/Hebrard gas-phase Titan chemistry. \\
+\texttt{titan\_photolysis\_selected.txt} & Photolysis branches and photon-driven source/sink reactions. \\
+\texttt{titan\_liquid\_surface\_polymerization.txt} & Hydrocarbon liquid, aerosol, evaporite, surface, polymerization, and optional aqueous-pulse chemistry. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The older Titan files are provenance or intermediate construction files. The three files above should be treated as the machine-readable canonical inputs for the first Titan calculations.
 
 The network parser should return only
 \begin{equation}
@@ -873,10 +936,13 @@ for key species, and if the compartment can grow or maintain catalytic closure:
 
 The minimal computational sequence should be:
 \begin{enumerate}
-\item Read the Titan reaction network.
-\item Parse species.
+\item Read the canonical Titan gas-phase, photolysis, and liquid/surface reaction networks.
+\item Solve or prescribe the zero-dimensional Titan atmospheric reservoir at fixed surface $T$ and $P$.
+\item Parse species and build the shared Titan molecular species set.
 \item Classify chemical types.
 \item Initialize methane-pool \texttt{EnvironmentState}.
+\item Apply atmospheric rainout/deposition and evaporation/refill boundary forcing.
+\item Optionally activate cryovolcanic or impact-water aqueous forcing.
 \item Allocate species among liquid, solid, adsorbed, dense organic, and interface pools.
 \item Evolve reactions with Titan rate factors.
 \item Test dense-phase formation.

@@ -20,16 +20,18 @@
 
 \section{Purpose}
 
-The surface pond environment is a shallow aqueous reactor exposed to atmosphere,
-UV radiation, sediment or mineral surfaces, and changing water depth. It is
-different from a hydrothermal vent and different from volcanic rock pores.
+The surface pond environment is a shallow liquid reactor exposed to atmosphere,
+radiation, sediment or mineral surfaces, and changing liquid level. It is
+different from a hydrothermal vent and different from volcanic rock pores. The
+liquid does not have to be water: the same class should represent an aqueous
+pond, a brine, a hydrocarbon pond, or a custom exoplanetary liquid mixture.
 
 The key physical idea is:
 \begin{equation}
 \boxed{
 \text{shallow pond}
 \rightarrow
-\text{water-depth cycles}
+\text{liquid-level cycles}
 \rightarrow
 \text{concentration/dilution}
 \rightarrow
@@ -37,20 +39,24 @@ The key physical idea is:
 }
 \end{equation}
 
-The first implementation should be a single well-mixed pond. Spatial structure
-can be added later.
+The first implementation should create the physical environment object. It may
+initially use a single well-mixed pond approximation, but the object must be
+organized so that hydrodynamic, radiative, and transport structure can be added
+without changing the input parser.
 
 \section{Geometry}
 
-The first surface pond model is zero-dimensional: one well-mixed shallow water
-body above a sediment or mineral surface.
+The first surface pond model is zero-dimensional: one well-mixed shallow liquid
+body above a sediment or mineral surface. A later model should allow a
+depth-averaged horizontal velocity field and vertical profiles of radiation,
+temperature, and chemistry.
 
 \begin{verbatim}
-atmosphere / UV input
+atmosphere / radiation input
         |
         v
 +--------------------------+
-| shallow pond water       |
+| shallow liquid           |
 | dissolved molecules      |
 +--------------------------+
 | sediment / mineral floor |
@@ -61,8 +67,8 @@ The geometry is defined by:
 \begin{equation}
 V(t)=A_{\rm pond}h(t),
 \end{equation}
-where $V(t)$ is water volume, $A_{\rm pond}$ is pond area, and $h(t)$ is water
-depth.
+where $V(t)$ is liquid volume, $A_{\rm pond}$ is pond area, and $h(t)$ is liquid
+level.
 
 \section{State variables}
 
@@ -72,21 +78,23 @@ Symbol & Code name & Meaning \\
 \midrule
 $t$ & \texttt{time} & simulation time \\
 $A_{\rm pond}$ & \texttt{area} & horizontal pond area \\
-$h(t)$ & \texttt{water\_depth} & instantaneous water depth \\
-$V(t)$ & \texttt{volume} & water volume, $A_{\rm pond}h(t)$ \\
+$h(t)$ & \texttt{liquid\_level} & instantaneous liquid level \\
+$V(t)$ & \texttt{volume} & liquid volume, $A_{\rm pond}h(t)$ \\
 $T$ & \texttt{temperature} & pond water temperature \\
 $P$ & \texttt{pressure} & local pressure \\
-$\mathrm{pH}$ & \texttt{pH} & acidity/basicity of pond water \\
-$I$ & \texttt{ionic\_strength} & dissolved salt strength \\
-$F_{\rm UV}$ & \texttt{uv\_flux} & UV forcing level \\
+$\mathrm{pH}$ & \texttt{pH} & optional aqueous acidity/basicity; not defined for all liquids \\
+$I$ & \texttt{ionic\_strength} & optional aqueous/electrolyte salt strength \\
+$F_{\lambda}$ & \texttt{radiation\_field} & wavelength-dependent radiation forcing \\
+$\mathbf{u}$ & \texttt{velocity\_field} & fluid velocity, initially optional \\
+$g$ & \texttt{gravity} & local gravitational acceleration \\
 $A_{\rm sed}$ & \texttt{sediment\_surface\_area} & reactive sediment/mineral area \\
 $C_i$ & \texttt{concentrations[species]} & concentration of species $i$ \\
 \bottomrule
 \end{longtable}
 
-\section{Water-depth cycle}
+\section{Liquid-level cycle}
 
-The simplest water-depth cycle is periodic:
+The simplest liquid-level cycle is periodic:
 \begin{equation}
 h(t)
 =
@@ -102,7 +110,7 @@ h(t)\ge h_{\rm min}.
 
 The variables mean:
 \begin{itemize}
-  \item $h_0$ is the mean water depth.
+  \item $h_0$ is the mean liquid level.
   \item $\Delta h$ is the amplitude of drying/refilling.
   \item $\tau_{\rm cyc}$ is the cycle period.
   \item $h_{\rm min}$ prevents the pond from becoming mathematically negative.
@@ -110,7 +118,7 @@ The variables mean:
 
 \section{Concentration and dilution}
 
-When the pond dries, the same number of molecules occupies less water. The
+When the pond dries, the same number of molecules occupies less liquid. The
 concentration rises. When the pond refills, concentration falls.
 
 If $h_{\rm old}$ is the previous depth and $h_{\rm new}$ is the new depth:
@@ -125,17 +133,207 @@ This is the central surface-pond mechanism. It is why shallow ponds can drive
 prebiotic chemistry: second-order and higher-order reactions speed up strongly
 when concentrations increase during drying.
 
+\section{Hydrodynamic Layer}
+
+The final surface pond model should not hard-code a single chemical equation at
+the start. It should first define the physical transport layer that later
+chemical, coacervate, and protocell equations will couple to. The continuum
+variables are:
+\begin{equation}
+\rho,\quad
+\eta,\quad
+\nu=\eta/\rho,\quad
+\kappa_T,\quad
+D_i,\quad
+\mathbf{u}(\mathbf{x},t),\quad
+p(\mathbf{x},t),\quad
+T(\mathbf{x},t),
+\end{equation}
+where $\rho$ is liquid density, $\eta$ dynamic viscosity, $\nu$ kinematic
+viscosity, $\kappa_T$ thermal diffusivity, $D_i$ molecular diffusivity, and
+$\mathbf{u}$ the liquid velocity.
+
+For a Newtonian liquid, the reference hydrodynamic model is incompressible
+Navier--Stokes with buoyancy and optional interfacial forcing:
+\begin{align}
+\nabla\cdot \mathbf{u} &= 0,\\
+\rho\left(
+\frac{\partial \mathbf{u}}{\partial t}
++\mathbf{u}\cdot\nabla\mathbf{u}
+\right)
+&=
+-\nabla p
++\eta\nabla^2\mathbf{u}
++\rho \mathbf{g}
++\mathbf{f}_{\rm surf}
++\mathbf{f}_{\rm ext}.
+\end{align}
+Here $\mathbf{f}_{\rm surf}$ represents surface-tension-gradient forcing
+(Marangoni stresses), and $\mathbf{f}_{\rm ext}$ represents later model terms
+such as wind stress, rainfall impact, or externally imposed shaking.
+
+For shallow ponds, the first useful reduction is depth-averaged transport:
+\begin{equation}
+\frac{\partial h}{\partial t}
++
+\nabla_{\parallel}\cdot(h\mathbf{U})
+=
+R_{\rm rain}(t)-E_{\rm evap}(t)-Q_{\rm runoff},
+\end{equation}
+where $\mathbf{U}(x,y,t)$ is the depth-averaged horizontal velocity. The
+zero-dimensional implementation is the special case $\mathbf{U}=0$ and
+$h=h(t)$.
+
+\subsection{Convection and internal heat}
+
+If the planet supplies an internal heat flux, or if the surface is heated or
+cooled by radiation, the pond may develop buoyancy-driven convection. A first
+diagnostic is the Rayleigh number:
+\begin{equation}
+\mathrm{Ra}
+=
+\frac{g\beta\Delta T h^3}{\nu\kappa_T},
+\end{equation}
+where $\beta$ is the thermal expansion coefficient and $\Delta T$ the vertical
+temperature contrast. For a simple layer, convection begins when
+$\mathrm{Ra}$ exceeds a critical value of order $10^3$, with the classical
+rigid/free-boundary number depending on boundary conditions. This should be
+used as a switch for whether the pond is treated as purely diffusive,
+well-mixed, or explicitly convective.
+
+Thermal forcing should therefore be represented by a model object:
+\begin{equation}
+\mathcal{T}
+=
+\mathcal{T}
+\left(
+F_{\lambda}^{\star},
+\tau_{\rm atm},
+q_{\rm int},
+h,
+\rho,
+c_p,
+\kappa_T
+\right),
+\end{equation}
+where $F_{\lambda}^{\star}$ is the stellar spectrum at the planet,
+$\tau_{\rm atm}$ atmospheric optical depth, and $q_{\rm int}$ internal heat
+flux from the planetary body.
+
+\subsection{Surface tension and evaporation-driven flow}
+
+Surface ponds and droplets can also be moved by gradients in surface tension:
+\begin{equation}
+\boldsymbol{\tau}_{\rm interface}
+=
+\nabla_s \gamma(T,\mathbf{C}),
+\end{equation}
+where $\gamma$ is surface tension and $\nabla_s$ is the surface gradient.
+This is the Marangoni mechanism. It matters for evaporating aqueous droplets,
+hydrocarbon liquids, and chemically active protocell-like droplets. Evaporation
+also creates capillary replenishment flow toward pinned contact lines:
+\begin{equation}
+\mathbf{U}_{\rm evap}
+\sim
+\frac{J_{\rm evap} L}{\rho h},
+\end{equation}
+where $J_{\rm evap}$ is evaporative mass flux and $L$ a horizontal length
+scale. This transport can concentrate or segregate suspended particles,
+polymers, coacervates, and protocell candidates.
+
+\subsection{Generic chemical transport equation}
+
+The chemical equations should be finalized only after the hydrodynamic and
+compartment stage is chosen. The general environmental transport form is:
+\begin{equation}
+\frac{\partial C_i}{\partial t}
++
+\nabla\cdot(C_i\mathbf{u})
+=
+\nabla\cdot(D_i\nabla C_i)
++
+R_i^{\rm env}(\mathbf{C},T,\mathrm{solvent},F_{\lambda})
++
+S_i
+-
+L_i.
+\end{equation}
+The current well-mixed equation is the volume-averaged limit of this expression.
+
+\section{Compartment Stage Coupling}
+
+Different protocell-formation stages should not all obey the same equation of
+motion. The surface pond environment supplies fields
+\begin{equation}
+\mathbf{u},\quad T,\quad F_{\lambda},\quad h,\quad \rho,\quad \eta,\quad
+D_i,\quad A_{\rm reactive},
+\end{equation}
+and each compartment class uses those fields differently.
+
+\subsection{Dissolved chemicals}
+
+Dissolved species follow advection--diffusion--reaction:
+\begin{equation}
+\partial_t C_i+\nabla\cdot(C_i\mathbf{u})
+=
+\nabla\cdot(D_i\nabla C_i)+R_i.
+\end{equation}
+
+\subsection{Coacervate or dense liquid droplets}
+
+Coacervates should be treated as deformable dense droplets or particles with
+growth, fusion, breakup, and hydrodynamic transport:
+\begin{equation}
+\frac{d\mathbf{x}_k}{dt}
+=
+\mathbf{u}(\mathbf{x}_k,t)
++
+\mathbf{v}_{\rm drift}^{(k)}
++
+\sqrt{2D_k}\,\boldsymbol{\xi}_k(t),
+\end{equation}
+\begin{equation}
+\frac{dV_k}{dt}
+=
+J_{\rm in}^{(k)}-J_{\rm out}^{(k)}+R_{\rm phase}^{(k)}.
+\end{equation}
+The drift term may include buoyancy, sedimentation, thermophoresis,
+Marangoni motion, or chemical taxis.
+
+\subsection{Vesicles and protocells}
+
+Vesicles and protocells add a boundary state. Their external motion can still
+be advective/diffusive, but their internal chemistry obeys exchange through a
+structured interface:
+\begin{equation}
+\frac{d C_{i,k}^{\rm in}}{dt}
+=
+R_{i,k}^{\rm in}
++
+\frac{A_k}{V_k}
+P_{i,k}
+\left(
+C_i^{\rm ext}(\mathbf{x}_k,t)
+-
+C_{i,k}^{\rm in}
+\right)
+-
+D_{i,k}^{\rm damage}.
+\end{equation}
+Thus coacervates, vesicles, and protocells all live inside the same pond
+environment, but they do not share the same state equations.
+
 \section{Chemical update}
 
 The minimal concentration equation is:
 \begin{equation}
 \frac{dC_i}{dt}
 =
-R_i(\mathbf{C},T,\mathrm{pH},I,F_{\rm UV},A_{\rm sed})
+R_i(\mathbf{C},T,\mathrm{solvent},F_{\lambda},A_{\rm sed})
 +
 S_i^{\rm atm}
 -
-k_{i}^{\rm photo}F_{\rm UV}C_i
+k_{i}^{\rm photo}F_{\lambda}C_i
 -
 k_{\rm wash}C_i
 -
@@ -146,7 +344,7 @@ The terms mean:
 \begin{itemize}
   \item $R_i$ is production or loss from the chemical reaction network.
   \item $S_i^{\rm atm}$ is atmospheric input or deposition of species $i$.
-  \item $k_i^{\rm photo}F_{\rm UV}C_i$ is UV photolysis loss.
+  \item $k_i^{\rm photo}F_{\lambda}C_i$ is photolysis loss.
   \item $k_{\rm wash}C_i$ is washout or runoff loss.
   \item $-(C_i/h)(dh/dt)$ is concentration during drying or dilution during
   refilling.
@@ -161,16 +359,17 @@ SurfacePond
     concentrations
     atmospheric_input
     photolysis_rates
-    water_depth(t)
+    liquid_level(t)
 
 PondState
     time
-    water_depth
+    liquid_level
     temperature
     pressure
-    pH
+    pH optional
     ionic_strength
-    uv_flux
+    radiation_field
+    gravity
     sediment_surface_area
     volume
     concentrations
@@ -182,7 +381,7 @@ PondState
 \toprule
 Environment & Main driver & Main geometry \\
 \midrule
-Surface pond & UV plus drying/refilling concentration & shallow well-mixed water body \\
+Surface pond & radiation plus liquid-level cycles, flow, and concentration & shallow liquid body \\
 Volcanic rock & wet/dry films and rock pores & porous surface rock/interstices \\
 Hydrothermal vent & temperature, pH, redox, and flow gradients & porous chimney wall \\
 \bottomrule
@@ -193,11 +392,91 @@ Hydrothermal vent & temperature, pH, redox, and flow gradients & porous chimney 
 The first target is not a full ecological model. It is:
 \begin{enumerate}
   \item hold a shallow pond state;
-  \item update water depth in time;
-  \item concentrate or dilute chemical species as water depth changes;
+  \item update liquid level in time;
+  \item concentrate or dilute chemical species as liquid level changes;
   \item add atmospheric source terms;
-  \item apply UV photolysis and washout losses;
+  \item apply radiation-driven photolysis and washout losses;
   \item expose the state to the chemical reaction network.
 \end{enumerate}
+
+\section{Hydrodynamics References}
+
+The hydrodynamic layer should be based on established continuum fluid
+mechanics and then reduced to the simplest model needed for each environment.
+Core references are:
+\begin{itemize}
+  \item Batchelor's \emph{An Introduction to Fluid Dynamics} for incompressible
+  flow and transport.
+  \item Landau and Lifshitz, \emph{Fluid Mechanics}, for continuum equations,
+  interfacial stresses, and transport.
+  \item Chandrasekhar's \emph{Hydrodynamic and Hydromagnetic Stability} for
+  Rayleigh--Benard convection and instability thresholds.
+  \item Pearson's analysis of surface-tension-driven convection for Marangoni
+  cells.
+  \item Scriven and Sternling for Marangoni effects at fluid interfaces.
+  \item Deegan et al. and Hu--Larson for evaporation-driven capillary and
+  Marangoni flows in drying droplets.
+  \item Zwicker et al. and Hanczyc et al. for chemically active droplets and
+  protocell-like self-propelled liquid systems.
+\end{itemize}
+
+\begin{thebibliography}{99}
+
+\bibitem{Batchelor1967}
+G. K. Batchelor,
+\emph{An Introduction to Fluid Dynamics},
+Cambridge University Press, 1967.
+
+\bibitem{LandauLifshitz1987}
+L. D. Landau and E. M. Lifshitz,
+\emph{Fluid Mechanics}, 2nd ed.,
+Pergamon Press, 1987.
+
+\bibitem{Chandrasekhar1961}
+S. Chandrasekhar,
+\emph{Hydrodynamic and Hydromagnetic Stability},
+Oxford University Press, 1961.
+
+\bibitem{Rayleigh1916}
+Lord Rayleigh,
+``On convection currents in a horizontal layer of fluid, when the higher
+temperature is on the under side,''
+\emph{Philosophical Magazine} \textbf{32}, 529--546, 1916.
+
+\bibitem{Pearson1958}
+J. R. A. Pearson,
+``On convection cells induced by surface tension,''
+\emph{Journal of Fluid Mechanics} \textbf{4}, 489--500, 1958.
+
+\bibitem{ScrivenSternling1960}
+L. E. Scriven and C. V. Sternling,
+``The Marangoni effects,''
+\emph{Nature} \textbf{187}, 186--188, 1960.
+
+\bibitem{Deegan1997}
+R. D. Deegan, O. Bakajin, T. F. Dupont, G. Huber, S. R. Nagel,
+and T. A. Witten,
+``Capillary flow as the cause of ring stains from dried liquid drops,''
+\emph{Nature} \textbf{389}, 827--829, 1997.
+
+\bibitem{HuLarson2005}
+H. Hu and R. G. Larson,
+``Analysis of the effects of Marangoni stresses on the microflow in an
+evaporating sessile droplet,''
+\emph{Langmuir} \textbf{21}, 3972--3980, 2005.
+
+\bibitem{Zwicker2017}
+D. Zwicker, R. Seyboldt, C. A. Weber, A. A. Hyman, and F. Julicher,
+``Growth and division of active droplets provides a model for protocells,''
+\emph{Nature Physics} \textbf{13}, 408--413, 2017.
+
+\bibitem{Hanczyc2007}
+M. M. Hanczyc, T. Toyota, T. Ikegami, N. Packard, and T. Sugawara,
+``Fatty acid chemistry at the oil--water interface: self-propelled oil
+droplets,''
+\emph{Journal of the American Chemical Society} \textbf{129},
+9386--9391, 2007.
+
+\end{thebibliography}
 
 \end{document}
