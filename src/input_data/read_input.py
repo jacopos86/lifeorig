@@ -257,9 +257,9 @@ class parameters_class(AbstractInput, PlanetInputBuilder):
     def _validate_temperature_pressure(self):
         T = self.local_env_data.get("temperature")
         P = self.local_env_data.get("pressure")
-        if T is None:
+        if T is None and not self.environment_config.uses_planetary_solver:
             log.error("Missing environment temperature")
-        if P is None:
+        if P is None and not self.environment_config.uses_planetary_solver:
             log.error("Missing environment pressure")
         if T is not None and T <= 0:
             log.error("temperature must be > 0")
@@ -284,5 +284,5 @@ class parameters_class(AbstractInput, PlanetInputBuilder):
         if params is None:
             log.error("Missing liquid_level_params in environment data")
             return
-        if params.base_level is None:
+        if params.base_level is None and not self.environment_config.uses_planetary_solver:
             log.error("liquid_level_params: 'base_level' is required")
