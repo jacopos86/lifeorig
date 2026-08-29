@@ -67,7 +67,7 @@ cat > "$INPUT_JSON" <<EOF
             "top_pressure": { "value": 1e-5, "units": "Pa"},
             "max_iter_loop": 50,
             "rel_tol": 1e-6,
-            "abs_tol": 0.0,
+            "abs_tol": { "value": 0.0, "units": "Pa" },
             "damping_loop": 1.0
         },
         "exo_chemistry": {
@@ -116,7 +116,8 @@ cat > "$INPUT_JSON" <<EOF
     "stellar_data": {
         "spectral_class": "G2V",
         "star_temperature": { "value": 5778, "units": "K" },
-        "star_radius": { "value": 6.957e8, "units": "m" }
+        "star_radius": { "value": 6.957e8, "units": "m" },
+        "star_mass": { "value": 1.9885e30, "units": "kg" }
     },
     "distribution_rates": {"mean": 0.0, "std": 0.05},
     "r_mut" : 0.005,
