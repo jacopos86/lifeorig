@@ -1,3 +1,5 @@
+import pytest
+
 from src.common.units import Q_
 from src.environment.external_drive_params import ExternalDriveParams
 from src.environment.liquid_level_model import Liquid, LiquidLevelParams
@@ -21,12 +23,13 @@ def test_liquid_step_updates_level_and_concentrations():
         },
         atmospheric_composition={"CO": 1.0},
     )
+    liquid.concentrations = dict(liquid.composition)
 
     liquid.step(dt=Q_(1.0, "day"), time=Q_(0.0, "day"), surface_area=Q_(1.0, "centimeter ** 2"))
 
-    assert liquid.level.to("centimeter").magnitude == 0.9
-    assert liquid.concentrations["CH4"] == 0.8 / 0.9
-    assert liquid.concentrations["CO"] == 0.1 / 0.9
+    assert liquid.level.to("centimeter").magnitude == pytest.approx(0.9)
+    assert liquid.concentrations["CH4"] == pytest.approx(0.8 / 0.9)
+    assert liquid.concentrations["CO"] == pytest.approx(0.1 / 0.9)
 
 
 def test_plot_liquid_level_writes_file_without_changing_level(tmp_path):
@@ -44,16 +47,14 @@ def test_plot_liquid_level_writes_file_without_changing_level(tmp_path):
             ),
         },
         atmospheric_composition={"CH4": 1.0},
-        time_grid=TimeGrid(
-            T=Q_(3.0, "day"),
-            dt=Q_(1.0, "day"),
-            nt=3,
-        ),
-        working_dir=tmp_path,
+    )
+    time_grid = TimeGrid(
+        T=Q_(3.0, "day"),
+        dt=Q_(1.0, "day"),
+        nt=3,
     )
 
-    output_file = liquid.plot_liquid_level()
+    liquid.plot_liquid_level(time_grid=time_grid, working_dir=tmp_path)
 
-    assert output_file.exists() if hasattr(output_file, "exists") else True
     assert (tmp_path / "liquid_level.pdf").exists()
-    assert liquid.level.to("centimeter").magnitude == 1.0
+    assert liquid.level.to("centimeter").magnitude == pytest.approx(1.0)

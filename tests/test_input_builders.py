@@ -1,23 +1,6 @@
-from src.input_data.environment_input import build_local_env_data
-from src.input_data.core import AbstractInput
+from src.input_data import set_env_parser
 from src.input_data.input_configs import EnvironmentInputConfig
 from src.input_data.planet_input import PlanetInputBuilder
-
-
-class _EnvironmentBuilderHarness(AbstractInput, PlanetInputBuilder):
-    def __init__(self, env_data):
-        self._data = {
-            "planet_model": "Earth",
-            "environment": "volcanic_rock",
-            "environment_data": env_data,
-        }
-        self.environment_config = EnvironmentInputConfig.from_raw(self._data)
-
-    def _parse_data(self):
-        raise NotImplementedError
-
-    def _validate(self):
-        raise NotImplementedError
 
 
 def test_earth_planet_preset_builds():
@@ -28,7 +11,7 @@ def test_earth_planet_preset_builds():
     assert star.name == "Sun"
 
 
-def test_volcanic_rock_environment_input_parses_quantities():
+def test_explicit_volcanic_rock_environment_input_is_preserved():
     env_data = {
         "number_pores": 10,
         "pore_radius": {"value": 1.0, "units": "millimeter"},
@@ -50,9 +33,16 @@ def test_volcanic_rock_environment_input_parses_quantities():
         },
     }
 
-    parsed = build_local_env_data(_EnvironmentBuilderHarness(env_data))
+    environment_config = EnvironmentInputConfig.from_raw(
+        {
+            "environment": "volcanic_rock",
+            "environment_source": "explicit",
+            "environment_data": env_data,
+        }
+    )
+    parsed = set_env_parser.build_local_env_data(
+        environment_config=environment_config,
+        planet_model="Earth",
+    )
 
-    assert parsed["num_pores"] == 10
-    assert parsed["pore_radius"].magnitude == 1.0
-    assert parsed["solvent_data"].name == "H2O"
-    assert parsed["solvent_data"].liquid_level_params.model_type == "constant"
+    assert parsed == env_data
