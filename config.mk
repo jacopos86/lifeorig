@@ -13,7 +13,7 @@ CONDA_ENV_FILE := $(ROOT)/conda-environment.yml
 # ===================
 
 PYTHON_VERSION ?= python=3.11
-NUMPY_VERSION ?= "numpy<2"
+NUMPY_VERSION ?= "numpy>=2,<3"
 
 # ===================
 # Build mode
