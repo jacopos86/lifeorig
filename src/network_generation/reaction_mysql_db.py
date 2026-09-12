@@ -2,6 +2,7 @@ import os
 import pymysql
 from collections import Counter
 from src.utilities.logging_module import log
+from src.input_data.chemical_network_parser import ParsedChemicalNetwork, ParsedReaction
 
 def open_reaction_database():
     return pymysql.connect(
@@ -167,6 +168,73 @@ def get_species_from_reaction_database(db, source_files=None):
             source_params,
         )
         return [row[0] for row in cursor.fetchall()]
+
+def get_reaction_network_from_database(db, source_files=None):
+    source_filter, source_params = _source_file_filter(source_files)
+    with db.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT r.id, r.source_reaction_id, r.module, r.equation,
+                   r.reversible, r.catalyst_or_control, r.rate_template,
+                   r.role, r.refs, r.confidence
+            FROM reactions r
+            JOIN reaction_source_files rsf ON rsf.id = r.source_file_id
+            {source_filter}
+            ORDER BY r.id
+            """,
+            source_params,
+        )
+        reaction_rows = cursor.fetchall()
+
+        cursor.execute(
+            f"""
+            SELECT rp.reaction_id, s.name, rp.side, rp.stoichiometry
+            FROM reaction_participants rp
+            JOIN species s ON s.id = rp.species_id
+            JOIN reactions r ON r.id = rp.reaction_id
+            JOIN reaction_source_files rsf ON rsf.id = r.source_file_id
+            {source_filter}
+            ORDER BY rp.reaction_id, rp.side, s.name
+            """,
+            source_params,
+        )
+        participant_rows = cursor.fetchall()
+
+    participants = {}
+    for reaction_id, species_name, side, stoichiometry in participant_rows:
+        sides = participants.setdefault(reaction_id, {"reactant": [], "product": []})
+        sides[side].extend([species_name] * int(stoichiometry))
+
+    reactions = []
+    species = []
+    seen_species = set()
+    for row in reaction_rows:
+        database_id = row[0]
+        sides = participants.get(database_id, {"reactant": [], "product": []})
+        reactants = sides["reactant"]
+        products = sides["product"]
+        reactions.append(
+            ParsedReaction(
+                reaction_id=row[1],
+                module=row[2],
+                equation=row[3],
+                reactants=reactants,
+                products=products,
+                reversible=bool(row[4]),
+                catalyst_or_control=row[5],
+                rate_template=row[6],
+                role=row[7],
+                refs=row[8],
+                confidence=row[9],
+            )
+        )
+        for species_name in reactants + products:
+            if species_name in {"hnu", "M"}:
+                continue
+            if species_name not in seen_species:
+                species.append(species_name)
+                seen_species.add(species_name)
+    return ParsedChemicalNetwork(species=species, reactions=reactions)
 
 #
 #   SUMMARY INFO
