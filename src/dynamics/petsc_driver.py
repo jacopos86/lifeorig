@@ -1,9 +1,7 @@
 from __future__ import annotations
-
 from typing import Any
-
 import numpy as np
-from petsc4py import PETSc
+from src.parallelization.init_petsc import PETSc
 
 # ============================================================
 #  PETSc driver
