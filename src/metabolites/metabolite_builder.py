@@ -1,6 +1,5 @@
 from itertools import product
-from src.metabolites.metabolite_class import Metabolite
-from src.chemical_types.molecule_model import MultiPolymer
+from src.metabolites.metabolite_class import BinaryPolymer, Metabolite, MultiPolymer
 from src.utilities.logging_module import log
 
 #
@@ -28,7 +27,7 @@ def build_binary_metabolites(metabolites_params):
     for length in range(1, max_size + 1):
         for idx in range(2 ** length):
             sequence = format(idx, f"0{length}b")
-            molecule = Molecule(sequence)
+            molecule = BinaryPolymer(sequence)
             molecules.append(molecule)
             molecule_map[sequence] = molecule
     initial_population = build_uniform_initial_population(
@@ -48,7 +47,7 @@ def build_multi_metabolites(metabolites_params):
     alphabet = list(MultiPolymer._MONOMER_TYPES)
     for length in range(1, max_size + 1):
         for sequence in product(alphabet, repeat=length):
-            molecule = Molecule(list(sequence))
+            molecule = MultiPolymer(list(sequence))
             molecules.append(molecule)
             molecule_map[tuple(sequence)] = molecule
     initial_population = build_uniform_initial_population(
