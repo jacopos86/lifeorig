@@ -22,32 +22,42 @@ from src.environment.setup_environment import setup_environment
 from src.environment.planetary_driver import planetary_solver_driver
 from src.network_generation.reaction_database_driver import reaction_database_driver
 from src.network_generation.reaction_mysql_db import open_reaction_database, log_species_summary
-from src.chemical_types.define_molecule_set import build_molecular_species_set
+from src.chemical_types.molecule_set_builder import build_molecular_species_set
 
 args = parser.parse_args()
 calc_type = args.ct[0]
 p = parameters_class()
 p.read_input_json(args.json_input[0])
 
-log.info("\t ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-log.info("\t ++++++                                                                                  ++++++")
-log.info("\t ++++++                           LIFEORIG   CODE                                        ++++++")
-log.info("\t ++++++                                                                                  ++++++")
-log.info("\t ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-log.info("\n")
-log.info("\t " + p.sep)
-log.info("\t CALCULATION TYPE : " + calc_type)
-log.info("\t " + p.sep)
-log.info("\n")
+log.info("")
+log.info("=" * 88)
+log.info("                              L I F E O R I G")
+log.info("                 Planetary Environments & Chemical Evolution")
+log.info("-" * 88)
+log.info(f"  Run mode : {calc_type}")
+log.info(f"  Input    : {args.json_input[0]}")
+log.info("=" * 88)
+log.info("")
 
 # test gillespie algo
 if log.level <= logging.DEBUG:
     kin_solver = chemical_kinetics_solver()
     kin_solver.test()
 
+# solve and save only the planetary/environment state
+
+if calc_type == "env_solver":
+    if not p.environment_config.uses_planetary_solver:
+        log.error("env_solver requires environment_source='planetary_solver'")
+    log.info("\t " + p.sep)
+    log.info("\t STARTING PLANETARY SOLVER")
+    planet_params = planetary_solver_driver(p)
+    p.planetary_data = planet_params
+    log.info("\n")
+
 # build chemical networks section
 
-if calc_type == "set_initial_state":
+elif calc_type == "chem_evol":
 
     if p.environment_config.uses_planetary_solver:
         log.info("\t " + p.sep)
@@ -211,9 +221,11 @@ elif calc_type == "evol":
         out_file2= p.working_dir + "/" + str(ic) + "/Q_oft.txt"
         solver.save_data(xt, out_file, out_file2)
     
-log.info("\t ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-log.info("\t ++++++                                                                                  ++++++")
-log.info("\t ++++++                 LIFEORIG   CODE    EXECUTION   COMPLETE                          ++++++")
-log.info("\t ++++++                                                                                  ++++++")
-log.info("\t ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-log.info("\n")
+log.info("")
+log.info("=" * 88)
+log.info("  LIFEORIG :: RUN COMPLETED")
+log.info("-" * 88)
+log.info(f"  Run mode : {calc_type}")
+log.info(f"  Output   : {p.working_dir}")
+log.info("=" * 88)
+log.info("")
