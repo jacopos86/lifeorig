@@ -14,6 +14,7 @@ class ChemEnvInput:
     chemical_species: list[str] | None = None
     pressure: Q_ | None = None
     temperature: Q_ | None = None
+    reaction_source_files: list | None = None
 
 #
 #   chemical environment data results
