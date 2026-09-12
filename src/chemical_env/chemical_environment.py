@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from src.utilities.logging_module import log
 from src.atmosphere_solver.equil_atm_struct import LayeredEquilibriumAtmosphSolver
+from src.atmosphere_solver.non_eq_atm_struct import NonEquilLayeredAtmosphSolver
 from src.chemical_env.chem_env_data import ChemEnvInput, ChemEnvResult
+from src.exo_chem.easy_chem_driver import run_easychem_backend
 
 #
 #   Set input ChemEnv
@@ -38,8 +40,6 @@ class SimulateChemEnv:
             return self._run_out_equilibrium()
         log.error(f"Unknown chemistry mode: {self.chem_input.mode}")
     def _run_local_equilibrium(self) -> ChemEnvResult:
-        from src.exo_chem.easy_chem_driver import run_easychem_backend
-
         if self.chem_input.pressure is None:
             log.error("pressure is required for local_equilibrium")
         if self.chem_input.temperature is None:
@@ -62,4 +62,10 @@ class SimulateChemEnv:
             output_dir=self.output_dir
         ).run()
     def _run_out_equilibrium(self) -> ChemEnvResult:
-        log.error("layered_disequilibrium solver is not implemented")
+        return NonEquilLayeredAtmosphSolver(
+            chem_input=self.chem_input,
+            stellar_data=self.stellar_data,
+            planet_data=self.planet_data,
+            atmosphere_data=self.atmosphere_data,
+            output_dir=self.output_dir,
+        ).run()
