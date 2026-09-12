@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-
+from dataclasses import dataclass
+from matplotlib import axis
+import numpy as np
 
 class Reaction(ABC):
     def __init__(self, reaction_id=None):
@@ -81,3 +83,36 @@ class LigationReaction(Reaction):
         return "ligation"
     def set_initial_catalyst_rates(self, catalyst_set, rate_builder):
         pass
+
+#
+#    chemical reaction
+#
+
+@dataclass
+class ChemicalReaction:
+    reaction_id: str
+    # reactants
+    react_indices: np.ndarray
+    react_coeff: np.ndarray
+    # products
+    prod_indices: np.ndarray
+    prod_coeff: np.ndarray
+    # rate model
+    rate_model: object | None = None
+    # rate
+    def rate(self, t, y, context):
+        k = self.rate_model(
+            t=t,
+            context=context
+        )
+        reactants = y[
+            ...,
+            self.react_indices
+        ]
+        return k * xp.prod(
+            reactants ** self.react_coeff,
+            axis=-1
+        )
+    def add_stoichiometry(self, column):
+        column[self.react_indices] -= self.react_coeff
+        column[self.prod_indices] += self.prod_coeff
