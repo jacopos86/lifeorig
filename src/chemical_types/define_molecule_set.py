@@ -2,14 +2,12 @@ import re
 from itertools import product
 from dataclasses import dataclass
 from periodictable import elements
-from src.chemical_types.molecule_model import MultiPolymer
 from src.chemical_types.molecule_model import ReferenceMolecule, MolecularTemplate, AtomicSpecies
 from src.chemical_types.mineral_model import MineralSpecies, MineralTemplate, is_mineral
 from src.network_generation.reaction_mysql_db import open_reaction_database, get_species_from_reaction_database
 from src.utilities.logging_module import log
 
-NON_MOLECULAR_SPECIES = {
-    "M",
+NON_SPECIES_CONTROLS = {
     "hnu",
     "hv",
     "photon",
@@ -53,111 +51,25 @@ PAH_TEMPLATE_REPRESENTATIVES = {
 }
 
 #
-#   build the molecules set
-#
-
-def build_molecular_string_model_set(metabolites_data):
-    """
-    Build the global set of unique Molecule objects present in the simulation.
-    Returns:
-        molecules : list[Molecule]
-        molecule_map : dict[sequence -> Molecule]
-    """
-    max_polymer_length = metabolites_data.get("pol_strng_maxsize")
-    mol_type = metabolites_data.get("type")
-    molecules = []
-    molecule_map = {}
-    if mol_type == "binary":
-        # build all binary polymers up to max length
-        for L in range(1, max_polymer_length + 1):
-            for i in range(2 ** L):
-                seq = format(i, f'0{L}b')  # binary string
-                #mol = Molecule(seq)
-                molecules.append(mol)
-                molecule_map[seq] = mol
-    elif mol_type == 'multi':
-        alphabet = list(MultiPolymer._MONOMER_TYPES)
-        for L in range(1, max_polymer_length + 1):
-            for seq in product(alphabet, repeat=L):
-                #mol = Molecule(list(seq))
-                molecules.append(mol)
-                molecule_map[tuple(seq)] = mol
-    else:
-        log.error("Unknown molecule type")
-    log.info("\n")
-    for i, mol in enumerate(molecules):
-        log.info(f"\t molecule {i+1}: {mol.show_sequence()} -- length: {len(mol)}")
-    log.info("\t " + p.sep)
-    log.info("\n")
-    return molecules, molecule_map
-
-#
-#   build complete molecular species set
-#
-
-def build_molecular_species_set(input_params, reaction_source_files=None):
-    species = set()
-    # collect chemical species
-    species.update(_species_from_reaction_database(reaction_source_files))
-    species.update(_species_from_planetary_chemistry(input_params.planetary_data, input_params.env_model))
-    species.update(_species_from_local_environment(input_params.local_env_data))
-    max_polymer_length = (input_params.metabolites_params or {}).get("pol_strng_maxsize")
-    return MolecularSpeciesSet.from_species_names(species, max_polymer_length=max_polymer_length)
-
-#
-#   get data from reaction file
-#
-
-def _species_from_reaction_database(reaction_source_files=None):
-    db = open_reaction_database()
-    try:
-        return set(get_species_from_reaction_database(db, reaction_source_files))
-    finally:
-        db.close()
-
-#
-#   get species from planet chemistry
-#
-
-def _species_from_planetary_chemistry(planet, env_model):
-    if planet is None:
-        return set()
-    if env_model == "hydro_vent":
-        hydro = planet.hydro or {}
-        return set((hydro.get("ocean_composition") or {}).keys())
-    chemistry = planet.chemical_stationary_config
-    if chemistry is not None:
-        return set(chemistry.atmosph_composition(default={}).keys())
-    chemistry_input = planet.chemistry or {}
-    return set(chemistry_input.get("chemical_species") or [])
-
-#
-#   get solvent species
-#
-
-def _species_from_local_environment(local_env_data):
-    if not local_env_data:
-        return set()
-    solvent_data = local_env_data.get("solvent_data")
-    if solvent_data is None:
-        return set()
-    return set(solvent_data.composition.keys())
-
-#
 #     Molecular species set construction
 #
 
 @dataclass
 class MolecularSpeciesSet:
     species: list
-
+    # AEROSOL
+    AEROSOL_ALIASES = {
+        "HCAER": "C4H2",
+        "HCAER2": "C5H4",
+        "S8AER": "S8",
+    }
+    # PHASES
     PHASE_TAGS = {
         "(aer)": "aerosol",
         "(aq)": "aqueous",
         "(s)": "solid",
         "(sol)": "solution",
     }
-
     @staticmethod
     def _atomic_symbols():
         return {
@@ -165,25 +77,36 @@ class MolecularSpeciesSet:
             for element in elements
             if getattr(element, "symbol", None)
         }
-
     @classmethod
     def _split_phase(cls, species_name):
+        if species_name in cls.AEROSOL_ALIASES:
+            return cls.AEROSOL_ALIASES[species_name], "aerosol"
         for phase_tag, phase in cls.PHASE_TAGS.items():
             if species_name.endswith(phase_tag):
                 return species_name[: -len(phase_tag)], phase
         return species_name, "gas"
-
     @staticmethod
     def _split_state(species_name):
+        electronic_states = {
+            "CH21": ("CH2", "singlet"),
+            "CH23": ("CH2", "triplet"),
+            "SO21": ("SO2", "singlet"),
+            "SO23": ("SO2", "triplet"),
+            "^3HCCN": ("HCCN", "triplet"),
+            "^1HC2N": ("HC2N", "singlet"),
+        }
+        if species_name in electronic_states:
+            return electronic_states[species_name]
         species_name = re.sub(r"(?<!\d)1(?!\d)", "", species_name)
         if species_name.endswith("X"):
             return _canonical_formula(species_name[:-1]), "excited"
         if _is_numbered_polymer_species(species_name):
             return _canonical_polymer_formula(species_name), "ground"
         return _canonical_formula(species_name), "ground"
-
     @staticmethod
     def _split_conformation(species_name):
+        if species_name.startswith("trans-"):
+            return species_name.removeprefix("trans-"), "trans"
         conformation_prefixes = {
             "c": "cyclic",
             "l": "linear",
@@ -192,9 +115,12 @@ class MolecularSpeciesSet:
         if len(species_name) > 1 and species_name[0] in conformation_prefixes and species_name[1].isupper():
             return species_name[1:], conformation_prefixes[species_name[0]]
         return species_name, "linear"
-
     @staticmethod
     def _split_atomic_state(species_name):
+        if species_name == "O1D":
+            return "O", "1D"
+        if species_name == "N2D":
+            return "N", "2D"
         match = re.fullmatch(r"([A-Z][a-z]?)(?:\(([^)]+)\))?", species_name)
         if match is None:
             return species_name, "ground"
@@ -202,7 +128,6 @@ class MolecularSpeciesSet:
         if state == "4S":
             state = "ground"
         return symbol, state or "ground"
-
     @classmethod
     def from_species_names(cls, species_names, max_polymer_length=None):
         atomic_aliases = {}
@@ -212,10 +137,14 @@ class MolecularSpeciesSet:
         mineral_template_aliases = {}
         atomic_symbols = cls._atomic_symbols()
         for species_name in sorted(species_names):
-            print(species_name)
-            if species_name in NON_MOLECULAR_SPECIES:
+            if species_name in NON_SPECIES_CONTROLS:
                 continue
             species_base_name, phase = cls._split_phase(species_name)
+            template_type = _molecular_template_type(species_base_name)
+            if template_type is not None:
+                template_key = (species_base_name, phase, "ground")
+                template_aliases.setdefault(template_key, set()).add(species_name)
+                continue
             atomic_symbol, atomic_state = cls._split_atomic_state(species_base_name)
             if atomic_symbol in atomic_symbols and species_base_name == atomic_symbol:
                 atomic_key = (atomic_symbol, phase, atomic_state)
@@ -231,18 +160,13 @@ class MolecularSpeciesSet:
             elif _is_mineral_species(species_name):
                 mineral_key = (species_base_name, phase)
                 mineral_aliases.setdefault(mineral_key, set()).add(species_name)
-            elif _is_molecular_template(species_base_name):
-                template_key = (species_base_name, phase, "ground")
-                template_aliases.setdefault(template_key, set()).add(species_name)
             else:
                 species_base_name, state = cls._split_state(species_base_name)
                 species_base_name, conformation = cls._split_conformation(species_base_name)
                 molecule_key = (species_base_name, phase, state, conformation)
                 molecule_aliases.setdefault(molecule_key, set()).add(species_name)
-
         max_polymer_length = _resolve_max_polymer_length(max_polymer_length, molecule_aliases)
         _add_template_polymer_molecules(template_aliases, molecule_aliases, max_polymer_length)
-
         species = []
         next_id = 1
         for atomic_symbol, phase, state in sorted(atomic_aliases):
@@ -260,6 +184,7 @@ class MolecularSpeciesSet:
             species.append(
                 MolecularTemplate(
                     name=template_name,
+                    template_type=_molecular_template_type(template_name),
                     aliases=template_aliases[(template_name, phase, state)],
                     phase=phase,
                     state=state,
@@ -302,7 +227,6 @@ class MolecularSpeciesSet:
             next_id += 1
         _set_template_matching_molecules(species)
         return cls(species=species)
-
     @property
     def molecules(self):
         return [
@@ -324,7 +248,6 @@ class MolecularSpeciesSet:
             for species in self.species
             if isinstance(species, MineralSpecies)
         ]
-
     def molecule_names(self):
         return [
             molecule.show_sequence()
@@ -332,10 +255,8 @@ class MolecularSpeciesSet:
             else molecule.symbol
             for molecule in self.molecules
         ]
-
     def template_names(self):
         return [template.name for template in self.templates]
-
     def mineral_names(self):
         return [mineral.name for mineral in self.minerals]
 
@@ -381,6 +302,9 @@ def _is_mineral_template(species_name):
 def _is_mineral_species(species_name):
     return is_mineral(species_name)
 
+#
+#  get chemical formula
+#
 
 def _canonical_formula(species_name):
     if species_name in NAMED_MOLECULE_SEQUENCES:
@@ -414,6 +338,7 @@ def _canonical_formula(species_name):
             canonical += str(count)
     return canonical
 
+# polymer length
 
 def _resolve_max_polymer_length(max_polymer_length, molecule_aliases):
     if max_polymer_length is not None:
@@ -425,6 +350,9 @@ def _resolve_max_polymer_length(max_polymer_length, molecule_aliases):
             max_detected_length = max(max_detected_length, int(match.group(1)))
     return max_detected_length
 
+#
+#  resolve template molecules
+#
 
 def _add_template_polymer_molecules(template_aliases, molecule_aliases, max_polymer_length):
     if max_polymer_length < 2:
@@ -443,12 +371,11 @@ def _add_template_polymer_molecules(template_aliases, molecule_aliases, max_poly
             molecule_key = (sequence, phase, state, conformation)
             molecule_aliases.setdefault(molecule_key, set())
 
-
 def _set_template_matching_molecules(species):
     molecules = [
         species_item
         for species_item in species
-        if isinstance(species_item, ReferenceMolecule)
+        if isinstance(species_item, (ReferenceMolecule, AtomicSpecies))
     ]
     templates = [
         species_item
@@ -456,6 +383,9 @@ def _set_template_matching_molecules(species):
         if isinstance(species_item, MolecularTemplate)
     ]
     for template in templates:
+        if template.name == "M":
+            template.matching_molecules = list(molecules)
+            continue
         monomers = TEMPLATE_POLYMER_FAMILIES.get(template.name)
         matching_sequences = set()
         if monomers is not None:
@@ -485,17 +415,14 @@ def _set_template_matching_molecules(species):
             )
         ]
 
-
 def _matches_polymer_family(sequence, monomers):
     for monomer in monomers:
         if re.fullmatch(rf"P\[{re.escape(_canonical_formula(monomer))}\]\d+", sequence):
             return True
     return False
 
-
 def _matches_pah_template(template_name, sequence, conformation):
     return (sequence, conformation) in PAH_TEMPLATE_REPRESENTATIVES.get(template_name, ())
-
 
 def _is_lumped_polymer_template(species_name):
     if species_name.startswith("P_CxHy_"):
@@ -506,10 +433,8 @@ def _is_lumped_polymer_template(species_name):
         return True
     return not re.search(r"_\d+$", species_name)
 
-
 def _is_numbered_polymer_species(species_name):
     return re.fullmatch(r"P_[A-Za-z0-9]+_\d+", species_name) is not None
-
 
 def _canonical_polymer_formula(species_name):
     match = re.fullmatch(r"P_([A-Za-z0-9]+)_(\d+)", species_name)
@@ -518,16 +443,17 @@ def _canonical_polymer_formula(species_name):
     monomer, count = match.groups()
     return f"P[{_canonical_formula(monomer)}]{count}"
 
-
 def _molecular_template_type(species_name):
     if species_name == "M":
         return "third_body"
     if species_name in {"hnu", "hv", "photon"}:
         return "radiation"
+    if not _is_molecular_template(species_name):
+        return None
     if "_n" in species_name or "nplus1" in species_name:
         return "polymer_chain"
     if species_name.startswith("R_"):
         return "functional_group"
     if "*" in species_name:
         return "wildcard_surface"
-    return "unknown"
+    return "molecular_template"
