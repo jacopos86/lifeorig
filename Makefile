@@ -27,6 +27,10 @@ CONDA_BASE_DEPS = \
   mpi4py \
   pip
 
+CONDA_MPI_DEPS = \
+  "mpi=*=openmpi" \
+  openmpi
+
 # ========================
 # PETSc dependencies
 # ========================
@@ -36,6 +40,7 @@ ifeq ($(GPU_ACTIVE),1)
     "petsc=*=*cuda*" \
     "petsc4py"
   GPU_DEPS = \
+    cupy \
     cuda-version=$(CUDA_VERSION)
 else
   PETSC_DEPS = \
@@ -56,6 +61,9 @@ environment:
 	@echo "  - conda-forge" >> $(CONDA_ENV_FILE)
 	@echo "dependencies:" >> $(CONDA_ENV_FILE)
 	@for pkg in $(CONDA_BASE_DEPS); do \
+		echo "  - $$pkg" >> $(CONDA_ENV_FILE); \
+	done
+	@for pkg in $(CONDA_MPI_DEPS); do \
 		echo "  - $$pkg" >> $(CONDA_ENV_FILE); \
 	done
 	@for pkg in $(PETSC_DEPS); do \
