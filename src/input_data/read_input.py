@@ -134,8 +134,6 @@ class parameters_class(AbstractInput, PlanetInputBuilder):
         required_keys = ["type", "initial_population_molecules"]
         if self.metabolites_params.get("type") in {"binary", "multi"}:
             required_keys.extend(["pol_strng_maxsize", "metabolites_distr_type"])
-        if self.metabolites_params.get("type") == "reference_file":
-            required_keys.append("reaction_file")
         missing = [k for k in required_keys 
            if k not in self.metabolites_params or self.metabolites_params[k] is None]
         if missing:
