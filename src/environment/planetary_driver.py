@@ -8,6 +8,7 @@ from src.planet_params.titan_params import get_titan_chem_env
 from src.planet_params.mars_params import get_mars_chem_env
 from src.planet_params.europa_params import get_europa_chem_env
 from src.planet_params.venus_params import get_venus_chem_env
+from src.chem_network.chem_system_builder import build_chemical_system
 
 #
 #    PRESET chemistry
@@ -54,16 +55,22 @@ def planetary_solver_driver(input_params):
         chemical_species=chem.get("chemical_species"),
         pressure=input_params.local_env_data.get("pressure"),
         temperature=input_params.local_env_data.get("temperature"),
+        reaction_source_files=chem.get("reaction_files"),
     )
-    if mode in {"local_equilibrium", "layered_equilibrium"}:
+    chem_system = None
+    if mode == "layered_disequilibrium":
+        chem_system = build_chemical_system(
+            chem_input=chem_input,
+            input_params=input_params
+        )
+    if mode in {"local_equilibrium", "layered_equilibrium", "layered_disequilibrium"}:
         planet.chemical_stationary_config = SimulateChemEnv(
             chem_input=chem_input,
+            chem_system=chem_system,
             planet_data=planet,
             stellar_data=star,
             atmosphere_data=planet.atmosphere,
             output_dir=input_params.working_dir,
         ).run()
         return planet
-    if mode == "layered_disequilibrium":
-        log.error("layered_disequilibrium solver is not implemented")
     log.error(f"Unknown chemistry mode: {mode}")
