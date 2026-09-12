@@ -1,9 +1,11 @@
 import os
 from src.utilities.logging_module import log
 from src.input_data.chemical_network_parser import ChemicalNetworkParser
+from src.input_data.vpl_atmos_reaction_parser import VPLAtmosReactionParser
 from src.utilities.file_hash import _file_sha256
 from src.network_generation.reaction_mysql_db import delete_old_reaction_file_data, open_reaction_database, reaction_file_is_current, insert_reaction_file_data
 from src.global_parameters.global_variables import PROJECT_DIR
+
 REFERENCE_REACTIONS_DIR = PROJECT_DIR / "reference_reactions"
 
 #
@@ -30,13 +32,12 @@ def reaction_database_driver(input_params):
 
 def _select_reaction_files(input_params):
     if input_params.planetary_data.name.lower() == "titan":
-        TITAN_REACTION_DIR = REFERENCE_REACTIONS_DIR / "TITAN"
-        TITAN_REACTION_FILES = [
-            TITAN_REACTION_DIR / "titan_gas_phase_hebrard2013.txt",
-            TITAN_REACTION_DIR / "titan_photolysis_selected.txt",
-            TITAN_REACTION_DIR / "titan_liquid_surface_polymerization.txt",
+        titan_reaction_dir = REFERENCE_REACTIONS_DIR / "TITAN"
+        return [
+            titan_reaction_dir / "titan_gas_phase_hebrard2013.txt",
+            titan_reaction_dir / "titan_photolysis_selected.txt",
+            titan_reaction_dir / "titan_liquid_surface_polymerization.txt",
         ]
-        return TITAN_REACTION_FILES
     reaction_data = input_params.chemical_network_data
     if reaction_data and reaction_data.get("reaction_files"):
         return [
@@ -63,7 +64,10 @@ def _register_update_reaction_file(reaction_file):
         if not force_import and reaction_file_is_current(db, reaction_file, file_hash):
             log.info("\t reaction data already current")
             return
-        parsed_network = ChemicalNetworkParser(reaction_file).parse()
+        if reaction_file.name == "reactions.rx":
+            parsed_network = VPLAtmosReactionParser(reaction_file).parse()
+        else:
+            parsed_network = ChemicalNetworkParser(reaction_file).parse()
         delete_old_reaction_file_data(db, reaction_file)
         insert_reaction_file_data(db, reaction_file, file_hash, parsed_network)
         db.commit()
