@@ -3,6 +3,7 @@ import inspect
 import os
 import sys
 from colorlog import ColoredFormatter
+from src.parallelization.mpi import mpi
 
 class log_class:
     def __init__(self, LOG_LEVEL, logfile):
@@ -24,9 +25,13 @@ class log_class:
         func = stack[2][3]
         return func, ln
     def info(self, message, *args):
+        if mpi.rank != mpi.root:
+            return
         message = "{} at line {}: {}".format(*self.__get_call(), message)
         self.logger.info(message, *args)
     def debug(self, message, *args):
+        if mpi.rank != mpi.root:
+            return
         message = "{} at line {}: {}".format(*self.__get_call(), message)
         self.logger.debug(message, *args)
     def warning(self, message, *args):
@@ -67,6 +72,8 @@ class colored_log_class:
         func = stack[2][3]
         return func, ln
     def info(self, message, *args):
+        if mpi.rank != mpi.root:
+            return
         #msg = "{} at line {}: {}".format(*self.__get_call(), message)
         msg = "{} at line {}: {}"
         msg = msg.format(*self.__get_call(), f"{message : <30}").split(':')
@@ -77,6 +84,8 @@ class colored_log_class:
         msg2 += message
         self.log.info(msg2, *args)
     def debug(self, message, *args):
+        if mpi.rank != mpi.root:
+            return
         #message = "{} at line {}: {}".format(*self.__get_call(), message)
         msg = "{} at line {}: {}"
         msg = msg.format(*self.__get_call(), f"{message : <30}").split(':')
