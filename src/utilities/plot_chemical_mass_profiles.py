@@ -66,11 +66,12 @@ def plot_chemical_mass_profiles(
     ax_mu.plot(x, mu_amu, color="black", lw=2.4)
     ax_mu.set_ylabel(r"$\mu$ (amu)")
     ax_mu.set_title("chemical mass profile")
+    ax_mu.ticklabel_format(axis="y", style="plain", useOffset=False)
     ax_mu.grid(alpha=0.25)
     for species in species_to_plot:
         ax_species.plot(x, contributions[species], lw=1.6, label=species)
     ax_species.set_xlabel(x_label)
-    ax_species.set_ylabel(r"$x_i m_i$ (amu)")
+    ax_species.set_ylabel(r"$x_i \mu_i$ (amu)")
     ax_species.grid(alpha=0.25)
     ax_species.legend(loc="best", fontsize=8, ncol=2)
     fig.tight_layout()
