@@ -13,7 +13,7 @@ MOLECULE_SOURCE="${MOLECULE_SOURCE:-chemical_network}"
 PLANET_MODEL="${PLANET_MODEL:-Earth}"
 OUTPUT_DIR="${OUTPUT_DIR:-$ROOT_DIR/TESTS/Earth_${ENVIRONMENT}}"
 INPUT_JSON="${INPUT_JSON:-$OUTPUT_DIR/input.json}"
-CALC_TYPE="${CALC_TYPE:-set_initial_state}"
+CALC_TYPE="${CALC_TYPE:-chem_evol}"
 
 CHEM_NETWORK_TYPE="${CHEM_NETWORK_TYPE:-reference_file}"
 CHEM_REACTION_FILE="${CHEM_REACTION_FILE:-$ROOT_DIR/reference_reactions/HYDRO_VENT/hydro_vent_reaction_network_v1.txt}"

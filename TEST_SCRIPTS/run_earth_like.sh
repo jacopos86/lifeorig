@@ -21,7 +21,7 @@ ENVIRONMENT="${ENVIRONMENT:-volcanic_rock}"
 ENVIRONMENT_SOURCE="${ENVIRONMENT_SOURCE:-explicit}"
 OUTPUT_DIR="${OUTPUT_DIR:-$ROOT_DIR/TESTS/${PLANET_MODEL}_${ENVIRONMENT}_network}"
 INPUT_JSON="${INPUT_JSON:-$OUTPUT_DIR/input.json}"
-CALC_TYPE="${CALC_TYPE:-set_initial_state}"
+CALC_TYPE="${CALC_TYPE:-chem_evol}"
 
 CHEM_NETWORK_TYPE="${CHEM_NETWORK_TYPE:-reference_file}"
 CHEM_REACTION_FILE="${CHEM_REACTION_FILE:-EARTH_LIKE/earth_like_volcanic_rock_combined_network_v1.txt}"

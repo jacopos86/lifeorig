@@ -20,22 +20,14 @@ if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
 fi
 OUTPUT_DIR="${OUTPUT_DIR:-$ROOT_DIR/TESTS/TITAN}"
 INPUT_JSON="${INPUT_JSON:-$OUTPUT_DIR/input.json}"
-CALC_TYPE="${CALC_TYPE:-set_initial_state}"
-CHEM_NETWORK_TYPE="${CHEM_NETWORK_TYPE:-reference_file}"
-CHEM_REACTION_FILE="${CHEM_REACTION_FILE:-$ROOT_DIR/reference_reactions/TITAN/titan_reaction_network_v0.txt}"
-
+CALC_TYPE="${CALC_TYPE:-chem_evol}"
 mkdir -p "$OUTPUT_DIR"
 
 cat > "$INPUT_JSON" <<EOF
 {
     "working_dir" : "$OUTPUT_DIR",
-    "chemical_network": {
-        "type": "$CHEM_NETWORK_TYPE",
-        "reaction_file": "$CHEM_REACTION_FILE"
-    },
     "metabolites_data": {
         "type": "reference_file",
-        "reaction_file": "$CHEM_REACTION_FILE",
         "pol_strng_maxsize": 12,
         "initial_population_molecules": 1000
     },
