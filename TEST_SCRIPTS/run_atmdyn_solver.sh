@@ -8,13 +8,19 @@ mkdir -p "$MPLCONFIGDIR"
 PYTHON_BIN="${PYTHON_BIN:-python}"
 OUTPUT_DIR="${OUTPUT_DIR:-$ROOT_DIR/TESTS/ATMOSPHERE}"
 INPUT_JSON="${INPUT_JSON:-$OUTPUT_DIR/input.json}"
-CALC_TYPE="${CALC_TYPE:-set_initial_state}"
+CALC_TYPE="${CALC_TYPE:-env_solver}"
 
 mkdir -p "$OUTPUT_DIR"
 
 cat > "$INPUT_JSON" <<EOF
 {
     "working_dir" : "$OUTPUT_DIR",
+    "chemical_network": {
+        "type": "atmospheric",
+        "reaction_files": [
+            "ATMOSPHERIC/VPL_ATMOS/PHOTOCHEM/INPUTFILES/TEMPLATES/Archean+haze/reactions.rx"
+        ]
+    },
     "catalyst_set" : {"distribution": "gaussian", "center": 20, "std": 1.0, "set_size": 10},
     "metabolites_data" : {
         "type": "binary",
@@ -65,13 +71,22 @@ cat > "$INPUT_JSON" <<EOF
             "n_layers": 2500,
             "z_max": { "value": 1800.0, "units": "km" },
             "top_pressure": { "value": 1e-5, "units": "Pa"},
+            "atmosphere_mass_fraction": 8.6e-7,
             "max_iter_loop": 50,
             "rel_tol": 1e-6,
             "abs_tol": { "value": 0.0, "units": "Pa" },
-            "damping_loop": 1.0
+            "damping_loop": 1.0,
+            "radiative_solver": {
+                "type": "two_stream",
+                "settings": {
+                    "max_iter": 100,
+                    "abs_tol": 1e-3,
+                    "damping": 0.5
+                }
+            }
         },
         "exo_chemistry": {
-            "mode": "layered_equilibrium",
+            "mode": "${CHEMISTRY_MODE:-layered_equilibrium}",
             "chemical_species": [
                 "H",
                 "H2",
@@ -105,11 +120,11 @@ cat > "$INPUT_JSON" <<EOF
                 "CH3OH"
             ],
             "atomic_abundances": {
-                "H": 1.0,
-                "He": 9.68e-2,
-                "C": 2.77e-4,
-                "N": 8.18e-5,
-                "O": 6.07e-4
+                "H": 0.20,
+                "He": 1.0e-8,
+                "C": 0.03,
+                "N": 1.0,
+                "O": 0.078
             }
         }
     },
