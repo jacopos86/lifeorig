@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 
+# Intermediate reaction records used to import external data or generate local
+# reference-network files. Runtime solvers use ParsedReaction and
+# ChemicalReaction instead.
 
 @dataclass
 class GeneratedReaction:
@@ -12,7 +15,6 @@ class GeneratedReaction:
     role: str = "database candidate reaction"
     refs: str = "database"
     confidence: str = "candidate"
-
     def to_reference_line(self, reaction_id: str) -> str:
         return (
             f"{reaction_id} | {self.module} | {self.equation} | "
