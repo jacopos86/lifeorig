@@ -15,10 +15,12 @@ class ParsedReaction:
     products: list[str]
     reversible: bool
     catalyst_or_control: str | None = None
+    collider: str | None = None
     rate_template: str | None = None
     role: str | None = None
     refs: str | None = None
     confidence: str | None = None
+    source_file: str | None = None
 
 #
 #   parsed chemical network
@@ -63,6 +65,7 @@ class ChemicalNetworkParser:
         if not self._has_reaction_arrow(fields[equation_index]) and len(fields) > 3:
             equation_index = 3
         reactants, products, reversible = self._parse_chemical_reaction(fields[equation_index])
+        collider = "M" if "M" in reactants or "M" in products else None
         return ParsedReaction(
             reaction_id=fields[0],
             module=fields[1],
@@ -71,12 +74,13 @@ class ChemicalNetworkParser:
             products=products,
             reversible=reversible,
             catalyst_or_control=fields[equation_index + 1] if len(fields) > equation_index + 1 else None,
+            collider=collider,
             rate_template=fields[equation_index + 2] if len(fields) > equation_index + 2 else None,
             role=fields[equation_index + 3] if len(fields) > equation_index + 3 else None,
             refs=fields[equation_index + 4] if len(fields) > equation_index + 4 else None,
             confidence=fields[equation_index + 5] if len(fields) > equation_index + 5 else None,
+            source_file=str(self.reaction_file)
         )
-
     def _has_reaction_arrow(self, text):
         return any(arrow in text for arrow in ("<=>", "->", "=>"))
     # parse chemical equation
