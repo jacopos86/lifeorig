@@ -3,6 +3,15 @@ from src.input_data.chemical_network_parser import (
     ParsedReaction,
 )
 
+WEIRD_COLLIDER_REACTIONS = {
+    "VPL0016",
+    "VPL0018",
+    "VPL0033",
+    "VPL0034",
+    "VPL0044",
+    "VPL0047",
+    "VPL0069",
+}
 
 class VPLAtmosReactionParser:
     """Parse the VPL Atmos ``reactions.rx`` kinetic-network format."""
@@ -17,7 +26,6 @@ class VPLAtmosReactionParser:
         reactions = []
         species = []
         seen_species = set()
-
         with open(self.reaction_file, "r", encoding="utf-8") as handle:
             for line_number, raw_line in enumerate(handle, start=1):
                 reaction = self._parse_line(raw_line, line_number)
@@ -28,7 +36,6 @@ class VPLAtmosReactionParser:
                     if species_name not in seen_species:
                         species.append(species_name)
                         seen_species.add(species_name)
-
         return ParsedChemicalNetwork(species=species, reactions=reactions)
 
     def _parse_line(self, raw_line, line_number):
@@ -36,39 +43,47 @@ class VPLAtmosReactionParser:
         fields = body.split()
         if not fields or fields[0] == "REACTANTS":
             return None
-
         reaction_type_index = next(
             (index for index, field in enumerate(fields) if field in self.REACTION_TYPES),
             None,
         )
         if reaction_type_index is None:
             return None
-
         chemical_fields = fields[:reaction_type_index]
         if len(chemical_fields) < 3:
             raise ValueError(
                 f"Invalid VPL reaction at {self.reaction_file}:{line_number}"
             )
-
+        reaction_id = f"VPL{line_number:04d}"
         reaction_type = fields[reaction_type_index]
         reactants = [self._normalize_species(name) for name in chemical_fields[:2]]
         products = [self._normalize_species(name) for name in chemical_fields[2:]]
+        collider = None
+        if reaction_type == "3BODY":
+            collider = "M"
+        elif (
+            reaction_type == "WEIRD"
+            and reaction_id in WEIRD_COLLIDER_REACTIONS
+        ):
+            collider = "M"
         rate_expression = " ".join(fields[reaction_type_index + 1:])
         equation = f"{' + '.join(reactants)} -> {' + '.join(products)}"
         is_photolysis = reaction_type in self.PHOTOLYSIS_TYPES
-
+        # return Parsed reaction 
         return ParsedReaction(
-            reaction_id=f"VPL{line_number:04d}",
+            reaction_id=reaction_id,
             module="vpl_archean_photolysis" if is_photolysis else "vpl_archean_gas_phase",
             equation=equation,
             reactants=reactants,
             products=products,
             reversible=False,
             catalyst_or_control="photo" if is_photolysis else reaction_type.lower(),
+            collider=collider,
             rate_template=f"{reaction_type}: {rate_expression}",
             role="atmospheric photolysis" if is_photolysis else "atmospheric gas-phase kinetics",
             refs=comment.strip() or "VPL Atmos Archean+haze reaction network",
             confidence="source_model",
+            source_file=str(self.reaction_file)
         )
 
     @staticmethod
