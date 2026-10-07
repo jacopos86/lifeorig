@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from matplotlib import axis
 import numpy as np
+from periodictable.density import number_density
 
 class Reaction(ABC):
     def __init__(self, reaction_id=None):
@@ -89,6 +90,30 @@ class LigationReaction(Reaction):
 #
 
 @dataclass
+class ReactionRateParameters:
+    temperature: object
+    pressure: object | None = None
+    number_density: object | None = None
+    radiation_flux: object | None = None
+    species_to_index: dict[str, int] | None = None
+    species_number_densities: object | None = None
+
+@dataclass(frozen=True)
+class ColliderSet:
+    species_indices: np.ndarray
+    efficiencies: np.ndarray
+    def effective_density(self, context):
+        selected_densities = (
+            context.species_number_densities[
+                ...,
+                self.species_indices
+            ]
+        )
+        return (
+            selected_densities * self.efficiencies
+        ).sum(axis=-1)
+
+@dataclass
 class ChemicalReaction:
     reaction_id: str
     # reactants
@@ -99,12 +124,19 @@ class ChemicalReaction:
     prod_coeff: np.ndarray
     # rate model
     rate_model: object | None = None
+    collider_set: ColliderSet | None = None
     # rate
-    def rate(self, t, y, context):
-        k = self.rate_model(
-            t=t,
-            context=context
-        )
+    def rate(self, y, context: ReactionRateParameters):
+        if self.collider_set is None:
+            k = self.rate_model(context)
+        else:
+            collider_density = self.collider_set.effective_density(
+                context=context
+            )
+            k = self.rate_model(
+                context=context,
+                collider_density=collider_density
+            )
         reactants = y[
             ...,
             self.react_indices
