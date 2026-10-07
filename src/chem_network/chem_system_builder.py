@@ -69,8 +69,20 @@ def build_chemical_system(chem_input, input_params):
     reaction_network = ReactionNetwork(species_set)
     reaction_network.compile()
 
+    target_index = 5
+    parsed_reaction = parsed_network.reactions[target_index]
+
+    print(target_index)
+    print(parsed_reaction)
+    start = len(reaction_network.reaction_list)
+    reaction_network.add(parsed_reaction)
+    print("generated:", len(reaction_network.reaction_list) - start)
+    for reaction in reaction_network.reaction_list[start:]:
+        print(reaction)
+    exit()
+
     for parsed_reaction in parsed_network.reactions:
         print(parsed_reaction)
         reaction_network.add(parsed_reaction)
-        print(reaction_network.reaction_list)
-        exit()
+        #print(reaction_network.reaction_list)
+    exit()
