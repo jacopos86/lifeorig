@@ -102,12 +102,13 @@ def _insert_reaction(cursor, source_file_id, reaction):
             equation,
             reversible,
             catalyst_or_control,
+            collider,
             rate_template,
             role,
             refs,
             confidence
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """,
         (
             source_file_id,
@@ -116,6 +117,7 @@ def _insert_reaction(cursor, source_file_id, reaction):
             reaction.equation,
             reaction.reversible,
             reaction.catalyst_or_control,
+            reaction.collider,
             reaction.rate_template,
             reaction.role,
             reaction.refs,
@@ -175,8 +177,9 @@ def get_reaction_network_from_database(db, source_files=None):
         cursor.execute(
             f"""
             SELECT r.id, r.source_reaction_id, r.module, r.equation,
-                   r.reversible, r.catalyst_or_control, r.rate_template,
-                   r.role, r.refs, r.confidence
+                   r.reversible, r.catalyst_or_control, r.collider,
+                   r.rate_template, r.role, r.refs, r.confidence, 
+                   rsf.file_path
             FROM reactions r
             JOIN reaction_source_files rsf ON rsf.id = r.source_file_id
             {source_filter}
@@ -222,10 +225,12 @@ def get_reaction_network_from_database(db, source_files=None):
                 products=products,
                 reversible=bool(row[4]),
                 catalyst_or_control=row[5],
-                rate_template=row[6],
-                role=row[7],
-                refs=row[8],
-                confidence=row[9],
+                collider=row[6],
+                rate_template=row[7],
+                role=row[8],
+                refs=row[9],
+                confidence=row[10],
+                source_file=row[11]
             )
         )
         for species_name in reactants + products:
