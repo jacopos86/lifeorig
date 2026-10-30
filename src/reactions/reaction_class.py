@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from matplotlib import axis
 import numpy as np
 from periodictable.density import number_density
+from src.parallelization.array_backend import xp
 
 class Reaction(ABC):
     def __init__(self, reaction_id=None):
@@ -97,6 +98,8 @@ class ReactionRateParameters:
     radiation_flux: object | None = None
     species_to_index: dict[str, int] | None = None
     species_number_densities: object | None = None
+    planet: str | None = None
+    photolysis_rates: dict[str, object] | None = None
 
 @dataclass(frozen=True)
 class ColliderSet:
