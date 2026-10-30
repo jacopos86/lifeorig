@@ -133,4 +133,3 @@ class ReactionNetwork:
             for index, species in enumerate(self.dyn_species)
             for name in species.aliases
         }
-        print(self.species_to_index)
