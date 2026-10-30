@@ -63,7 +63,12 @@ def planetary_solver_driver(input_params):
             chem_input=chem_input,
             input_params=input_params
         )
-    if mode in {"local_equilibrium", "layered_equilibrium", "layered_disequilibrium"}:
+    # set up chemical env. simulation   
+    if mode in {
+        "local_equilibrium", 
+        "layered_equilibrium",
+        "layered_disequilibrium"
+    }:
         planet.chemical_stationary_config = SimulateChemEnv(
             chem_input=chem_input,
             chem_system=chem_system,
