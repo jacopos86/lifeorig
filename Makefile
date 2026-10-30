@@ -101,7 +101,10 @@ build :
 
 test :
 	@echo "Running tests in conda environment $(CONDA_ENV_NAME)"
-	@$(CONDA) run -n $(CONDA_ENV_NAME) python -m pytest $(UNIT_TEST_DIR)
+	@$(CONDA) run -n $(CONDA_ENV_NAME) python -m pytest $(UNIT_TEST_DIR)/test_conda_petsc_setup.py
+	@$(CONDA) run -n $(CONDA_ENV_NAME) python -m pytest $(UNIT_TEST_DIR)/test_input_builders.py
+	@$(CONDA) run -n $(CONDA_ENV_NAME) python -m pytest $(UNIT_TEST_DIR)/test_liquid_level_model.py
+	@$(CONDA) run -n $(CONDA_ENV_NAME) python -m pytest $(UNIT_TEST_DIR)/test_petsc_reaction_dynamics.py
 
 smoke-earth-volcanic :
 	@PYTHON_BIN=python \
