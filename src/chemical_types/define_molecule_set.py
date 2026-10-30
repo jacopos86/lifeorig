@@ -384,7 +384,11 @@ def _set_template_matching_molecules(species):
     ]
     for template in templates:
         if template.name == "M":
-            template.matching_molecules = list(molecules)
+            template.matching_molecules = [
+                molecule
+                for molecule in molecules
+                if molecule.phase == template.phase
+            ]
             continue
         monomers = TEMPLATE_POLYMER_FAMILIES.get(template.name)
         matching_sequences = set()
