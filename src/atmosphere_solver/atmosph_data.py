@@ -1,5 +1,5 @@
 import numpy as np
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from src.common.units import Q_
 
 #
@@ -30,3 +30,34 @@ class AtmDynResult:
     bond_albedo: float | None
     spectral_albedo: np.ndarray | None
     layers: AtmLayerDyn
+
+#
+#   Atmospheric surface (z=0) state
+#
+
+@dataclass(frozen=True)
+class AtmosphereSurfaceState:
+    temperature: object
+    pressure: object
+    mass_density: object
+    wind_speed: object
+    # chemical mole fractions
+    mole_fractions: dict[str, object] = field(
+        default_factory=dict
+    )
+    # radiation fluxes
+    F_SW: object | None = None
+    F_LW: object | None = None
+    precipitation_flux: object | None = None
+    # partial pressure
+    def partial_pressure(self, species):
+        try:
+            mole_frac = self.mole_fractions[species]
+        except KeyError:
+            raise KeyError(
+                f"No atmospheric mole fraction for {species}"
+            ) from None
+        return (
+            mole_frac
+            * self.pressure.to("pascal")
+        ).to("pascal")
