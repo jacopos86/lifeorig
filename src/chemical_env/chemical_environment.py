@@ -23,8 +23,9 @@ def set_ChemEnvInput(planet_data, env_data) -> ChemEnvInput:
 #
 
 class SimulateChemEnv:
-    def __init__(self, chem_input: ChemEnvInput, planet_data=None, stellar_data=None, atmosphere_data=None, output_dir=None):
+    def __init__(self, chem_input: ChemEnvInput, chem_system=None, planet_data=None, stellar_data=None, atmosphere_data=None, output_dir=None):
         self.chem_input = chem_input
+        self.chem_system = chem_system
         self.stellar_data = stellar_data
         self.planet_data = planet_data
         self.atmosphere_data = atmosphere_data
@@ -64,6 +65,7 @@ class SimulateChemEnv:
     def _run_out_equilibrium(self) -> ChemEnvResult:
         return NonEquilLayeredAtmosphSolver(
             chem_input=self.chem_input,
+            chem_system=self.chem_system,
             stellar_data=self.stellar_data,
             planet_data=self.planet_data,
             atmosphere_data=self.atmosphere_data,
