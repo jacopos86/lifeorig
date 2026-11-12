@@ -1,0 +1,473 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,booktabs,longtable,array,xurl,hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+\setlength{\emergencystretch}{3em}
+\newcommand{\dd}{\mathrm d}
+\newcommand{\cp}{\mathord{>}p}
+\title{Connecting the Existing LIFEORIG Prebiotic Network to an RNA Network}
+\author{Concrete species handoff, reaction ownership, and coupled equations}
+\date{November 1, 2026 --- revised coupling specification}
+\begin{document}
+\raggedbottom
+\maketitle
+
+\section{Direct answer: yes, with a chemically typed interface}
+\textbf{Your existing network already contains a route from small precursors to
+an activated pyrimidine ribonucleotide pool. Use that computed output to feed a
+second network. Do not restart the RNA calculation with arbitrary monomer
+concentrations.} The immediate, chemically closest second network is cyclic
+nucleotide oligomerization. A template-copying network requires additional,
+explicit substrate chemistry and complementary bases.
+
+The audited source is
+\path{reference_reactions/EARTH_LIKE/earth_like_volcanic_rock_combined_network_v1.txt},
+which includes the prebiotic literature and ChemOrigins supplements. The
+component file
+\path{reference_reactions/PREBIOTIC/prebiotic_cyanosulfidic_literature_network_v1.txt}
+contains the same named PBV1 pathway. The standalone
+\path{prebiotic_polymer_autocatalytic_network_v2.txt} is a different hypothesis
+scaffold: its HCN/formose/peptide rules do not substitute for the PBV1 nucleotide
+pathway. Which file is loaded therefore matters.
+
+The concrete connection is
+\begin{equation}
+\boxed{\text{existing PBV1-027--030}\ \longrightarrow\
+\text{typed cyclic C/U nucleotides}\ \longrightarrow\
+\text{new oligomerization network}.}
+\end{equation}
+For conventional 2-aminoimidazole-mediated copying, the connection instead is
+\begin{equation}
+\text{existing outputs}\ \longrightarrow\
+\underbrace{\text{5'-NMP supply and activation}}_{\text{missing explicit bridge}}
+\ \longrightarrow\ \text{template copying}.
+\end{equation}
+\textbf{The generic word ``activated'' does not make these two substrate types
+interchangeable.} The following sections specify exactly where to cut the
+networks, what to transfer, and what remains to implement.
+
+\tableofcontents
+\clearpage
+\section{What your files already supply: exact reaction audit}
+Use the following shorthand only in equations; retain canonical chemical IDs in
+code: $G_2$ = glycolaldehyde, $G_3$ = glyceraldehyde, $Y$ = cyanamide,
+$A_O$ = 2-aminooxazole, $P_A$ = pentose aminooxazoline,
+$X$ = cyanoacetylene, $A_N$ = anhydronucleoside, and
+$P_{\rm pyr}$ = the current pooled activated pyrimidine product.
+
+\begin{longtable}{p{0.19\textwidth}p{0.43\textwidth}p{0.29\textwidth}}
+\toprule
+Existing ID & Existing equation, abbreviated & Meaning for the handoff \\
+\midrule
+PBV1-002,004 & glycolonitrile $\to G_2$ through the stored hydrolytic/photoredox
+channels & Candidate upstream $G_2$ production; retain actual co-reactants. \\
+PBV1-005,006 & $G_2+\mathrm{HCN}\to$ glyceronitrile; photoredox step $\to G_3$
+& Candidate $G_3$ source. \\
+VR166 & urea $\to Y+\mathrm{H_2O}$ & Cyanamide source candidate under its dry/hot conditions. \\
+pbr-000743 & Ammonia + hydrogen cyanide $\to Y$ & Imported alternative cyanamide route;
+its conditions and omitted chemistry need auditing. \\
+pbr-000078 & acetylene + hydrogen cyanide $\to X$ & Imported cyanoacetylene source candidate. \\
+PBV1-027 & $G_2+Y\to A_O$ & Entry to nucleotide synthesis, already present. \\
+PBV1-028 & $A_O+G_3\to P_A$ & Sugar/base intermediate, already present. \\
+PBV1-029 & $P_A+X\to A_N$ & Nucleoside intermediate, already present. \\
+PBV1-030 & $A_N+\mathrm{phosphate}\to P_{\rm pyr}$ & Most downstream simple handoff in PBV1. \\
+pbr-000708 & Orthophosphate + pbm-000227 $\to$ named cyclic cytidine product + water
+& More specific candidate product identity than PBV1-030. \\
+pbr-000048 & named cyclic cytidine product + water $\to$ named cyclic uridine product
++ ammonia & A C-to-U product branch is already represented in the combined file. \\
+PBV1-026 & $5\,\mathrm{HCN}\to$ adenine & Supplies a base, not AMP or activated A. \\
+\bottomrule
+\end{longtable}
+These are records in the files, not demonstrations that a simulation currently
+produces nonzero yields. Their symbolic rate templates are not calibrated rate
+constants. The accompanying \path{existing_reaction_evidence.tsv} records
+29 relevant exact equations, source paths, line numbers, controls, and confidence
+labels so this audit is checkable.
+
+\subsection{Identity and duplication problems to resolve at this boundary}
+\begin{enumerate}
+\item \textbf{PBV1 and ChemOrigins overlap.} PBV1-027 and pbr-000043 describe the
+same pathway step at different naming/detail levels; PBV1-028 overlaps
+pbr-000044. Treat these as alternative representations until chemical identity
+and mechanism show otherwise. Adding both as independent production channels
+can double the apparent nucleotide supply.
+\item \textbf{The cyclic endpoint is partly resolved already.} The named product
+in pbr-000708 has a cyclic-phosphate structure. Its stereochemistry and linkage
+identity must be checked against the source before assigning the canonical
+$\beta$-D-ribocytidine 2',3'-cyclic phosphate ID. pbr-000048 supplies a corresponding
+uridine branch. Do not claim this branch is absent.
+\item \textbf{The intermediate chain is not automatically connected by names.}
+pbr-000707 produces pbm-000559 whereas pbr-000708 consumes pbm-000227. The strings
+are different. Their structures or an intervening reaction must establish the
+connection; do not insert an identity conversion just to close the graph.
+\item \textbf{Pools are not concrete molecules.} \texttt{pentose\_aminooxazoline}
+can include isomers; \texttt{activated\_pyrimidine\_ribonucleotide} does not specify
+base, phosphate position, anomer, or stereochemistry.
+\item \textbf{Distinct compounds must stay distinct.} 2-aminooxazole is not
+2-aminoimidazole; adenine is not adenosine or AMP; a 2',3'-cyclic phosphate is not
+a 5'-phosphoroimidazolide. Generic \texttt{nucleotide}, \texttt{activated\_pyrimidine},
+and \texttt{ribonucleotide\_precursor\_pool} are not automatic aliases of these.
+\end{enumerate}
+
+\section{Choose the handoff: use one of two cuts, not both}
+\textbf{Recommended first cut: after PBV1-030.} Keep PBV1-027--030 in the existing
+prebiotic network. Transfer its typed nucleotide products to the RNA network,
+which owns oligomerization and subsequent RNA reactions. This directly tests
+whether the network you already built supplies enough RNA material.
+
+\textbf{Alternative cut: before PBV1-027.} Transfer the vector
+\begin{equation}
+\mathbf c_{\rm feed}=(C_{G_2},C_Y,C_{G_3},C_X,C_{\rm phosphate})
+\end{equation}
+to a second reactor which owns PBV1-027--030 plus the RNA chemistry. This is
+appropriate if nucleotide synthesis requires different conditions from upstream
+feedstock production. Remove those reactions from the upstream reactor in this
+experiment. The second network is then ``nucleotide synthesis + RNA'', not just
+RNA copying.
+
+\subsection{Required handoff record}
+At each output time or transfer event, export:
+\begin{equation}
+(t,\ \mathrm{species\_id},\ n_i\ [\mathrm{mol}],\ V\ [\mathrm L],\
+T,\mathrm{pH},I,a_w,\mathrm{phase},\mathrm{identity\_status}).
+\end{equation}
+Also record relevant free-ion concentrations, radiation forcing, transfer
+fraction/recovery, and reaction provenance. Concentration alone is insufficient
+when reactor volumes differ. Export amounts remaining after all upstream
+reactions and losses, not cumulative gross product formation.
+
+For the PBV1 pool, use one of these explicit policies:
+\begin{enumerate}
+\item \textbf{Resolved chemistry:} replace PBV1-030 by specific C/U production
+channels constrained by its source, with the UV/deamination branch and losses
+explicit. The output has actual chemical IDs.
+\item \textbf{Exploratory supply envelope:} retain the pool and introduce bounded
+allocation fractions $f_C,f_U,f_{\rm other}$ with sum one. Then
+$n_{C\cp}=f_C n_{P_{\rm pyr}}$ and $n_{U\cp}=f_U n_{P_{\rm pyr}}$ only as a
+hypothesis about pool composition, not as an established chemical reaction.
+Vary the fractions; do not report the result as a chemically resolved yield.
+\end{enumerate}
+If identity is unresolved and no allocation assumption is authorized in the
+experiment configuration, the importer must reject direct copying-substrate
+mapping rather than silently producing all four monomers.
+
+\section{Coupling equations: no invented supply and no double counting}
+Use mol and L for local amounts/volumes, seconds for time, and M for concentration.
+Let $\mathbf n_P$ be upstream amounts, $\mathbf n_R$ RNA-reactor amounts,
+and $\mathbf v_P,\mathbf v_R$ rate densities in M/s.
+
+\subsection{Same pond: one chemical state, two reaction blocks}
+If both networks describe the same liquid, combine their reaction blocks in one
+state vector. A shared species has one amount and one ID:
+\begin{equation}
+\dot{\mathbf n}=V(S_P\mathbf v_P+S_R\mathbf v_R)
++\mathbf F_{\rm ext}-\mathbf F_{\rm loss}.
+\label{same}
+\end{equation}
+For example, with $v_{30}$ the specific nucleotide-source rate and $u_C$ its
+consumption by the RNA block,
+\begin{equation}
+\dot n_{C\cp}=V(v_{30,C}-u_C-v_{\rm hydro,C})+F_C^{\rm ext}.
+\end{equation}
+No artificial transfer coefficient is needed. The RNA block consumes the same
+nucleotide inventory that the prebiotic block produces. This is the simplest
+first implementation if the environmental conditions are compatible.
+
+\subsection{Different reactors: conservative transfer}
+For a well-mixed effluent flow $q$ in L/s from the prebiotic reactor,
+\begin{align}
+\dot{\mathbf n}_P&=V_PS_P\mathbf v_P+\mathbf F_P^{\rm in}
+-q\mathbf C_P-\mathbf F_P^{\rm other\ loss},\\
+\dot{\mathbf n}_R&=V_RS_R\mathbf v_R+\eta qH\mathbf C_P
+-q_R\mathbf C_R-\mathbf F_R^{\rm other\ loss}.
+\label{transfer}
+\end{align}
+$H$ maps chemically identical transferred species to receiving IDs;
+$\eta\in[0,1]$ is a specified recovery for a simple common-recovery model. Track
+$(1-\eta)qH\mathbf C_P$ as transfer loss and other effluent species in the
+receiving mixture or a discarded-stream ledger. Selective recovery needs a
+physical separation model. If amounts accumulate, evolve volumes too:
+$\dot V_P=q_{P,\rm in}-q$ and $\dot V_R=q-q_R-E_R$ (including other solvent terms).
+Do not hold volume fixed without the corresponding compensating flows.
+
+For a batch transfer of fraction $\alpha$ at $t_m$:
+\begin{align}
+\mathbf n_P^+&=(1-\alpha)\mathbf n_P^-,\\
+\mathbf n_R^+&=\mathbf n_R^-+\eta H\alpha\mathbf n_P^-,\\
+C_{i,R}^+&=n_{i,R}^+/V_R^+.
+\end{align}
+An unseparated liquid aliquot also transfers $\alpha V_P$ solvent. Concentrating
+it into a smaller volume requires an explicit evaporation/separation step.
+
+\subsection{Offline replay is only a preliminary coupling test}
+A stored upstream trajectory can drive a downstream calculation. It is a
+one-way reservoir approximation unless the exported material was actually
+removed in the upstream calculation. Do not feed a downstream sink with
+$\max(\dot n_i,0)$: net accumulation is not a delivery process. For final coupled
+results use Eq.~\eqref{same} or Eq.~\eqref{transfer}, or conservative batch events.
+
+\clearpage
+\section{Second network A: directly use the cyclic pyrimidine outputs}
+\textbf{This is the nearest concrete extension of your present prebiotic network.}
+Define $M_C=C\cp$ and $M_U=U\cp$ as the verified 2',3'-cyclic ribonucleotides.
+Cyclic-nucleotide wet--dry oligomerization is an experimentally studied branch
+\cite{dass,cyclic}. It does not require pretending these species are activated
+5'-NMPs. A C/U-only calculation tests oligomer formation; it does not supply a
+closed Watson--Crick complementary copying alphabet.
+
+\subsection{Concrete additional channels}
+Let $R_s^{\cp}$ be an oligomer with an explicitly tracked terminal cyclic
+phosphate, a free incoming 5'-OH partner, and stored internal linkage identities.
+For $a,b\in\{C,U\}$ add the following effective reaction rules:
+\begin{longtable}{p{0.16\textwidth}p{0.48\textwidth}p{0.27\textwidth}}
+\toprule
+New ID & Effective channel & Parameter/data required \\
+\midrule
+RNA-CYC-01 & $M_a+M_b\to R_{ab}^{\cp}$ & Dimerization, sequence and linkage branching. \\
+RNA-CYC-02 & $R_s^{\cp}+M_b\to R_{sb}^{\cp}$ & End-specific cyclic-phosphate ring-opening addition. \\
+RNA-CYC-03 & $M_b+\mathrm{H_2O}\to b\text{-}2'\mathrm{MP}$ & Competing ring opening branch. \\
+RNA-CYC-04 & $M_b+\mathrm{H_2O}\to b\text{-}3'\mathrm{MP}$ & Competing ring opening branch. \\
+RNA-CYC-05 & $R_s\to$ explicit fragments & Linkage-dependent cleavage and fragment ends. \\
+RNA-CYC-06 & $R_s+\mathrm{site}\rightleftharpoons B_s$ & Optional retention/desorption and site budget. \\
+\bottomrule
+\end{longtable}
+These are \emph{new proposed coarse-grained rules}, not claimed elementary
+mechanisms already implemented. Resolve chain orientation and termini before
+compiling them. Ring-opening transesterification does not generically release
+one water per new bond: do not reuse the existing ``nucleotide + nucleotide
+$\to$ dinucleotide + water'' condensation proxy for this mechanism.
+
+For a deliberately reduced length model, $O_n$ denotes the concentration of
+chains of length $n$ with an extendable cyclic end. Set $O_1=M$ for a single
+monomer type. Example event-rate densities are
+\begin{align}
+v_1&=k_1O_1^2,&v_n&=k_nO_nO_1\quad(n\ge2),\\
+\dot O_1\big|_{\rm growth}&=-2v_1-\sum_{n\ge2}v_n,\\
+\dot O_2\big|_{\rm growth}&=v_1-v_2, &
+\dot O_n\big|_{\rm growth}&=v_{n-1}-v_n\quad(n\ge3).
+\end{align}
+Concentration dynamics also include $-O_n\dot V/V$, sources, cleavage, and
+inactivation. $k_n$ is M$^{-1}$s$^{-1}$ in the aqueous effective model. Dry-film
+kinetics need a calibrated phase-specific treatment rather than divergent
+$1/V$ concentrations at zero volume. Mixed sequences require separate $O_s$
+and separate 2'-5'/3'-5' linkage branches; a length-only chain is not a ribozyme.
+At the maximum stored length, either stop extension consistently or send mass
+to a tracked longer-chain bin.
+
+\subsection{The first result to compute}
+Run the prebiotic network and this block together. Start with zero oligomers.
+Measure, in nucleotide-equivalent mol,
+\begin{equation}
+B_{\ge L}(t)=\sum_{|s|\ge L}|s|n_{R_s}(t),\qquad
+Y_{\ge L}(t)=\frac{B_{\ge L}(t)}{B_{\rm delivered}(t)}.
+\end{equation}
+Count delivered material once and include initial inventory in the denominator
+if nonzero. Report $L=2,5,10$ as diagnostic cutoffs, not functional thresholds.
+The test is whether the actual upstream supply produces an oligomer inventory
+that survives subsequent wet phases. Compare with a control that suppresses
+PBV1-030 production: the downstream material should then disappear or exhaust
+its stated initial stock. This directly answers the precursor-feeding question
+before adding speculative replication.
+
+\section{Second network B: an explicit template-copying branch}
+\subsection{Required inlet species and the current gap}
+For the well-studied 2-aminoimidazole route, the inlet is chemically resolved
+5'-NMPs and an activation system, or already activated 5'-nucleotides. Define
+$N_b$ = 5'-NMP, $A_b$ = its 2AI-activated derivative, $I$ = 2AI, and
+$B_{bc}$ = a 5'-5' imidazolium-bridged dinucleotide. These are different from
+$C\cp,U\cp$. The copying mechanism involves the bridged intermediate
+\cite{walton,activation}.
+
+The audited PBV1 endpoint does \textbf{not} establish a conversion
+$C\cp\to C\text{-}5'\mathrm{MP}\to A_C$. Simple opening of a 2',3'-cyclic phosphate
+gives 2'/3'-phosphates, not a 5'-phosphate. A conversion module would require
+supported positional/activation chemistry with its own material and reagent
+budget. Alternatively choose a separately supported 5'-NMP synthesis branch.
+Neither conversion is supplied by renaming the pool.
+
+Likewise, the PBV1 adenine product is not an A-nucleotide supply. For a
+C-containing template, copying needs G; for a U-containing template, copying
+needs A. A C/U-only product stream cannot copy itself through canonical pairing.
+Find and validate A/G ribonucleotide routes in the larger imported mechanism,
+or mark A/G feeds as external in a conditional experiment. DNA products such
+as deoxyadenosine cannot silently fill this RNA gap.
+
+\subsection{Minimal additional reaction block}
+A reduced copying block, after a validated 5'-substrate inlet exists, is
+\begin{align}
+N_b+\mathrm{activation\ reagents}&\longrightarrow A_b+\mathrm{spent\ products},\\
+A_b+A_c&\rightleftharpoons B_{bc}+I,\\
+A_b+\mathrm{H_2O}&\longrightarrow N_b+I,\\
+X_{T,u}+B_{bc}&\rightleftharpoons Y_{T,u,bc},\\
+Y_{T,u,bc}&\longrightarrow X_{T,ub}+A_c,\\
+X_{T,\bar T}&\longrightarrow D_T,\\
+D_T&\rightleftharpoons T+\bar T.
+\end{align}
+$X_{T,u}$ is a template--primer complex and $Y$ its substrate-bound complex.
+The bridge-mediated step adds one base and releases an activated nucleotide;
+it does not incorporate both bases as a covalent RNA dinucleotide. The first
+line is a module requirement, not a balanced invented activation reaction.
+Use the selected experimental mechanism for its actual reagents and rates.
+Add mismatches, stalled complexes, hydrolysis, and primer binding explicitly.
+
+A first benchmark can copy a seeded G-rich template using a typed activated-C
+feed. It tests one copying leg. It does not demonstrate C/G self-replication
+unless the reverse leg has a G-substrate supply, initiation, strand release,
+and sustained turnover. This is a useful conditional benchmark \emph{after}
+the inlet chemistry is specified, not a direct consequence of PBV1-030.
+
+\section{Calculate whether the upstream supply is sufficient}
+\subsection{Inventory bound before any kinetic simulation}
+For an RNA sequence $s$ of length $L$, let $\ell_b(s)$ be its number of base $b$
+and $A_b$ the mol of usable substrate supplied after transfer and activation
+losses. The maximum mol of newly synthesized copies is bounded by
+\begin{equation}
+n_{s,\max}\le\min_{b:\ell_b>0}\frac{A_b}{\ell_b(s)}.
+\label{bound}
+\end{equation}
+Use the composition of the \emph{new complementary strand}, not the template,
+for one-leg copying; use the combined two-strand composition for a full pair.
+If a required substrate has zero supply, the bound is zero regardless of the
+chosen copying rate. This immediately exposes missing A/G feeds.
+
+\subsection{Worked transfer example: illustrative numbers, not a prediction}
+Suppose a completed upstream run reports 10 $\mu$M typed cyclic pyrimidines in
+10 mL, or 100 nmol total. Transfer the full batch with recovery 0.4, then
+explicitly concentrate it to 1 mL. The receiving amount is 40 nmol and the
+concentration is 40 $\mu$M. With an \emph{assumed} 60:40 C/U composition:
+\begin{equation}
+n_{C\cp}=24\ \mathrm{nmol},\quad n_{U\cp}=16\ \mathrm{nmol}.
+\end{equation}
+This feeds network A. Even if all of it became 10-mers, the absolute upper
+bound is $40/10=4$ nmol chains; actual yields are lower and sequence-dependent.
+It cannot directly feed network B. Under an additional hypothetical conversion
+to usable C/U copying substrates, copying a CU-containing template still
+requires external A/G; without them Eq.~\eqref{bound} remains zero for that leg.
+Every number in this example is arithmetic for checking the coupling, not a
+literature rate or an output already obtained from LIFEORIG.
+
+\subsection{Flux bound for sustained reproduction}
+For delivered usable substrate $F_b$ in mol/s, a target population $n_R$ mol of
+strands, average new-strand base count $\bar\ell_b$, turnover $g$ s$^{-1}$,
+and substrate loss flux $L_b$ mol/s:
+\begin{equation}
+F_b\ \ge\ \bar\ell_b g n_R+L_b
+\end{equation}
+is a necessary resource condition at approximately steady inventory. It is not
+sufficient: binding, mismatches, strand release, and competing reactions can
+still block replication. If conversion to the copying substrate has recovery
+$\chi_b$, use $F_b=\eta_b\chi_bF_b^{\rm upstream}$ and report how $\chi_b$ is
+obtained. An unknown bridge yield is a sensitivity parameter, not proof of
+chemical connectivity.
+
+\section{Exact implementation procedure for this repository}
+\begin{enumerate}
+\item \textbf{Freeze the upstream file and audit identities.} Use the combined
+Earth-like file as the initial scenario. Resolve aliases such as
+Glycolaldehyde/glycolaldehyde and Phosphate/orthophosphate only with verified
+phase/speciation semantics. Remove overlapping pathway representations from
+the selected kinetic model; retain their provenance.
+\item \textbf{Obtain a real upstream trajectory.} Ensure the selected prebiotic
+channels actually compile and have defined rate laws. Save amounts and volumes
+for the boundary species, with all competing sinks active. Presence in a text
+file does not establish solver support or production.
+\item \textbf{Type the endpoint.} Refine PBV1-030 into the verified cyclic C/U
+products, using pbr-000708/048 and primary chemistry as evidence. Until resolved,
+run only explicitly labeled pool-allocation sensitivity studies.
+\item \textbf{Add network A first.} Implement RNA-CYC-01--05 with measured or
+explicitly explored effective coefficients, chemically correct termini, and
+tracked linkage classes. Initialize oligomers at zero. Keep precursor production
+in the existing network; do not seed a second arbitrary monomer inventory.
+\item \textbf{Couple using one state or conservative flows.} Same pond:
+Eq.~\eqref{same}. Different conditions/reactors: Eq.~\eqref{transfer} or batch events.
+Transfer salts and inhibitors too unless a separation step is explicitly modeled.
+\item \textbf{Produce the first decision plot.} For actual upstream histories,
+plot delivered nucleotide amount, cyclic monomer loss, $B_{\ge2},B_{\ge5},B_{\ge10}$,
+and material residual versus time. Repeat over uncertain production and
+polymerization coefficients. This answers whether your prebiotic output can
+sustain an RNA-oligomer population.
+\item \textbf{Only then select the copying chemistry.} Supply a validated
+substrate bridge and complementary alphabet, or label their feeds as external.
+Add the bridge-intermediate and template-complex reactions above. Separate
+seeded primer extension from a complete reproduction cycle.
+\end{enumerate}
+
+\subsection{Specific code touchpoints}
+\begin{itemize}
+\item \path{src/chemical_types/molecule_model.py}: a \texttt{ReferenceMolecule}
+has sequence, phase, state, and conformation fields. Extend the identity scheme
+to distinguish base, sugar stereochemistry, phosphate position, activation group,
+and oligomer termini; generic aliases must not merge these states.
+\item \path{src/reactions/reaction_rate_models.py}: implement aqueous/film,
+cyclic-growth, and copying rate models explicitly. Existing symbolic labels
+such as \texttt{chemorigins\_experimental} are not numeric kinetics by themselves.
+\item \path{src/chem_network/chem_system_builder.py}: report which audited
+channels compile. It currently collects unsupported reactions; a coupling run
+must fail if its required supply or RNA channels are missing.
+\item \path{src/chem_network/chemical_network.py}: register shared species once
+and add the upstream and RNA reaction blocks. Use one stoichiometric inventory
+for a same-pond experiment.
+\item \path{src/environment/surf_pond/surface_pond_env.py}: use the pond volume,
+forcing, and transport state. Its development exit must be resolved before
+claiming an end-to-end pond calculation.
+\end{itemize}
+The output of this work is a concrete coupling specification and source audit;
+the new RNA rules and their kinetic parameterization are not implemented by
+this document.
+
+\section{Acceptance checks and the claim each permits}
+\begin{longtable}{p{0.48\textwidth}p{0.43\textwidth}}
+\toprule
+Required check & Permitted conclusion \\
+\midrule
+All required source reactions compile; typed cyclic products have nonzero
+amounts with budget closure & The selected prebiotic model supplies nucleotide
+material under the stated parameters. \\
+RNA-CYC channels convert that supply into tracked oligomers, with linkage and
+loss accounting & Prebiotic products feed an RNA-oligomer network. \\
+Template extension consumes a validated copying-substrate stream with sequence
+and mismatch tracking & Conditional template-directed copying occurs. \\
+Both complementary legs, strand release, and replenishment maintain descendants
+across cycles & Conditional sustained RNA reproduction occurs. \\
+Inherited sequence changes cause differential reproduction under matched
+conditions across replicated lineages & The model exhibits RNA sequence selection. \\
+\bottomrule
+\end{longtable}
+For closed internal chemistry, check $BS=0$ using an elemental matrix $B$.
+For the RNA block also track nucleotide equivalents in monomers, intermediates,
+chains, and fragments. Sources and discarded material must close the full
+budget. Reducing volume must increase concentration without creating amount.
+No-precursor and missing-required-base controls must respect Eq.~\eqref{bound}.
+Do not interpret a large generic polymer count as a functional ribozyme.
+
+\textbf{Decision for the present repository:} yes, connect the existing products
+to a second network. Start at the PBV1-030 cyclic pyrimidine endpoint, resolve
+its identity using the more detailed records, and implement cyclic-nucleotide
+oligomerization. Direct input into a conventional activated-5'-nucleotide copying
+network is currently an unfilled chemical bridge, not a mere software adapter.
+
+\begin{thebibliography}{9}
+\bibitem{powner} M. W. Powner, B. Gerland, and J. D. Sutherland.
+Synthesis of activated pyrimidine ribonucleotides in prebiotically plausible
+conditions. \emph{Nature} 459, 239--242 (2009).
+\url{https://doi.org/10.1038/nature08013}.
+\bibitem{patel} B. H. Patel et al. Common origins of RNA, protein and lipid
+precursors in a cyanosulfidic protometabolism. \emph{Nature Chemistry} 7,
+301--307 (2015). \url{https://doi.org/10.1038/nchem.2202}.
+\bibitem{dass} RNA Oligomerisation without Added Catalyst from 2',3'-Cyclic
+Nucleotides by Drying at Air--Water Interfaces. \emph{ChemSystemsChem} (2023).
+\url{https://doi.org/10.1002/syst.202200026}.
+\bibitem{cyclic} High-Yield Prebiotic Polymerization of 2',3'-Cyclic Nucleotides
+under Wet--Dry Cycling. \emph{ACS Central Science} (2025).
+\url{https://doi.org/10.1021/acscentsci.5c00488}.
+\bibitem{walton} T. Walton and J. W. Szostak. A Kinetic Model of Nonenzymatic
+RNA Polymerization by Cytidine-5'-phosphoro-2-aminoimidazolide.
+\emph{Biochemistry} 56 (2017).
+\url{https://doi.org/10.1021/acs.biochem.7b00792}.
+\bibitem{activation} Potentially Prebiotic Activation Chemistry Compatible
+with Nonenzymatic RNA Copying (2020).
+\url{https://pmc.ncbi.nlm.nih.gov/articles/PMC9594304/}.
+\end{thebibliography}
+\end{document}
