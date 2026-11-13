@@ -5,6 +5,7 @@ from periodictable import formula
 from scipy.integrate import cumulative_trapezoid
 from src.common.phys_constants import kb
 from src.common.units import Q_, get_magnitude
+from src.parallelization.array_backend import xp
 from src.exo_chem.easy_chem_driver import run_easy_chem_full_profile
 from src.utilities.logging_module import log
 from src.atmosphere_solver.atmosph_data import AtmLayerDyn
@@ -29,24 +30,75 @@ class PressureDensitySolveResult:
     max_log_pressure_delta: float
 
 #
+#   hydrostatic main driver
+#
+
+def hydrostatic_driver(
+        solver,
+        *,
+        state,
+        atmosph_mass,
+        planet_radius,
+        initialize=False,
+        initialization_method=None,
+        equilibrium_update=None
+):
+    """Dispatch initialization or a fixed-composition hydrostatic solve."""
+    if initialize and initialization_method == "easychem":
+        if equilibrium_update is None:
+            log.error("EasyChem initialization requires equilibrium_update")
+        return solver.solve_scf(
+            altitude=state["altitude"],
+            temperature=state["temperature"],
+            gravity=state["gravity"],
+            mole_frac=state["mole_frac"],
+            atmosph_mass=atmosph_mass,
+            planet_radius=planet_radius,
+            equilibrium_update=equilibrium_update
+        )
+    # Profile initialization, prescribed initialization, or later evolution:
+    # composition is supplied and remains fixed during this solve.
+    return solver.solve_single_iter(
+        altitude=state["altitude"],
+        temperature=state["temperature"],
+        gravity=state["gravity"],
+        mole_frac=state["mole_frac"],
+        atmosph_mass=atmosph_mass,
+        planet_radius=planet_radius
+    )
+
+#
 #   set solver
 #
 
-def set_hydro_solver(atmosphere_data, planet_data, units, **solver_kwargs):
+def set_hydro_solver(atmosphere_data, units, **solver_kwargs):
     hydrostatic_data = atmosphere_data.get("hydrostatic_solver", {}) or {}
     solver_type = hydrostatic_data.get("type", "standard")
     settings_data = hydrostatic_data.get("settings", {}) or {}
     #  set up settings
     settings = PressureDensitySolverSettings(
-        max_iter=int(settings_data.get("max_iter", 50)),
+        max_iter=int(
+            settings_data["max_iter"]
+            if settings_data.get("max_iter") is not None else 50
+        ),
         abs_tol=get_magnitude(
             value=settings_data.get("abs_tol"),
             units=units.get("pressure"),
             default_value=Q_(0.0, units.get("pressure"))
         ),
-        rel_tol=float(settings_data.get("rel_tol", 1.0e-6)),
-        logp_tol=float(settings_data.get("rel_tol", 1.0e-6)),
-        damping=float(settings_data.get("damping", 0.5)),
+        rel_tol=float(
+            settings_data["rel_tol"]
+            if settings_data.get("rel_tol") is not None else 1.0e-6
+        ),
+        logp_tol=float(
+            settings_data["logp_tol"] 
+            if settings_data.get("logp_tol") is not None
+            else 1.0e-6
+        ),
+        damping=float(
+            settings_data["damping"]
+            if settings_data.get("damping") is not None else 0.5
+        ),
         min_pressure=get_magnitude(
             value=settings_data.get("min_pressure"),
             units=units.get("pressure"),
@@ -73,8 +125,6 @@ def set_hydro_solver(atmosphere_data, planet_data, units, **solver_kwargs):
     return solver_class(
         units=units, 
         settings=settings,
-        planet_data=planet_data,
-        atmosphere_data=atmosphere_data,
         **solver_kwargs
     )
 
@@ -96,40 +146,157 @@ class FixedTemperaturePressureDensitySolver(ABC):
         self,
         *,
         units: dict,
-        settings: PressureDensitySolverSettings,
-        atomic_abundances: dict[str, float],
-        chemical_species,
-        planet_data,
-        atmosphere_data
+        settings: PressureDensitySolverSettings
     ):
+        # Internal numerical values use the units defined in this dictionary.
         self._units = units
-        self._kB = kb.to(f"{self._units['energy']} / {self._units['temperature']}").magnitude
         self.settings = settings
-        self.atomic_abundances = atomic_abundances
-        self.chemical_species = chemical_species
-        self.planet_data = planet_data
-        self.atmosphere_data = atmosphere_data
-        # set total atmosphere mass
-        self._atmosph_mass = None
-        self._set_atmosph_mass()
-        # surface pressure
-        self._P_surf = None
-        self._set_surface_pressure()
-        # initial density
-        initial_density = self.atmosphere_data.get("initial_density")
-        self._initial_density = (
-            1.225
-            if initial_density is None
-            else float(initial_density.to(units.get("density")).magnitude)
+        self.chem_species = None
+        self.chem_masses = None
+        self._gas_indices = None
+        # Boltzmann constant: numerical magnitude in internal units.
+        self._kB = float(
+            kb.to(
+                f"{self._units['energy']} / {self._units['temperature']}"
+            ).magnitude
         )
-        initial_scale_height = self.atmosphere_data.get("initial_scale_height")
-        self._initial_scale_height = (
-            8500.0
-            if initial_scale_height is None
-            else float(initial_scale_height.to(units.get('length')).magnitude)
+    # surface pressure
+    def _set_base_pressure(
+            self,
+            *,
+            altitude,
+            temperature,
+            mean_molecular_mass,
+            pressure_shape,
+            atmosph_mass,
+            planet_radius
+    ):
+        """Determine lowest-grid pressure from the atmospheric mass.
+
+        All values use internal units.
+        pressure_shape is dimensionless, with pressure_shape[0] = 1.
+        atmospheric_mass is the mass within the supplied altitude domain.
+        """
+        z = xp.asarray(altitude, dtype=float)
+        temperature = xp.asarray(temperature, dtype=float)
+        mean_mass = xp.asarray(mean_molecular_mass, dtype=float)
+        fz = xp.asarray(pressure_shape, dtype=float)
+        # Density per unit boundary pressure: rho(z) / P_boundary
+        rho_Pb = (
+            fz * mean_mass / (self._kB * temperature)
+        )
+        # Spherical shell mass per unit boundary pressure
+        integrand = (
+            4.0 * xp.pi
+            * (planet_radius + z) ** 2
+            * rho_Pb
+        )
+        mass_Pb = xp.trapezoid(
+            integrand,
+            x=z
+        )
+        return atmosph_mass / float(mass_Pb.item())
+    # set chemical species
+    def set_chem_species(self, species):
+        self.chem_species = tuple(species)
+        # precompute masses
+        masses = [
+            float(
+                Q_(
+                    formula(
+                        entity.symbol
+                        if hasattr(entity, "symbol")
+                        else entity.sequence
+                    ).mass,
+                    "amu"
+                ).to(self._units["mass"]).magnitude
+            )
+            for entity in self.chem_species
+        ]
+        self.chem_masses = xp.asarray(masses, dtype=float)
+        self._gas_indices = xp.asarray(
+            [
+                index
+                for index, entity in enumerate(self.chem_species)
+                if entity.phase == "gas"
+            ],
+            dtype=int
+        )
+    # single iteration hydrostatic solver
+    def solve_single_iter(
+            self,
+            *,
+            altitude,
+            temperature,
+            gravity,
+            mole_frac,
+            atmosph_mass,
+            planet_radius
+    ):
+        """Solve hydrostatics with fixed temperature and composition.
+
+        All numerical inputs use internal units.
+        atmosph_mass is the mass within the supplied altitude domain.
+        """
+        z = xp.asarray(altitude, dtype=float)
+        temperature = xp.asarray(temperature, dtype=float)
+        gravity = xp.asarray(gravity, dtype=float)
+        mole_frac = xp.asarray(mole_frac, dtype=float)
+        # mean gas particle mass
+        mole_gas = mole_frac[:, self._gas_indices]
+        gas_masses = self.chem_masses[self._gas_indices]
+        mean_mass = mole_gas @ gas_masses
+        # integrate pressure
+        # Integrate d(log P)/dz = -mean_mass * g / (kB * T).
+        dlogP_dz = mean_mass * gravity / (self._kB * temperature)
+        DlogP = (
+            0.5 * (dlogP_dz[1:] + dlogP_dz[:-1]) * xp.diff(z)
+        )
+        integral = xp.concatenate(
+            (xp.zeros(1, dtype=float), xp.cumsum(DlogP))
+        )
+        pressure_shape = xp.exp(-integral)
+        # normalized pressure profile
+        # based on total atmospheric mass
+        P_0 = self._set_base_pressure(
+            altitude=z,
+            temperature=temperature,
+            mean_molecular_mass=mean_mass,
+            pressure_shape=pressure_shape,
+            atmosph_mass=atmosph_mass,
+            planet_radius=planet_radius
+        )
+        # set pressure
+        pressure = P_0 * pressure_shape
+        # number density
+        number_density = pressure / (self._kB * temperature)
+        # mass density
+        mass_density = number_density * mean_mass
+        # Preserve complete species ordering; gas concentrations fill gas columns.
+        
+        exit()
+
+
+
+        return AtmLayerDyn(
+            altitude=z,
+            pressure=pressure,
+            temperature=temperature,
+            mean_molecular_mass=mean_mass,
+            gravity=gravity,
+            species_number_density=species_number_density,
+            mass_density=mass_density,
+            species=self.chem_species,
+            mole_frac=mole_frac
         )
     # solve hydrostatic equations
-    def solve(self, config: AtmLayerDyn) -> PressureDensitySolveResult:
+    def solve_scf(self, config: AtmLayerDyn) -> PressureDensitySolveResult:
+        """Solve hydrostatics at fixed temperature and species fractions.
+
+        All inputs are numerical magnitudes in internal units.
+        species_masses maps species names to particle masses.
+        The pressure boundary at the lowest layer is self._P_surf.
+        """
         z, temperature, pressure, gravity = self._unpack_config(config)
         log_pressure = np.log(np.maximum(pressure, self.settings.min_pressure))
         # convergence
@@ -191,49 +358,6 @@ class FixedTemperaturePressureDensitySolver(ABC):
             max_abs_pressure_delta=metrics["max_abs"],
             max_rel_pressure_delta=metrics["max_rel"],
             max_log_pressure_delta=metrics["max_dlogp"],
-        )
-    # atmosph. mass
-    def _set_atmosph_mass(self):
-        atmosph_mass_frac = float(self.atmosphere_data.get("atmosphere_mass_fraction"))
-        self._atmosph_mass = get_magnitude(
-            value=atmosph_mass_frac * self.planet_data.planet_mass,
-            units=self._units.get("mass"),
-            default_value=None
-        )
-    # surface pressure
-    def _set_surface_pressure(self):
-        g0 = get_magnitude(
-            value=self.planet_data.surface_gravity,
-            units=self._units.get("gravity"),
-            default_value=None
-        )
-        R0 = get_magnitude(
-            value=self.planet_data.planet_radius,
-            units=self._units.get("length"),
-            default_value=None
-        )
-        self._P_surf = g0 * self._atmosph_mass / (4. * np.pi * R0 ** 2)
-        log.info(f"\t surface pressure: {Q_(self._P_surf, self._units.get('pressure'))}")
-    # initialization
-    def initialize(self, altitude, temperature, gravity) -> AtmLayerDyn:
-        # initialize density profile
-        density = self._initial_density_profile(altitude)
-        # set pressure
-        pressure = self._solve_hydrostatic_pressure(
-            z=altitude,
-            temperature=temperature,
-            gravity=gravity,
-            density=density
-        )
-        pressure = np.maximum(
-            pressure,
-            self.settings.min_pressure
-        )
-        return self._final_layers(
-            z=altitude,
-            temperature=temperature,
-            pressure=pressure,
-            gravity=gravity
         )
     # set initial density
     def _initial_density_profile(self, z):
@@ -308,6 +432,12 @@ class FixedTemperaturePressureDensitySolver(ABC):
         )
     
     def _fixed_point_pressure(self, *, z, temperature, gravity, pressure):
+        # Numerical arrays on the selected NumPy/CuPy backend.
+        z = xp.asarray(z, dtype=float)
+        temperature = xp.asarray(temperature, dtype=float)
+        gravity = xp.asarray(gravity, dtype=float)
+        pressure=xp.asarray(pressure, dtype=float)
+        # EasyChem needs CPU arrays with units attached.
         chem_data = run_easy_chem_full_profile(
             pressure=Q_(pressure, self.pressure_unit),
             temperature=Q_(temperature, self.temperature_unit),
@@ -580,7 +710,8 @@ class AndersonPressureDensitySolver(FixedTemperaturePressureDensitySolver):
         temperature = np.asarray(config.temperature, dtype=float)
         pressure = np.asarray(config.pressure, dtype=float)
         gravity = np.asarray(config.gravity, dtype=float)
-            
+        print("BUBU")
+        exit()
         # initialize
         converged = False
         pressure = np.maximum(pressure, self._min_pressure.to(self.pressure_unit).magnitude)
