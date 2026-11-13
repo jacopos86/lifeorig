@@ -15,6 +15,7 @@ class ChemEnvInput:
     pressure: Q_ | None = None
     temperature: Q_ | None = None
     reaction_source_files: list | None = None
+    initial_chemistry: dict | None = None
 
 #
 #   chemical environment data results
