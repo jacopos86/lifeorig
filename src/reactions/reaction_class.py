@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from matplotlib import axis
 import numpy as np
 from periodictable.density import number_density
 from src.parallelization.array_backend import xp
