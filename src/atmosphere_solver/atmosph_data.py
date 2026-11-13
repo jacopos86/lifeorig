@@ -32,6 +32,29 @@ class AtmDynResult:
     layers: AtmLayerDyn
 
 #
+#   IR opacity settings
+#
+
+@dataclass
+class IROpacitySettings:
+    temperature_grid: object
+    pressure_grid: object
+    broadening: dict
+    spectroscopy: dict
+    cache_dir: str
+    absorbers: tuple[str, ...]
+    @classmethod
+    def from_input(cls, data):
+        return cls(
+            temperature_grid=Q_(data["temperature_grid_K"], "K"),
+            pressure_grid=Q_(data["pressure_grid_Pa"], "Pa"),
+            broadening=dict(data["broadening"]),
+            spectroscopy=dict(data["spectroscopy"]),
+            cache_dir=data["cache_dir"],
+            absorbers=tuple(data["absorbers"])
+        )
+
+#
 #   Atmospheric surface (z=0) state
 #
 
