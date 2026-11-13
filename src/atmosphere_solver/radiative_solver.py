@@ -4,6 +4,10 @@ import os
 from src.common.units import Q_
 from src.atmosphere_solver.atmosph_data import AtmLayerDyn
 from src.utilities.plot_stellar_spectrum import plot_stellar_B_lambda
+from src.atmosphere_solver.IR_absorption_coeff import (
+    HITRAN_SPECIES,
+    get_IR_cross_section_table
+)
 
 #
 #   radiative solver
@@ -91,3 +95,49 @@ class RadiativeSolver:
             absorption_coefficient=absorption_coefficient,
         )
         return optical_depth
+    # prepare opacity tables
+    def prepare_opacity_tables(
+            self,
+            species,
+            *,
+            temperature_grid,
+            pressure_grid,
+            broadening,
+            spectroscopy,
+            cache_dir,
+            absorbers=None
+    ):
+        """Load or build enabled IR tables in atmospheric species order."""
+        self.chem_species = tuple(species)
+        self.IR_temperature_grid = temperature_grid
+        self.IR_pressure_grid = pressure_grid
+        self.IR_cross_section_tables = {}
+        enabled = (
+            set(HITRAN_SPECIES)
+            if absorbers is None
+            else set(absorbers)
+        )
+        # run over species
+        for index, entity in enumerate(self.chem_species):
+            if entity.phase != "gas" or entity.state != "ground":
+                continue
+            name = (
+                entity.symbol
+                if hasattr(entity, "symbol")
+                else entity.sequence
+            )
+            print(name)
+            # Missing entries represent omitted line absorption.
+            if name not in HITRAN_SPECIES or name not in enabled:
+                continue
+            self.IR_cross_section_tables[index] = (
+                get_IR_cross_section_table(
+                    species=name,
+                    temperature_grid=temperature_grid,
+                    pressure_grid=pressure_grid,
+                    wavelength_grid=self.IR_wavelength_grid,
+                    broadening=broadening,
+                    spectroscopy=spectroscopy,
+                    cache_dir=cache_dir
+                )
+            )
