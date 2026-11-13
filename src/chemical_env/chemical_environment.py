@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from src.utilities.logging_module import log
 from src.atmosphere_solver.equil_atm_struct import LayeredEquilibriumAtmosphSolver
 from src.atmosphere_solver.non_eq_atm_struct import NonEquilLayeredAtmosphSolver
