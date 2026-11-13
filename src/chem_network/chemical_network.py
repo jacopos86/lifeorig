@@ -111,6 +111,11 @@ class ReactionNetwork:
             collider_set=collider_set
         )
         self.reaction_list.append(reaction)
+    def find_species(self, name):
+        index = self.species_to_index.get(name)
+        if index is None:
+            return None, None
+        return self.dyn_species[index], index
     @property
     def num_reactions(self):
         return len(self.reaction_list)
