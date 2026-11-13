@@ -119,6 +119,7 @@ class PlanetInputBuilder:
             ),
             "atmosphere_mass_fraction": atmosphere_data.get("atmosphere_mass_fraction"),
             "hydrostatic_solver": self._build_hydrostatic_solver_params(atmosphere_data),
+            "opacity_tables": atmosphere_data.get("opacity_tables")
         }
     # build hydrostatic solver data
     def _build_hydrostatic_solver_params(self, atmosphere_data: dict) -> dict | None:
