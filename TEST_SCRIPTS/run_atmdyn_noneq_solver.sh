@@ -53,6 +53,28 @@ cat > "$INPUT_JSON" <<EOF
       "atmosphere_mass_fraction": 8.6e-7,
       "max_iter_loop": 50, "rel_tol": 1e-6,
       "abs_tol": {"value": 0.0, "units": "Pa"}, "damping_loop": 1.0,
+      "hydrostatic_solver": {
+        "type": "anderson",
+        "settings": {
+          "max_iter": 50,
+          "rel_tol": 1e-6,
+          "damping": 0.5,
+          "anderson_depth": 5
+        }
+      },
+      "opacity_tables": {
+        "IR": {
+          "temperature_grid_K": [150.0, 175.0, 200.0, 225.0, 250.0, 275.0, 300.0, 325.0, 350.0, 375.0, 400.0],
+          "pressure_grid_Pa": [1e-05, 1.77827941004e-05, 3.16227766017e-05, 5.6234132519e-05, 0.0001, 0.000177827941004, 0.000316227766017, 0.00056234132519, 0.001, 0.00177827941004, 0.00316227766017, 0.0056234132519, 0.01, 0.0177827941004, 0.0316227766017, 0.056234132519, 0.1, 0.177827941004, 0.316227766017, 0.56234132519, 1.0, 1.77827941004, 3.16227766017, 5.6234132519, 10.0, 17.7827941004, 31.6227766017, 56.234132519, 100.0, 177.827941004, 316.227766017, 562.34132519, 1000.0, 1778.27941004, 3162.27766017, 5623.4132519, 10000.0, 17782.7941004, 31622.7766017, 56234.132519, 100000.0],
+          "broadening": {"air": 1.0},
+          "spectroscopy": {
+            "wavenumber_step_cm1": 0.1,
+            "wing_cm1": 25.0
+          },
+          "cache_dir": "opacity_data/IR",
+          "absorbers": ["CO2"]
+        }
+      },
       "radiative_solver": {
         "type": "two_stream",
         "settings": {"max_iter": 100, "abs_tol": 1e-3, "damping": 0.5}
@@ -60,6 +82,10 @@ cat > "$INPUT_JSON" <<EOF
     },
     "exo_chemistry": {
       "mode": "layered_disequilibrium",
+      "initial_chemistry": {
+        "method": "profile",
+        "file": "initial_conditions/earth/archean.json"
+      },
       "reaction_files": [
         "ATMOSPHERIC/VPL_ATMOS/PHOTOCHEM/INPUTFILES/TEMPLATES/Archean+haze/reactions.rx",
         "ATMOSPHERIC/CRAHCN_O/crahcn_o_pearce2020.txt",
