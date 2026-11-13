@@ -56,6 +56,7 @@ def planetary_solver_driver(input_params):
         pressure=input_params.local_env_data.get("pressure"),
         temperature=input_params.local_env_data.get("temperature"),
         reaction_source_files=chem.get("reaction_files"),
+        initial_chemistry=chem.get("initial_chemistry")
     )
     chem_system = None
     if mode == "layered_disequilibrium":
